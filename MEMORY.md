@@ -148,6 +148,31 @@ or coin logic exists in this repo. Revisit this section when asked to build it.
   Edge Function response returns the updated balance so the frontend updates locally
   instead of a separate fetch. The passive-earn tick (+8 coins/30s) doubles as the
   periodic balance sync — no extra polling needed.
+- **Rewarded video ad — reward on completion, not a fixed timer**: grant 30 coins only
+  on the ad SDK's own "completed" event; ad length is whatever the served ad's real
+  duration is (network-decided), not a fixed 30s wait. Close/skip early = no reward.
+  Never trust a client-side JS completion event alone (spoofable) — prefer ad networks
+  with server-side postback/verification (SSV). Google AdSense (self-serve) has no
+  rewarded-video unit for websites (AdMob/mobile-only product) — for web, evaluate
+  AdGate Media, OfferToro, AdGem, Notik, Revlum, or Adsterra's rewarded video instead.
+- **Ad-blocker check + completion verification (proposed flow)**: planned networks are
+  **Adsterra and/or Monetag** for rewarded video. On "Watch Ad" click: first detect via
+  JS whether the ad script actually loaded (adblock check — SDK object on `window`
+  after a timeout, or the network's own built-in detection API); if blocked, show a
+  custom modal asking to disable the ad-blocker instead of loading the ad. Only trigger
+  the ad if not blocked. For completion: both networks' rewarded formats expose a
+  function/Promise that resolves only on genuine full completion (not on early
+  close/skip) — credit coins only from that resolution, never a generic "closed" event.
+  This is still client-side JS (not fully tamper-proof) — prefer server-side postback
+  (S2S) if the network offers it even for small publishers; otherwise the existing
+  90-coins/minute cap bounds abuse impact, and since coins have no real-money cashout,
+  perfect fraud-proofing is lower priority than a real cashout site — acceptable for v1.
+- **Idea (not yet implemented): earn-while-you-wait during AI generation.** While a
+  server-side generation job (image/video model) is processing, optionally suggest a
+  rewarded-video popup so the user can earn coins during the wait. The generation job
+  must always run independently in the background regardless of ad-watching — never
+  gate the result on watching an ad. Only show the prompt when expected wait time is
+  long enough to matter (per-model typical duration).
 
 ## Design Updates (2026-07-03)
 
