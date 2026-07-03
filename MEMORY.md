@@ -173,6 +173,22 @@ or coin logic exists in this repo. Revisit this section when asked to build it.
   must always run independently in the background regardless of ad-watching — never
   gate the result on watching an ad. Only show the prompt when expected wait time is
   long enough to matter (per-model typical duration).
+- **Supabase access status**: assistant confirmed it CAN control Supabase (schema, RLS,
+  edge functions, auth) once given real access (token/API keys/CLI login) — no MCP tool
+  or stored credentials exist yet. User said "ha vo access me de dunga" (will provide
+  access) — **promised but not yet given** as of last check. Verify before assuming.
+- **Manual new-tool-page process + how identity/coins tie to a request**: (1) insert a
+  row in Supabase `models` table (id/name/cost/type); (2) mirror same id+cost in static
+  JS; (3) build a new HTML tool page (same pattern as `admin/generator.html`); (4) gate
+  it behind Supabase Auth login; (5) on Generate, client sends only `model_id` + input
+  to an Edge Function — never a user_id, never a price. **Identity mechanism**: user_id
+  is never passed as a parameter (spoofable) — Supabase Auth issues a JWT on login, the
+  client attaches it automatically to Edge Function calls, and the Edge Function
+  verifies the JWT server-side to derive the real trusted user_id. All coin
+  deduction/crediting ties to that verified identity only. (6) Edge Function looks up
+  real cost by `model_id`, checks balance, atomically deducts if sufficient, calls the
+  AI provider (API key stays server-side), returns result + updated balance. (7) Add
+  the tool's card/link to the homepage/nav.
 
 ## Design Updates (2026-07-03)
 
