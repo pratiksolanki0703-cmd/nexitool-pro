@@ -20,15 +20,15 @@
 }
 
 .upload-box:hover, .upload-box.dragover {
-    border-color: var(--accent, var(--brand-primary));
-    background: color-mix(in srgb, var(--accent, var(--brand-primary)) 5%, transparent);
+    border-color: var(--accent, var(--primary-cyan));
+    background: color-mix(in srgb, var(--accent, var(--primary-cyan)) 5%, transparent);
 }
 
 .upload-icon {
     width: 64px;
     height: 64px;
     margin: 0 auto 1.5rem;
-    color: var(--accent, var(--brand-primary));
+    color: var(--accent, var(--primary-cyan));
     opacity: 0.8;
 }
 
@@ -104,7 +104,7 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.75rem 2rem;
-    background: var(--accent, var(--brand-primary));
+    background: var(--accent, var(--primary-cyan));
     color: white;
     border-radius: 0.75rem;
     font-weight: 600;

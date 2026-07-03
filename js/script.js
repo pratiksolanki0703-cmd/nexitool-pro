@@ -1,39 +1,18 @@
 // UI Logic for Static Site
+//
+// IMPORTANT: All internal pages currently use explicit .html filenames
+// (e.g. /tools/image-tools/bulk-image-compressor.html), NOT pretty/clean URLs.
+// This site has no CNAME/custom domain wired up yet, so GitHub Pages serves it
+// from a repo subpath (e.g. username.github.io/nexitool-pro/) rather than the
+// domain root — absolute paths like "/components/header.html" would 404 there.
+// So every asset path below is resolved RELATIVE to the current page using a
+// "../" prefix computed from how deep the current .html file sits.
 const pathParts = window.location.pathname.split('/').filter(p => p);
 
-// Calculate depth - how many levels deep we are
-let depth = 0;
-if (pathParts.length > 0) {
-    const lastPart = pathParts[pathParts.length - 1];
-
-    // If path has .html, count it as one level
-    if (lastPart.includes('.html')) {
-        depth = pathParts.length - 1;
-    }
-    // If path is /tools/category/tool (3 parts, no extension - pretty URL)
-    else if (pathParts[0] === 'tools' && pathParts.length === 3) {
-        depth = 2;
-    }
-    // If path is /pages/name or /blog/name (pretty URL)
-    else if ((pathParts[0] === 'pages' || pathParts[0] === 'blog') && pathParts.length === 2) {
-        depth = 1;
-    }
-    // Default calculation
-    else if (pathParts.length > 0 && !lastPart.includes('.')) {
-        depth = pathParts.length;
-    } else {
-        depth = pathParts.length - 1;
-    }
-}
-
+// Last segment is always a .html file, so depth = everything before it.
+const depth = Math.max(pathParts.length - 1, 0);
 const prefix = depth > 0 ? '../'.repeat(depth) : '';
 const isSubfolder = depth > 0;
-
-// Debug: Log current location and calculated depth
-console.log('📍 Current URL:', window.location.pathname);
-console.log('📊 Path parts:', pathParts);
-console.log('📏 Depth calculated:', depth);
-console.log('🔗 Prefix for assets:', prefix);
 
 // Theme Management
 let themeToggle;
@@ -43,15 +22,10 @@ async function loadComponents() {
     const header = document.querySelector('header');
     const footer = document.querySelector('footer');
 
-    // Use absolute paths from root for maximum compatibility
-    // This ensures components load correctly regardless of pretty URLs or depth
-    const headerPath = '/components/header.html';
-    const footerPath = '/components/footer.html';
-
-    // Debug log
-    console.log('🔄 Loading components...');
-    console.log('📂 Header path:', headerPath);
-    console.log('📂 Footer path:', footerPath);
+    // Relative to current page depth — works whether the site is served from
+    // a domain root or a GitHub Pages project subpath.
+    const headerPath = `${prefix}components/header.html`;
+    const footerPath = `${prefix}components/footer.html`;
 
     if (header) {
         // Check for local file testing (CORS issue)

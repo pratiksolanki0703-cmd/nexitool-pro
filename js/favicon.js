@@ -16,26 +16,10 @@
         // we need to handle subfolders
         let finalUrl = FAVICON_URL;
         if (!FAVICON_URL.startsWith('data:') && !FAVICON_URL.startsWith('http')) {
+            // All pages currently use explicit .html filenames, so depth is simply
+            // everything before the last path segment (kept in sync with js/script.js).
             const pathParts = window.location.pathname.split('/').filter(p => p);
-            // Improved depth calculation to handle clean URLs and  extensions
-            let depth = 0;
-            if (pathParts.length > 0) {
-                const lastPart = pathParts[pathParts.length - 1];
-                if (lastPart.includes('.')) {
-                    // It's a file with extension
-                    depth = pathParts.length - 1;
-                } else {
-                    // It's a clean URL or a directory
-                    // Check if it's a known tool path structure (e.g., /tools/category/tool)
-                    if (pathParts[0] === 'tools' && pathParts.length === 3) {
-                        depth = 2; // tools/category/tool -> 2 levels deep
-                    } else if (pathParts[0] === 'pages' || pathParts[0] === 'blog') {
-                        depth = 1; // pages/page or blog/post -> 1 level deep
-                    } else {
-                        depth = pathParts.length;
-                    }
-                }
-            }
+            const depth = Math.max(pathParts.length - 1, 0);
             finalUrl = '../'.repeat(depth) + FAVICON_URL;
         }
         

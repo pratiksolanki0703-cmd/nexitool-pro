@@ -17,7 +17,7 @@ const TOOLS = [
         description: 'Compress multiple images at once, right in your browser. Reduce file size while keeping quality.',
         category: 'Image',
         color: 'image',
-        icon: 'image-down',
+        icon: 'shrink',
         path: 'tools/image-tools/bulk-image-compressor.html',
         isTrending: true
     },
@@ -27,7 +27,7 @@ const TOOLS = [
         description: 'Rename many images at once using a custom pattern, prefix, suffix or numbering.',
         category: 'Image',
         color: 'image',
-        icon: 'file-edit',
+        icon: 'tag',
         path: 'tools/image-tools/bulk-image-rename.html',
         isTrending: false
     },
@@ -37,7 +37,7 @@ const TOOLS = [
         description: 'Shrink PDF file size in your browser by re-compressing embedded images and stripping extra metadata.',
         category: 'PDF',
         color: 'pdf',
-        icon: 'file-down',
+        icon: 'file-archive',
         path: 'tools/pdf-tools/pdf-compressor.html',
         isTrending: true
     }

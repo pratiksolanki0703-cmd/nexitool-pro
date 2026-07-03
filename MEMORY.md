@@ -15,6 +15,25 @@
 - ✅ 404 errors fixed + header/footer loading issue resolved (commit 37b3f5d)
 - ✅ Mobile responsive design
 - ✅ SEO setup (sitemap.xml, robots.txt, favicon)
+- ✅ Header/footer real root-cause fix (2026-07-03): site has NO CNAME, so it's served
+  from a GitHub Pages *project subpath*, not the domain root. Absolute paths like
+  `/components/header.html` 404 there. Fixed `js/script.js` to use relative
+  `../`-prefixed paths computed from folder depth. `js/favicon.js` had its own
+  separate, outdated pretty-URL-guessing depth logic — reconciled to the same simple
+  `pathParts.length - 1` calculation.
+- ✅ All internal links use explicit `.html` extensions for now (GitHub Pages testing).
+  This is TEMPORARY — once hosted on Netlify, pretty URLs will be handled via
+  `_redirects`, and `.html` will be dropped again.
+- ✅ Original content pass (2026-07-03): rewrote ALL user-facing copy, SEO text,
+  schema.org descriptions/FAQs, and icon choices across `index.html` and all 3 tool
+  pages so nothing reads as copied from text2tool.in. Also diversified tool icons in
+  `js/tools-data.js` (was `image-down`/`file-edit`/`file-down`, now
+  `shrink`/`tag`/`file-archive`). Replaced emoji feature-grid icons with Lucide icons
+  using the site's own neon color palette. Fixed `tools/tool-style.css`'s dead
+  `var(--accent, var(--brand-primary))` fallback (that CSS var didn't exist in the v3
+  palette) to `var(--accent, var(--primary-cyan))`. Removed leftover `style.css.backup`.
+  **IMPORTANT STANDING RULE**: do not copy any wording, icon choices, or structure
+  from text2tool.in going forward — always write original copy.
 
 ## Key Files & Structure
 ```
@@ -99,15 +118,16 @@ Accents: Purple, Pink, Orange, Yellow
 No soft/muted colors - everything is bold
 ```
 
-### Header/Footer Fix
-- ✅ Changed to absolute paths `/components/header.html`
-- ✅ Better depth calculation for pretty URLs
-- ✅ Detailed console logging for debugging
-- ✅ Will work correctly on GitHub Pages
+### Header/Footer Fix (superseded — see Current State above for the real fix)
+The `/components/header.html` absolute-path approach mentioned in an earlier version
+of this file was WRONG and caused the header/footer to break sitewide (no CNAME means
+the site lives at a GitHub Pages subpath, not the domain root). The actual fix uses
+relative `../`-prefixed paths in `js/script.js`.
 
 ## Recent Commits
 1. `37b3f5d` - Fix 404s and header/footer load failure on GitHub Pages
 2. `e926b97` - Phase 1: NexiTool.pro static site (Image + PDF tools)
+(See `git log` for commits after this file was last updated.)
 
 ## Development Notes
 - No build system (pure static HTML/CSS/JS)
