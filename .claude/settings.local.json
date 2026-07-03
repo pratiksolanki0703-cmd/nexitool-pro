@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m 'Final Design v3: Completely unique bold neon aesthetic *)"
+    ]
+  }
+}
