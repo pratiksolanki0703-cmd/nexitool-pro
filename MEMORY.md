@@ -103,9 +103,56 @@ live site before marking anything done.
 - [ ] Blog system implementation
 - [ ] User feedback/rating system
 - [ ] Internationalization (i18n) for Hindi/other languages
-- [ ] **Coin/credit economy (planned, NOT started — see below)**
+- [ ] **Coin/credit economy — Phase 1 infrastructure LIVE (see below); Phase 2 (real AI
+      tool + real ad network) still pending**
 
-## Planned: Coin/Credit Economy (2026-07-03, planning only, not implemented)
+## Coin/Credit Economy (2026-07-03)
+
+### Phase 1 status: IMPLEMENTED and live as of 2026-07-03
+Supabase CLI is logged in and linked to project `wznrwewwwaqhxlhvfqol` ("Nexitool.pro",
+region ap-northeast-1). Migration `supabase/migrations/20260703200000_coin_economy_schema.sql`
+is pushed and confirmed in sync (`supabase migration list`). Live now:
+- Tables: `profiles`, `models`, `credit_ledger`, `coupons`, `coupon_redemptions` — all
+  RLS-enabled, no client INSERT/UPDATE/DELETE policies anywhere (mutations only via RPC).
+- Trigger `handle_new_user` auto-creates a `profiles` row (balance 0) on signup — verified
+  via a live throwaway-user smoke test (created, profile appeared, deleted, cascaded).
+- RPC functions (all `SECURITY DEFINER`, identity from `auth.uid()` only, never a client
+  param): `earn_ad_tick()` (+8/30s, capped), `earn_video_ad()` (+30, capped), `spend_credit(p_model_id)`,
+  `redeem_coupon(p_code)`. The 90-coins/minute cap applies to `earn_ad`+`earn_video`
+  combined only, NOT `earn_coupon` (coupons are manual one-time grants, not farmable).
+  Verified live via REST: anon calls correctly rejected ("not authenticated" / permission
+  denied on `profiles`/`coupons`), `models` publicly selectable, `coupons` has zero direct
+  read access even for the owning user (RPC-only, to stop code-scraping).
+- Frontend files (CDN `@supabase/supabase-js@2`, no bundler, matches repo convention):
+  `js/supabase-client.js` (holds the public `SUPABASE_URL`/anon key, sets
+  `window.supabaseClient`), `js/auth-widget.js` (`initAuthWidget()`, renders into
+  `#authWidget` in `components/header.html`'s `.header-actions` — email/password
+  sign-in+signup modal, Google button present but disabled until real OAuth creds exist,
+  coin-balance pill, sign-out; caches balance in a module var, updates only from each
+  RPC's `balance` field afterward, one hydration fetch on session-establish), `js/earn-ticker.js`
+  (30s passive-earn loop, gated on signed-in + tab-visible), `js/rewarded-ads.js`
+  (Adsterra/Monetag scaffold — adblock bait-element detection → custom modal if blocked;
+  `AD_NETWORK_READY = false` until a real zone id exists, so the header's "Watch Ad"
+  button ships disabled/"Coming soon"; the actual SDK call + `earn_video_ad()` wiring is
+  a TODO comment in the file, ready to fill in once Adsterra/Monetag credentials exist).
+  Wired into all 5 pages that load `ads-manager.js`: `index.html`, the 3 tool pages, and
+  `admin/generator.html`'s template literal (so every future generated tool page inherits
+  this automatically).
+- `.gitignore` added at repo root (didn't exist before) — ignores `supabase/.temp/`,
+  `supabase/.branches/`, `.env*`. `supabase/config.toml` documents the Google OAuth
+  follow-up (needs real Google Cloud Console client_id/secret — not enabled yet; toggling
+  auth providers happens in the Supabase Dashboard since this project runs hosted, not
+  local Docker).
+- Explicitly NOT done this phase (still open): no real AI provider Edge Function, no real
+  Adsterra/Monetag account/zone id, Google OAuth not enabled, no coupon-redemption UI, no
+  admin coupon-management UI (use Supabase Table Editor manually for now), no models rows
+  inserted yet (no consumer AI tool exists to price), local Docker Supabase stack untouched.
+- The Supabase personal access token used to log in the CLI this session was provided
+  directly by the user in-chat and is **not stored anywhere** (not in this file, not in
+  any config, not in agent memory) — the user said they'll revoke it themselves. A future
+  session needs a fresh `supabase login` to regain CLI control.
+
+### Original planning notes (2026-07-03, pre-implementation — kept for the "why")
 NexiTool.pro is **not** 100% browser-side (text2tool.in, our sister site, is 100%
 browser-side + no login — don't claim that for NexiTool). NexiTool mixes:
 - **Browser-side tools** (image compressor, image rename, PDF compressor, etc.) —
@@ -125,8 +172,8 @@ Model (no real-money payment on this site):
   demand later, a **separate new website** will be built for that, keeping NexiTool
   purely ad/coin-funded.
 
-Status: brain-dump from the user, explicitly not to be coded yet. No Supabase, auth,
-or coin logic exists in this repo. Revisit this section when asked to build it.
+Status: this was originally a brain-dump not to be coded yet — superseded by the
+"Phase 1 status: IMPLEMENTED" section above, which reflects what's actually live now.
 
 ### Per-tool/per-model pricing + coupon architecture (discussed 2026-07-03, planning only)
 - **Model/price**: hybrid, not a Supabase fetch on every page load. Model `id`/`name`/
@@ -173,10 +220,11 @@ or coin logic exists in this repo. Revisit this section when asked to build it.
   must always run independently in the background regardless of ad-watching — never
   gate the result on watching an ad. Only show the prompt when expected wait time is
   long enough to matter (per-model typical duration).
-- **Supabase access status**: assistant confirmed it CAN control Supabase (schema, RLS,
-  edge functions, auth) once given real access (token/API keys/CLI login) — no MCP tool
-  or stored credentials exist yet. User said "ha vo access me de dunga" (will provide
-  access) — **promised but not yet given** as of last check. Verify before assuming.
+- **Supabase access status**: access was given (user pasted a personal access token
+  in-chat on 2026-07-03) and used for one `supabase login` session — see "Phase 1 status"
+  above for what was built with it. The token was never persisted and the user intends to
+  revoke it themselves, so a future session starts with NO Supabase CLI access again by
+  default — don't assume it's still connected without checking (`supabase projects list`).
 - **Manual new-tool-page process + how identity/coins tie to a request**: (1) insert a
   row in Supabase `models` table (id/name/cost/type); (2) mirror same id+cost in static
   JS; (3) build a new HTML tool page (same pattern as `admin/generator.html`); (4) gate

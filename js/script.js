@@ -65,6 +65,7 @@ async function loadComponents() {
             initThemeToggle();
             initMobileMenu();
             if (window.lucide) lucide.createIcons();
+            if (window.initAuthWidget) window.initAuthWidget();
         } catch (e) { 
             console.error("Header load failed", e);
             header.innerHTML = '<div class="container" style="padding: 1rem; color: red;">Error loading header. Check console for details.</div>';
