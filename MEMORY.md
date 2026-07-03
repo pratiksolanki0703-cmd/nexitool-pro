@@ -128,6 +128,27 @@ Model (no real-money payment on this site):
 Status: brain-dump from the user, explicitly not to be coded yet. No Supabase, auth,
 or coin logic exists in this repo. Revisit this section when asked to build it.
 
+### Per-tool/per-model pricing + coupon architecture (discussed 2026-07-03, planning only)
+- **Model/price**: hybrid, not a Supabase fetch on every page load. Model `id`/`name`/
+  `cost` live hardcoded in the static site's JS (instant display, zero request) AND the
+  same `id`+`cost` live in one flat Supabase `models` table covering ALL model types
+  (image, video, text, voice — not split into separate tables per tool). On generate,
+  client sends only `model_id` (never a price); an Edge Function looks up the real cost
+  from Supabase and checks balance before proceeding. Server never trusts a client-sent
+  price. Tradeoff: code and Supabase must both be updated on a price change, or display
+  and actual charge can briefly mismatch (cosmetic risk only, not a security hole).
+- **Coupons**: two tables — `coupons` (code, credit_value, max_redemptions, expires_at,
+  is_active) + `coupon_redemptions` (coupon_id, user_id, redeemed_at, UNIQUE on
+  coupon_id+user_id to block double redemption). Redemption via Edge Function/RPC only.
+  Admin control: use Supabase's own Table Editor manually at first (no custom panel
+  needed yet); build a small internal admin page later, once volume justifies it, and
+  even then route writes through a protected Edge Function, never direct table writes
+  from the admin's browser. Consider bulk coupon generation when that page gets built.
+- **Balance display**: fetch once on login, cache client-side; every earn/spend/redeem
+  Edge Function response returns the updated balance so the frontend updates locally
+  instead of a separate fetch. The passive-earn tick (+8 coins/30s) doubles as the
+  periodic balance sync — no extra polling needed.
+
 ## Design Updates (2026-07-03)
 
 ### Style v3 - Completely Unique & Bold Design
