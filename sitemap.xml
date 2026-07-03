@@ -6,17 +6,17 @@
         <priority>1.0</priority>
     </url>
     <url>
-        <loc>https://nexitool.pro/tools/image-tools/bulk-image-compressor</loc>
+        <loc>https://nexitool.pro/tools/image-tools/bulk-image-compressor.html</loc>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://nexitool.pro/tools/image-tools/bulk-image-rename</loc>
+        <loc>https://nexitool.pro/tools/image-tools/bulk-image-rename.html</loc>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://nexitool.pro/tools/pdf-tools/pdf-compressor</loc>
+        <loc>https://nexitool.pro/tools/pdf-tools/pdf-compressor.html</loc>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>

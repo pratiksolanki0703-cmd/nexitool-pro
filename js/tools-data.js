@@ -18,7 +18,7 @@ const TOOLS = [
         category: 'Image',
         color: 'image',
         icon: 'image-down',
-        path: 'tools/image-tools/bulk-image-compressor',
+        path: 'tools/image-tools/bulk-image-compressor.html',
         isTrending: true
     },
     {
@@ -28,7 +28,7 @@ const TOOLS = [
         category: 'Image',
         color: 'image',
         icon: 'file-edit',
-        path: 'tools/image-tools/bulk-image-rename',
+        path: 'tools/image-tools/bulk-image-rename.html',
         isTrending: false
     },
     {
@@ -38,7 +38,7 @@ const TOOLS = [
         category: 'PDF',
         color: 'pdf',
         icon: 'file-down',
-        path: 'tools/pdf-tools/pdf-compressor',
+        path: 'tools/pdf-tools/pdf-compressor.html',
         isTrending: true
     }
 ];

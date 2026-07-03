@@ -30,8 +30,8 @@ async function loadComponents() {
     const header = document.querySelector('header');
     const footer = document.querySelector('footer');
 
-    const headerPath = `${prefix}components/header`;
-    const footerPath = `${prefix}components/footer`;
+    const headerPath = `${prefix}components/header.html`;
+    const footerPath = `${prefix}components/footer.html`;
 
     if (header) {
         // Check for local file testing (CORS issue)
@@ -57,12 +57,10 @@ async function loadComponents() {
             
             // If in subfolder, fix links
             if (isSubfolder) {
-                data = data.replace(/href="index"/g, `href="${prefix}index"`);
-                data = data.replace(/href="blog\//g, `href="${prefix}blog/`);
-                data = data.replace(/href="sitemap.xml"/g, `href="${prefix}sitemap.xml"`);
+                data = data.replace(/href="index\.html"/g, `href="${prefix}index.html"`);
+                data = data.replace(/href="sitemap\.xml"/g, `href="${prefix}sitemap.xml"`);
                 data = data.replace(/href="tools\//g, `href="${prefix}tools/`);
-                data = data.replace(/href="pages\//g, `href="${prefix}pages/`);
-                data = data.replace(/href="style.css"/g, `href="${prefix}style.css"`);
+                data = data.replace(/href="style\.css"/g, `href="${prefix}style.css"`);
             }
 
             clearTimeout(skeletonTimeout);
@@ -93,12 +91,10 @@ async function loadComponents() {
             
             // If in subfolder, fix links
             if (isSubfolder) {
-                data = data.replace(/href="index"/g, `href="${prefix}index"`);
-                data = data.replace(/href="blog\//g, `href="${prefix}blog/`);
-                data = data.replace(/href="sitemap.xml"/g, `href="${prefix}sitemap.xml"`);
+                data = data.replace(/href="index\.html"/g, `href="${prefix}index.html"`);
+                data = data.replace(/href="sitemap\.xml"/g, `href="${prefix}sitemap.xml"`);
                 data = data.replace(/href="tools\//g, `href="${prefix}tools/`);
-                data = data.replace(/href="pages\//g, `href="${prefix}pages/`);
-                data = data.replace(/href="style.css"/g, `href="${prefix}style.css"`);
+                data = data.replace(/href="style\.css"/g, `href="${prefix}style.css"`);
             }
 
             clearTimeout(skeletonTimeout);
@@ -198,7 +194,7 @@ function renderHome() {
                                     <div class="card-icon">
                                         <i data-lucide="${tool.icon}"></i>
                                     </div>
-                                    ${tool.isTrending && !isTrending ? '<span class="trending-badge">Trending 🔥</span>' : ''}
+                                    ${tool.isTrending && !isTrending ? '<span class="trending-badge">Trending <span class="fire-icon">🔥</span></span>' : ''}
                                 </div>
                                 <div class="card-body">
                                     <h3 class="card-title">${tool.name}</h3>
@@ -212,7 +208,7 @@ function renderHome() {
                     </div>
                     ${hasMore ? `
                         <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
-                            <a href="${prefix}index?cat=${encodeURIComponent(cat.name)}" class="more-link">
+                            <a href="${prefix}index.html?cat=${encodeURIComponent(cat.name)}" class="more-link">
                                 View All ${catTools.length} Tools <i data-lucide="chevron-right" style="width:16px; height:16px;"></i>
                             </a>
                         </div>
@@ -468,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add a "Back to All Categories" link
                 const header = sec.querySelector('.section-header');
                 const backLink = document.createElement('a');
-                backLink.href = 'index';
+backLink.href = 'index.html';
                 backLink.className = 'more-link';
                 backLink.innerHTML = '<i data-lucide="arrow-left" style="width:16px; height:16px;"></i> Back to All';
                 header.appendChild(backLink);

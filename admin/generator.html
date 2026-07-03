@@ -22,6 +22,7 @@
     .row > div { flex: 1; }
     .faq-pair { border: 1px dashed #334155; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
     .faq-pair textarea { min-height: 50px; }
+    .hint { font-size: 11.5px; color: #64748b; margin-top: 4px; }
     button { cursor: pointer; border: none; border-radius: 6px; padding: 8px 14px; font-weight: 700; font-size: 13px; }
     .btn-add { background: #1e293b; color: #93c5fd; border: 1px solid #334155; margin-top: 4px; }
     .btn-generate { background: #2563eb; color: white; width: 100%; padding: 14px; font-size: 15px; margin-top: 8px; }
@@ -30,12 +31,15 @@
     .output-block { margin-bottom: 24px; }
     .output-block h3 { font-size: 14px; margin-bottom: 6px; color: #93c5fd; }
     #faqList { margin-bottom: 10px; }
+    .checkbox-row { display: flex; align-items: center; gap: 6px; margin: 10px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
 </style>
 </head>
 <body>
     <h1>NexiTool Generator</h1>
     <div class="warning">
-        ⚠️ Local-only admin tool — not linked in the site nav, marked <code>noindex</code>, and never uploaded to Netlify.
+        ⚠️ Local-only admin tool — not linked in the site nav, marked <code>noindex</code>, and never uploaded to Netlify/hosting.
         Paste your AI-written tool code + metadata below, click Generate, then save the output as
         <code>tools/&lt;category-folder&gt;/&lt;tool-id&gt;.html</code> and paste the matching entry into <code>js/tools-data.js</code>.
     </div>
@@ -96,19 +100,31 @@
                 <div id="faqList"></div>
                 <button type="button" class="btn-add" onclick="addFaqPair()">+ Add Question</button>
             </fieldset>
+
+            <fieldset>
+                <legend>SEO Content Block (optional — H2 + paragraph + comparison table)</legend>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="addSeoBlock">
+                    <label for="addSeoBlock" style="margin:0;">Add this block to the generated page (skip if not relevant for this tool)</label>
+                </div>
+
+                <label>H2 Heading</label>
+                <input id="seoH2" placeholder="e.g. Why Use Our Bulk Image Compressor Over Others?">
+
+                <label>Paragraph</label>
+                <textarea id="seoPara" style="min-height: 80px;" placeholder="Write 2-4 original sentences here — explain what makes this tool useful, in your own words."></textarea>
+
+                <label>Comparison Table Rows (optional — one row per line, format: Feature | This Tool | Alternatives)</label>
+                <textarea id="comparisonRows" style="min-height: 80px;" placeholder="No File Upload | Yes, 100% Browser | Usually server upload&#10;Free to Use | Yes | Often limited free tier&#10;File Limit | Unlimited | Often 5-10 files max"></textarea>
+                <p class="hint">Leave this box empty to show just the H2 + paragraph without a table.</p>
+            </fieldset>
         </div>
 
         <div>
             <fieldset>
                 <legend>Tool Code — pasted from your AI-generated code</legend>
-                <label>HTML (goes inside &lt;main&gt;, above the FAQ section — your upload box, controls, result UI)</label>
-                <textarea id="toolHtml" class="code" placeholder="<div class=&quot;upload-box&quot; ...>...</div>"></textarea>
-
-                <label>Extra CSS (optional — goes in a &lt;style&gt; block in &lt;head&gt;)</label>
-                <textarea id="toolCss" class="code" style="min-height: 90px;" placeholder=".my-tool-class { ... }"></textarea>
-
-                <label>JavaScript (goes in the inline &lt;script&gt; at the bottom of the page)</label>
-                <textarea id="toolJs" class="code" placeholder="const fileInput = document.getElementById('fileInput');&#10;// ... your tool logic"></textarea>
+                <label>Full tool code (goes inside &lt;main&gt;, above the FAQ section). Paste the whole block — upload box, controls, result UI, and any inline &lt;style&gt;/&lt;script&gt; tags your AI code included. One box, nothing gets split up.</label>
+                <textarea id="toolCode" class="code" style="min-height: 320px;" placeholder="<div class=&quot;upload-box&quot; ...>...</div>&#10;<style>...</style>&#10;<script>...</script>"></textarea>
             </fieldset>
 
             <button class="btn-generate" onclick="generate()">⚡ Generate Tool Page</button>
@@ -159,6 +175,19 @@ function slugToTitle(s) {
     return s.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
+function buildComparisonTable(rowsText) {
+    const rows = rowsText.split('\n').map(l => l.trim()).filter(Boolean)
+        .map(l => l.split('|').map(c => c.trim()));
+    if (!rows.length) return '';
+    const body = rows.map(r => `                    <tr><td>${escapeHtml(r[0] || '')}</td><td>${escapeHtml(r[1] || '')}</td><td>${escapeHtml(r[2] || '')}</td></tr>`).join('\n');
+    return `                <table class="comparison-table">
+                    <thead><tr><th>Feature</th><th>This Tool</th><th>Alternatives</th></tr></thead>
+                    <tbody>
+${body}
+                    </tbody>
+                </table>`;
+}
+
 function generate() {
     const id = currentToolId();
     const name = document.getElementById('toolName').value || slugToTitle(id);
@@ -169,16 +198,19 @@ function generate() {
     const icon = document.getElementById('iconName').value.trim() || 'wrench';
     const isTrending = document.getElementById('isTrending').checked;
     const features = document.getElementById('features').value.split('\n').map(f => f.trim()).filter(Boolean);
-    const toolHtml = document.getElementById('toolHtml').value;
-    const toolCss = document.getElementById('toolCss').value;
-    const toolJs = document.getElementById('toolJs').value;
+    const toolCode = document.getElementById('toolCode').value;
+
+    const addSeoBlock = document.getElementById('addSeoBlock').checked;
+    const seoH2 = document.getElementById('seoH2').value.trim();
+    const seoPara = document.getElementById('seoPara').value.trim();
+    const comparisonRows = document.getElementById('comparisonRows').value;
 
     const faqPairs = Array.from(document.querySelectorAll('.faq-pair')).map(el => ({
         q: el.querySelector('.faq-q').value.trim(),
         a: el.querySelector('.faq-a').value.trim()
     })).filter(f => f.q && f.a);
 
-    const url = `https://nexitool.pro/tools/${categoryFolder}/${id}`;
+    const url = `https://nexitool.pro/tools/${categoryFolder}/${id}.html`;
 
     const faqSchema = faqPairs.map(f => `        {
           "@type": "Question",
@@ -191,6 +223,18 @@ function generate() {
                 <div class="faq-answer">${escapeHtml(f.a)}</div>
             </div>`).join('\n');
 
+    let seoBlockHtml = '';
+    if (addSeoBlock && (seoH2 || seoPara)) {
+        const tableHtml = buildComparisonTable(comparisonRows);
+        seoBlockHtml = `        <section class="seo-extra-block">
+            ${seoH2 ? `<h2>${escapeHtml(seoH2)}</h2>` : ''}
+            ${seoPara ? `<p>${escapeHtml(seoPara)}</p>` : ''}
+${tableHtml}
+        </section>
+
+`;
+    }
+
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -199,6 +243,13 @@ function generate() {
     <title>${escapeHtml(name)}</title>
     <meta name="description" content="${escapeAttr(desc)}">
     <link rel="canonical" href="${url}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="${url}">
+    <meta property="og:title" content="${escapeAttr(name)}">
+    <meta property="og:description" content="${escapeAttr(desc)}">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="${escapeAttr(name)}">
+    <meta property="twitter:description" content="${escapeAttr(desc)}">
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -230,7 +281,7 @@ ${faqSchema}
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexitool.pro/index" },
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexitool.pro/" },
         { "@type": "ListItem", "position": 2, "name": ${JSON.stringify(name)}, "item": "${url}" }
       ]
     }
@@ -243,7 +294,7 @@ ${faqSchema}
     <script src="../../js/favicon.js"><\/script>
     <script src="https://unpkg.com/lucide@latest"><\/script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700&display=swap" rel="stylesheet">
-${toolCss ? `    <style>\n${toolCss}\n    </style>\n` : ''}</head>
+</head>
 <body class="color-${colorSlug}">
     <header></header>
 
@@ -254,9 +305,9 @@ ${toolCss ? `    <style>\n${toolCss}\n    </style>\n` : ''}</head>
             <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px;">${escapeHtml(desc)}</p>
         </div>
 
-${toolHtml}
+${toolCode}
 
-        <section class="faq-section">
+${seoBlockHtml}        <section class="faq-section">
             <h2 class="section-title">Frequently Asked Questions</h2>
 ${faqHtml}
         </section>
@@ -272,9 +323,6 @@ ${faqHtml}
     <script src="../../js/script.js"><\/script>
     <script src="../../js/header-animation.js"><\/script>
     <script src="../../js/ads-manager.js"><\/script>
-    <script>
-${toolJs}
-    <\/script>
 </body>
 </html>
 `;
@@ -286,7 +334,7 @@ ${toolJs}
         category: '${category}',
         color: '${colorSlug}',
         icon: '${icon}',
-        path: 'tools/${categoryFolder}/${id}',
+        path: 'tools/${categoryFolder}/${id}.html',
         isTrending: ${isTrending}
     },`;
 
