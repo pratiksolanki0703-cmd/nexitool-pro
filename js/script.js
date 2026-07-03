@@ -1,26 +1,39 @@
 // UI Logic for Static Site
 const pathParts = window.location.pathname.split('/').filter(p => p);
-// Improved depth calculation to handle clean URLs and  extensions
+
+// Calculate depth - how many levels deep we are
 let depth = 0;
 if (pathParts.length > 0) {
     const lastPart = pathParts[pathParts.length - 1];
-    if (lastPart.includes('.')) {
-        // It's a file with extension
+
+    // If path has .html, count it as one level
+    if (lastPart.includes('.html')) {
         depth = pathParts.length - 1;
+    }
+    // If path is /tools/category/tool (3 parts, no extension - pretty URL)
+    else if (pathParts[0] === 'tools' && pathParts.length === 3) {
+        depth = 2;
+    }
+    // If path is /pages/name or /blog/name (pretty URL)
+    else if ((pathParts[0] === 'pages' || pathParts[0] === 'blog') && pathParts.length === 2) {
+        depth = 1;
+    }
+    // Default calculation
+    else if (pathParts.length > 0 && !lastPart.includes('.')) {
+        depth = pathParts.length;
     } else {
-        // It's a clean URL or a directory
-        // Check if it's a known tool path structure (e.g., /tools/category/tool)
-        if (pathParts[0] === 'tools' && pathParts.length === 3) {
-            depth = 2; // tools/category/tool -> 2 levels deep
-        } else if (pathParts[0] === 'pages' || pathParts[0] === 'blog') {
-            depth = 1; // pages/page or blog/post -> 1 level deep
-        } else {
-            depth = pathParts.length;
-        }
+        depth = pathParts.length - 1;
     }
 }
-const prefix = '../'.repeat(depth);
+
+const prefix = depth > 0 ? '../'.repeat(depth) : '';
 const isSubfolder = depth > 0;
+
+// Debug: Log current location and calculated depth
+console.log('📍 Current URL:', window.location.pathname);
+console.log('📊 Path parts:', pathParts);
+console.log('📏 Depth calculated:', depth);
+console.log('🔗 Prefix for assets:', prefix);
 
 // Theme Management
 let themeToggle;
@@ -30,12 +43,15 @@ async function loadComponents() {
     const header = document.querySelector('header');
     const footer = document.querySelector('footer');
 
-    // Always use .html extension for component paths
-    const headerPath = `${prefix}components/header.html`;
-    const footerPath = `${prefix}components/footer.html`;
+    // Use absolute paths from root for maximum compatibility
+    // This ensures components load correctly regardless of pretty URLs or depth
+    const headerPath = '/components/header.html';
+    const footerPath = '/components/footer.html';
 
-    // Debug log to verify paths
-    console.log('Loading components with prefix:', prefix, '| Header path:', headerPath, '| Footer path:', footerPath);
+    // Debug log
+    console.log('🔄 Loading components...');
+    console.log('📂 Header path:', headerPath);
+    console.log('📂 Footer path:', footerPath);
 
     if (header) {
         // Check for local file testing (CORS issue)
