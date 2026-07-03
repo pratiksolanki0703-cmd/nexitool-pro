@@ -39,14 +39,45 @@
 ```
 
 ## Next Phase Tasks (TODO)
+- [x] Fix header/footer loading issues
+- [x] Create unique custom design (not copied from text2tool.in)
 - [ ] Add more image tools (compress, resize, format conversion)
 - [ ] Add more PDF tools (merge, split, watermark)
 - [ ] Implement ads system (currently stubbed in ads-manager.js)
 - [ ] Add analytics/tracking
 - [ ] Blog system implementation
 - [ ] User feedback/rating system
-- [ ] Dark mode toggle
 - [ ] Internationalization (i18n) for Hindi/other languages
+
+## Design Updates (2026-07-03)
+
+### Style v2 - Original Design
+**Created completely unique custom design system:**
+- ✅ Fresh color palette (not copied from text2tool.in)
+- ✅ Modern card design with gradient accents and unique borders
+- ✅ Custom section separators with animated center dot
+- ✅ Improved typography hierarchy
+- ✅ Smooth transitions and micro-interactions
+- ✅ Original animations (floating ball logo, flicker effects)
+- ✅ Gradient text effects using CSS clip-path
+- ✅ Unique hover effects and visual feedback
+- ✅ Better responsive design system
+- ✅ Original color scheme with warm/cool accent system
+- ✅ FAQs, cards, and all elements redesigned with unique style
+
+**Key differences from text2tool.in:**
+- Custom color palette: `--brand-primary: #58a6ff`, warm/cool accent system
+- Original separator design with animated center dot
+- Different card hover effects (gradient shimmer + shadow)
+- Unique footer gradient background
+- Original typography system using system fonts
+- Custom FAQ styling with gradient backgrounds
+- Unique micro-interactions and animations
+
+### Technical Fixes
+- ✅ Added debug logging in script.js for component loading
+- ✅ Ensured .html extensions used in all paths
+- ✅ Fixed potential pretty URL loading issues
 
 ## Recent Commits
 1. `37b3f5d` - Fix 404s and header/footer load failure on GitHub Pages

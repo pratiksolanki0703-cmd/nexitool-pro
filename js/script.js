@@ -30,8 +30,12 @@ async function loadComponents() {
     const header = document.querySelector('header');
     const footer = document.querySelector('footer');
 
+    // Always use .html extension for component paths
     const headerPath = `${prefix}components/header.html`;
     const footerPath = `${prefix}components/footer.html`;
+
+    // Debug log to verify paths
+    console.log('Loading components with prefix:', prefix, '| Header path:', headerPath, '| Footer path:', footerPath);
 
     if (header) {
         // Check for local file testing (CORS issue)
