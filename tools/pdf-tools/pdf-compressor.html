@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Compressor Online (Reduce PDF File Size in Browser)</title>
+    <meta name="description" content="Free browser-based PDF compressor. Reduce PDF file size by stripping metadata and optimizing structure. Fast, private, no login required — files never leave your device.">
+    <link rel="canonical" href="https://nexitool.pro/tools/pdf-tools/pdf-compressor">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://nexitool.pro/tools/pdf-tools/pdf-compressor#webpage",
+      "url": "https://nexitool.pro/tools/pdf-tools/pdf-compressor",
+      "name": "PDF Compressor Online (Reduce PDF File Size in Browser)",
+      "description": "Free browser-based PDF compressor. Reduce PDF file size by stripping metadata and optimizing structure.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "PDF Compressor",
+      "url": "https://nexitool.pro/tools/pdf-tools/pdf-compressor",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Any",
+      "description": "Browser-based tool that reduces PDF file size by removing unnecessary metadata and optimizing the internal PDF structure. No upload to any server.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Bulk PDF compression",
+        "Metadata stripping",
+        "Client-side processing",
+        "Download as ZIP"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is this PDF compressor free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, this PDF compressor is free to use with no login required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does browser-based PDF compression work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "This tool removes unnecessary metadata and optimizes the PDF's internal structure directly in your browser. It does not yet re-compress images embedded inside the PDF, so text-heavy PDFs usually shrink more than scanned or image-heavy PDFs."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Will this always make my PDF smaller?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most PDFs shrink at least a little. Very simple or already-optimized PDFs, and scanned/image-heavy PDFs, may see little to no reduction since deep image recompression isn't supported yet."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are my PDFs uploaded to a server?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Everything happens locally in your browser using JavaScript; your files are never uploaded anywhere."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I compress multiple PDFs at once?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, you can upload and compress multiple PDF files in one batch, then download them individually or as a ZIP."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://nexitool.pro/index"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "PDF Compressor",
+          "item": "https://nexitool.pro/tools/pdf-tools/pdf-compressor"
+        }
+      ]
+    }
+  ]
+}
+    </script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --brand-red: #ef4444; }
+        .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--brand-red); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 5px rgba(239, 68, 68, 0.2); } 50% { text-shadow: 0 0 20px rgba(239, 68, 68, 0.4); } }
+        .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--brand-red), transparent); width: 150px; margin: 20px auto; }
+
+        .compressor-grid { display: none; width: 100%; grid-template-columns: 320px 1fr; gap: 30px; text-align: left; margin-top: 30px; align-items: start; }
+
+        .compression-controls {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            position: sticky;
+            top: 20px;
+            z-index: 10;
+        }
+
+        .expectation-note { font-size: 12.5px; line-height: 1.5; opacity: 0.75; background: rgba(239, 68, 68, 0.06); border: 1px dashed var(--brand-red); border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+
+        .bulk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .bulk-card { background: white; border: 1px solid var(--card-border); border-radius: 15px; padding: 15px; position: relative; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .pdf-icon-preview { width: 100%; height: 100px; border-radius: 10px; background: #f3f4f6; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: var(--brand-red); }
+        .file-name-row { font-size: 12px; font-weight: 700; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .card-loader { position: absolute; inset: 0; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; border-radius: 15px; z-index: 5; flex-direction: column; }
+        .spinner { width: 25px; height: 25px; border: 3px solid #f3f3f3; border-top: 3px solid var(--brand-red); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .stat-badge { font-size: 11px; margin-bottom: 10px; background: #eef2ff; padding: 8px; border-radius: 8px; font-weight: 700; color: #333; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .stat-row:last-child { margin-bottom: 0; border-top: 1px dashed #cbd5e1; padding-top: 4px; margin-top: 4px;}
+
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; font-size: 14px; }
+        .btn-green { background: #28a745; color: white; }
+        .btn-dark { background: #111827; color: white; }
+
+        .section-divider { border-top: 1px solid rgba(239, 68, 68, 0.15); padding: 40px 0; margin-top: 40px; }
+        .info-flex-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; text-align: left; }
+        .info-column { flex: 1; min-width: 250px; }
+        .info-column h3 { color: var(--brand-red); margin-bottom: 15px; }
+
+        @media (max-width: 900px) { .compressor-grid { grid-template-columns: 1fr; } .compression-controls { position: relative; top: 0; } }
+    </style>
+</head>
+<body class="color-pdf">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon">
+                <i data-lucide="file-down" style="width: 64px; height: 64px;"></i>
+            </div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">
+                <span class="shining-title">PDF Compressor</span> (Reduce PDF File Size in Your Browser)
+            </h1>
+            <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px;">
+                Shrink PDF file size by <span style="color: var(--brand-red);">removing extra metadata</span> and optimizing structure — fast, private, and no login required.
+            </p>
+            <div class="shining-line"></div>
+        </div>
+
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="upload-text">
+                <h3>Select PDF Files</h3>
+                <p>Drag & drop PDF files here (Bulk Supported)</p>
+            </div>
+            <input type="file" id="fileInput" accept="application/pdf" multiple style="display: none;">
+        </div>
+
+        <div class="compressor-grid" id="compressorGrid">
+            <div class="compression-controls">
+                <p class="expectation-note">
+                    ℹ️ This tool compresses PDFs by stripping metadata and optimizing the file's internal structure — it doesn't yet re-compress images embedded inside the PDF. Text-based PDFs usually shrink more than scanned/image-heavy PDFs.
+                </p>
+
+                <button id="downloadAllBtn" class="action-btn btn-green">📥 Download All (Individual)</button>
+                <button id="downloadZipBtn" class="action-btn btn-dark" style="margin-top: 10px;">📦 Download as ZIP</button>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--card-border); padding-top: 15px;">
+                    <button class="action-btn" style="background:#f3f4f6; color:#444;" onclick="document.getElementById('fileInput').click()">➕ Add More PDFs</button>
+                    <p style="text-align: center; margin-top: 15px; font-size: 13px; opacity: 0.6; cursor: pointer;" onclick="location.reload()">🔄 Restart Session</p>
+                </div>
+            </div>
+
+            <div class="bulk-list" id="bulkList"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="../../index" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--brand-primary); font-weight: 700;">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Back to Home
+            </a>
+        </div>
+
+        <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+            <div><div style="font-size: 35px; color: var(--brand-red); margin-bottom: 10px;">♾️</div><h3>Bulk Compression</h3><p style="opacity: 0.8; font-size: 14px;">Compress multiple PDFs at once.</p></div>
+            <div><div style="font-size: 35px; color: var(--brand-red); margin-bottom: 10px;">🧹</div><h3>Metadata Stripping</h3><p style="opacity: 0.8; font-size: 14px;">Removes title/author/producer clutter.</p></div>
+            <div><div style="font-size: 35px; color: var(--brand-red); margin-bottom: 10px;">🛡️</div><h3>Private by Design</h3><p style="opacity: 0.8; font-size: 14px;">Safe client-side browser processing.</p></div>
+            <div><div style="font-size: 35px; color: var(--brand-red); margin-bottom: 10px;">📥</div><h3>Zip Download</h3><p style="opacity: 0.8; font-size: 14px;">Download all as a single ZIP file.</p></div>
+        </div>
+
+        <div class="section-divider" style="text-align: left;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">PDF Compressor Online – Reduce File Size in Your Browser</h2>
+            <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
+                <p style="margin-bottom: 15px;">
+                    Need to <strong>reduce PDF file size</strong> before uploading or emailing a document? This <strong>PDF compressor online</strong> strips unnecessary metadata and optimizes the file's internal structure — entirely inside your browser.
+                </p>
+                <p>
+                    Because it runs client-side with no server upload, this <strong>bulk PDF compressor</strong> keeps your documents private. Note: since it doesn't re-compress embedded images yet, scanned or image-heavy PDFs will shrink less than text-based ones.
+                </p>
+            </div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How to Compress a PDF Online</h2>
+            <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>✅ Upload one or multiple PDF files</li>
+                <li>✅ Files are processed instantly in your browser</li>
+                <li>✅ Compare original vs. new file size</li>
+                <li>✅ Download PDFs individually or as a ZIP file</li>
+            </ul>
+        </div>
+
+        <div class="section-divider">
+            <div class="info-flex-container">
+                <div class="info-column">
+                    <h3>🔹 Why Compress a PDF?</h3>
+                    <p><strong>Faster Sharing:</strong> Smaller PDFs upload and email faster.<br>
+                    <strong>Save Storage:</strong> Trim excess metadata and bloat.<br>
+                    <strong>Easier Uploads:</strong> Avoid file size limits on forms/portals.<br>
+                    <strong>Cleaner Files:</strong> No leftover author/producer metadata.</p>
+                </div>
+                <div class="info-column">
+                    <h3>⭐ Good to Know</h3>
+                    <p><strong>Bulk Processing:</strong> Compress multiple PDFs in one go.<br>
+                    <strong>Instant Results:</strong> See size reduction in real time.<br>
+                    <strong>Private & Secure:</strong> Runs fully in your browser.<br>
+                    <strong>Honest Expectations:</strong> Image-heavy PDFs shrink less — that's a known current limitation, not a bug.</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="faq-section">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <button class="faq-question">Is this PDF compressor free to use? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes, this PDF compressor is free to use with no login required.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">How does browser-based PDF compression work? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">This tool removes unnecessary metadata and optimizes the PDF's internal structure directly in your browser. It does not yet re-compress images embedded inside the PDF, so text-heavy PDFs usually shrink more than scanned or image-heavy PDFs.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Will this always make my PDF smaller? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Most PDFs shrink at least a little. Very simple or already-optimized PDFs, and scanned/image-heavy PDFs, may see little to no reduction since deep image recompression isn't supported yet.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Are my PDFs uploaded to a server? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">No. Everything happens locally in your browser using JavaScript; your files are never uploaded anywhere.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I compress multiple PDFs at once? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes, you can upload and compress multiple PDF files in one batch, then download them individually or as a ZIP.</div>
+            </div>
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="../../js/tools-data.js"></script>
+    <script src="../../js/blogs-data.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/header-animation.js"></script>
+    <script src="../../js/ads-manager.js"></script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const bulkList = document.getElementById('bulkList');
+
+        let fileQueue = [];
+
+        fileInput.onchange = (e) => {
+            const files = Array.from(e.target.files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+            if (files.length > 0) {
+                document.getElementById('dropZone').style.display = 'none';
+                document.getElementById('compressorGrid').style.display = 'grid';
+
+                files.forEach((file, index) => {
+                    const id = Date.now() + index;
+                    fileQueue.push({ id, original: file, compressed: null });
+                    addCardUI(file, id);
+                });
+                processBatch();
+            }
+        };
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 KB';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function addCardUI(file, id) {
+            const card = document.createElement('div');
+            card.className = 'bulk-card';
+            card.id = `card-${id}`;
+            card.innerHTML = `
+                <div class="card-loader" id="loader-${id}"><div class="spinner"></div></div>
+                <div class="pdf-icon-preview"><i data-lucide="file-text" style="width: 40px; height: 40px;"></i></div>
+                <div class="file-name-row" title="${file.name}">${file.name}</div>
+                <div class="stat-badge">
+                    <div class="stat-row">
+                        <span>Original:</span>
+                        <span>${formatBytes(file.size)}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>New:</span>
+                        <span id="newsize-${id}">...</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Reduced:</span>
+                        <span id="saved-${id}" style="color:#059669">Waiting...</span>
+                    </div>
+                </div>
+                <button class="action-btn btn-green" onclick="downloadOne(${id})" style="padding:8px; font-size:12px;">Download</button>
+            `;
+            bulkList.appendChild(card);
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function compressPdf(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, { ignoreEncryption: true, updateMetadata: false });
+
+            pdfDoc.setTitle('');
+            pdfDoc.setAuthor('');
+            pdfDoc.setSubject('');
+            pdfDoc.setKeywords([]);
+            pdfDoc.setProducer('');
+            pdfDoc.setCreator('');
+
+            const bytes = await pdfDoc.save({ useObjectStreams: true });
+            return new Blob([bytes], { type: 'application/pdf' });
+        }
+
+        async function processBatch() {
+            for (let item of fileQueue) {
+                if (item.compressed) continue;
+                const loader = document.getElementById(`loader-${item.id}`);
+                if (loader) loader.style.display = 'flex';
+
+                try {
+                    const blob = await compressPdf(item.original);
+                    item.compressed = blob;
+                    const savedPercent = Math.max(0, ((item.original.size - blob.size) / item.original.size * 100)).toFixed(0);
+                    document.getElementById(`newsize-${item.id}`).innerText = formatBytes(blob.size);
+                    document.getElementById(`saved-${item.id}`).innerText = blob.size < item.original.size ? `${savedPercent}%` : 'Already optimized';
+                } catch (err) {
+                    console.error('PDF compression failed', err);
+                    document.getElementById(`newsize-${item.id}`).innerText = 'Error';
+                    document.getElementById(`saved-${item.id}`).innerText = 'Could not process';
+                }
+
+                if (loader) loader.style.display = 'none';
+            }
+        }
+
+        function downloadOne(id) {
+            const item = fileQueue.find(f => f.id === id);
+            if (item?.compressed) {
+                const a = document.createElement('a');
+                a.download = `compressed-${item.original.name}`;
+                a.href = URL.createObjectURL(item.compressed);
+                a.click();
+            }
+        }
+
+        document.getElementById('downloadAllBtn').onclick = () => {
+            fileQueue.forEach(item => downloadOne(item.id));
+        };
+
+        document.getElementById('downloadZipBtn').onclick = async () => {
+            const zip = new JSZip();
+            fileQueue.forEach(item => {
+                if (item.compressed) zip.file(`small-${item.original.name}`, item.compressed);
+            });
+            const content = await zip.generateAsync({ type: "blob" });
+            const a = document.createElement('a');
+            a.download = "nexitool-pdf-batch.zip";
+            a.href = URL.createObjectURL(content);
+            a.click();
+        };
+    </script>
+</body>
+</html>

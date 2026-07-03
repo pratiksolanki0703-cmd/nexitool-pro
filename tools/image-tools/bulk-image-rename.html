@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Image Rename Online (Batch Rename Photos & JPG Files)</title>
+    <meta name="description" content="Free online tool to rename photos in bulk. Batch rename JPG, PNG, and images online. Fast, secure, and mobile-friendly file name changer. No login required.">
+    <link rel="canonical" href="https://nexitool.pro/tools/image-tools/bulk-image-rename">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://nexitool.pro/tools/image-tools/bulk-image-rename#webpage",
+      "url": "https://nexitool.pro/tools/image-tools/bulk-image-rename",
+      "name": "Bulk Image Rename Online (Batch Rename Photos & JPG Files)",
+      "description": "Free online tool to rename photos in bulk. Batch rename JPG, PNG, and images online with auto-numbering and prefix/suffix options.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Bulk Image Rename Online",
+      "url": "https://nexitool.pro/tools/image-tools/bulk-image-rename",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Web",
+      "description": "Free online tool to rename photos in bulk. Batch rename JPG, PNG, and images online with auto-numbering and prefix/suffix options.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Bulk image rename",
+        "Batch rename JPG/PNG",
+        "Auto numbering sequence",
+        "Add prefix/suffix",
+        "Download as ZIP"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Q1. How can I rename multiple photos at once?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Simply upload your images to our bulk image renamer, enter your desired name pattern, and the tool will instantly apply the changes to all files. You can then download them as a single ZIP file."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Q2. Can I rename JPG files on my mobile phone?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. This tool is fully responsive and works directly in mobile browsers. You can easily select photos from your gallery and change file names online on any Android or iOS device."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Q3. Can I add a prefix or suffix to my filenames?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. By toggling the Advanced Options, you can add custom text before (prefix) or after (suffix) your base name to better categorize your batch of images."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Q4. Does this tool support sequential numbering?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Absolutely. You can set a starting number, and the tool will automatically sequence your images (e.g., photo-1, photo-2). This is perfect for keeping large photo collections organized."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Q5. Is my privacy protected?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. This is a client-side tool, meaning your images are never uploaded to any server. All processing happens locally in your browser, so your files stay private."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://nexitool.pro/index"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Bulk Image Rename",
+          "item": "https://nexitool.pro/tools/image-tools/bulk-image-rename"
+        }
+      ]
+    }
+  ]
+}
+    </script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --brand-blue: #3b82f6; }
+        .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--brand-blue); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 5px rgba(59, 130, 246, 0.2); } 50% { text-shadow: 0 0 20px rgba(59, 130, 246, 0.4); } }
+        .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--brand-blue), transparent); width: 150px; margin: 20px auto; }
+
+        .rename-grid { display: none; width: 100%; grid-template-columns: 320px 1fr; gap: 30px; text-align: left; margin-top: 30px; align-items: start; }
+
+        .rename-controls {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            position: sticky;
+            top: 20px;
+            z-index: 10;
+        }
+
+        .control-group { margin-bottom: 15px; }
+        .control-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: var(--text-main); }
+        .control-group input, .control-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--card-bg); color: var(--text-main); transition: 0.3s; }
+
+        input:disabled, select:disabled { opacity: 0.5; cursor: not-allowed; background: #f0f0f0 !important; }
+
+        .toggle-container { display: flex; align-items: center; justify-content: space-between; background: rgba(59, 130, 246, 0.1); padding: 10px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed var(--brand-blue); }
+        .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--brand-blue); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        .bulk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .bulk-card { background: white; border: 1px solid var(--card-border); border-radius: 15px; padding: 15px; position: relative; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .card-preview { width: 100%; height: 140px; border-radius: 10px; object-fit: cover; background: #f3f4f6; margin-bottom: 10px; }
+
+        .name-badge { font-size: 11px; margin-bottom: 10px; background: #eef2ff; padding: 8px; border-radius: 8px; text-align: left; overflow: hidden; color: #000000 !important; }
+        .name-row { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; margin-bottom: 4px; color: #000000 !important; }
+        .name-row strong { color: var(--brand-blue); }
+
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; font-size: 14px; }
+        .btn-blue { background: var(--brand-blue); color: white; }
+        .btn-green { background: #22c55e; color: white; }
+
+        .section-divider { border-top: 1px solid rgba(59, 130, 246, 0.15); padding: 40px 0; margin-top: 40px; }
+        @media (max-width: 900px) { .rename-grid { grid-template-columns: 1fr; } .rename-controls { position: relative; top: 0; } }
+    </style>
+</head>
+<body class="color-image">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon"><i data-lucide="type" style="width: 64px; height: 64px; color: var(--brand-blue);"></i></div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">
+                <span class="shining-title">Bulk Image Rename</span> (Batch Rename Photos & JPG Online)
+            </h1>
+            <p style="font-size: 18px; opacity: 0.9; font-weight: 500; margin-top: 15px; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+                The fastest <span style="color: var(--brand-blue); font-weight: 700;">File Name Changer</span> to organize your images.
+                Batch rename photos with sequential numbers, prefixes, or custom text in seconds.
+            </p>
+            <div class="shining-line"></div>
+        </div>
+
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon"><i data-lucide="upload-cloud"></i></div>
+            <div class="upload-text"><h3>Select Image Files</h3><p>Drag & drop images here (Bulk Supported)</p></div>
+            <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+        </div>
+
+        <div class="rename-grid" id="renameGrid">
+            <div class="rename-controls">
+                <div class="control-group">
+                    <label>New Base Name</label>
+                    <input type="text" id="baseName" placeholder="e.g. photo" value="image">
+                </div>
+
+                <div class="toggle-container">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: var(--brand-blue);">Advance Options</span>
+                    <label class="switch">
+                        <input type="checkbox" id="advanceToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <label>Prefix</label>
+                    <input type="text" id="prefix" placeholder="e.g. 2026-" disabled>
+                </div>
+                <div class="control-group">
+                    <label>Suffix</label>
+                    <input type="text" id="suffix" placeholder="e.g. -web" disabled>
+                </div>
+                <div class="control-group">
+                    <label>Start Number</label>
+                    <input type="number" id="startNumber" placeholder="e.g. 001" min="0" disabled>
+                </div>
+                <div class="control-group">
+                    <label>Extension</label>
+                    <select id="extOption" disabled>
+                        <option value="" disabled selected>e.g. .jpg or .png</option>
+                        <option value="keep">Keep Original</option>
+                        <option value="jpg">Convert to .jpg</option>
+                        <option value="png">Convert to .png</option>
+                    </select>
+                </div>
+
+                <button id="downloadZipBtn" class="action-btn btn-blue">📦 Download Renamed ZIP</button>
+                <button id="downloadAllBtn" class="action-btn btn-green">📥 Download Individually</button>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--card-border); padding-top: 15px;">
+                    <button class="action-btn" style="background:#f3f4f6; color:#444;" onclick="document.getElementById('fileInput').click()">➕ Add More</button>
+                </div>
+            </div>
+
+            <div class="bulk-list" id="bulkList"></div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Advanced Features</h2>
+            <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; text-align: center;">
+                <div>
+                    <div style="font-size: 35px; color: var(--brand-blue); margin-bottom: 10px;">🏷️</div>
+                    <h3>Bulk Image Rename</h3>
+                    <p style="opacity: 0.8; font-size: 14px;">Rename multiple files at once with custom names, prefixes, and suffixes.</p>
+                </div>
+                <div>
+                    <div style="font-size: 35px; color: var(--brand-blue); margin-bottom: 10px;">🔢</div>
+                    <h3>Auto Numbering</h3>
+                    <p style="opacity: 0.8; font-size: 14px;">Smart sequence numbering (image-1, image-2) for better file organization.</p>
+                </div>
+                <div>
+                    <div style="font-size: 35px; color: var(--brand-blue); margin-bottom: 10px;">⚡</div>
+                    <h3>Instant Preview</h3>
+                    <p style="opacity: 0.8; font-size: 14px;">Fast browser-based processing with real-time preview of new filenames.</p>
+                </div>
+                <div>
+                    <div style="font-size: 35px; color: var(--brand-blue); margin-bottom: 10px;">🔄</div>
+                    <h3>Extension Control</h3>
+                    <p style="opacity: 0.8; font-size: 14px;">Keep original extensions or convert in bulk to JPG or PNG formats.</p>
+                </div>
+                <div>
+                    <div style="font-size: 35px; color: var(--brand-blue); margin-bottom: 10px;">📦</div>
+                    <h3>Batch ZIP Download</h3>
+                    <p style="opacity: 0.8; font-size: 14px;">Download all your renamed images instantly in a single organized ZIP file.</p>
+                </div>
+                <div>
+                    <div style="font-size: 35px; color: var(--brand-blue); margin-bottom: 10px;">🛡️</div>
+                    <h3>No Login Required</h3>
+                    <p style="opacity: 0.8; font-size: 14px;">Unlimited usage, private client-side processing, no account needed.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Bulk Image Renamer – Fast & Secure Batch Naming</h2>
+            <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
+                <p>Struggling with messy file names? Our <strong>photo renamer online</strong> lets you <strong>batch rename images</strong> instantly. Whether you want to <strong>rename photos online</strong> for a project or need a <strong>jpg file name change</strong> for better organization, this tool is built for speed.
+                </p>
+                <p>
+                    It is a complete <strong>file name changer online</strong> that works locally in your browser. You can even <strong>rename JPG files online on mobile</strong> without downloading any app. Simply set your pattern, and download your organized images in a single ZIP.
+                </p>
+            </div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How to Rename Images Online</h2>
+            <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; list-style: none; padding-left: 0;">
+                <li>✅ Upload one or multiple images</li>
+                <li>✅ Enter new base name</li>
+                <li>✅ (Optional) Add prefix, suffix, or numbering</li>
+                <li>✅ Preview renamed files instantly</li>
+                <li>✅ Download images individually or as ZIP</li>
+            </ul>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Why Rename Images?</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div><strong>🔹 Better File Organization</strong><p style="opacity:0.8; font-size:15px;">Keep your images structured and clean</p></div>
+                <div><strong>🔹 SEO Optimization</strong><p style="opacity:0.8; font-size:15px;">Rename images for better Google ranking</p></div>
+                <div><strong>🔹 Faster Workflow</strong><p style="opacity:0.8; font-size:15px;">Rename hundreds of images in seconds</p></div>
+                <div><strong>🔹 Easy Uploading</strong><p style="opacity:0.8; font-size:15px;">Use proper file names for websites</p></div>
+            </div>
+            <div style="margin-top: 20px; padding: 15px; background: rgba(59, 130, 246, 0.05); border-radius: 10px;">
+                <h3 style="color: var(--brand-blue); font-size: 20px; margin-bottom: 10px;">👉 Perfect for:</h3>
+                <p style="opacity: 0.8;">Bloggers (SEO image naming), Developers, Designers, Photographers</p>
+            </div>
+        </div>
+
+        <section class="faq-section" style="margin-top: 50px;">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <button class="faq-question">Q1. How can I rename multiple photos at once? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Simply upload your images to our bulk image renamer, enter your desired name pattern, and the tool will instantly apply the changes to all files. You can then download them as a single ZIP file.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Q2. Can I rename JPG files on my mobile phone? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes. This tool is fully responsive and works directly in mobile browsers. You can easily select photos from your gallery and change file names online on any Android or iOS device.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Q3. Can I add a prefix or suffix to my filenames? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes. By toggling the Advanced Options, you can add custom text before (prefix) or after (suffix) your base name to better categorize your batch of images.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Q4. Does this tool support sequential numbering? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Absolutely. You can set a starting number, and the tool will automatically sequence your images (e.g., photo-1, photo-2). This is perfect for keeping large photo collections organized.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Q5. Is my privacy protected? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes. This is a client-side tool, meaning your images are never uploaded to any server. All processing happens locally in your browser, so your files stay private.</div>
+            </div>
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="../../js/tools-data.js"></script>
+    <script src="../../js/blogs-data.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/header-animation.js"></script>
+    <script src="../../js/ads-manager.js"></script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const bulkList = document.getElementById('bulkList');
+        const advanceToggle = document.getElementById('advanceToggle');
+        const advanceInputs = ['prefix', 'suffix', 'startNumber', 'extOption'];
+        const allInputs = ['baseName', ...advanceInputs];
+
+        let fileQueue = [];
+
+        advanceToggle.onchange = () => {
+            advanceInputs.forEach(id => {
+                document.getElementById(id).disabled = !advanceToggle.checked;
+            });
+            updatePreviews();
+        };
+
+        fileInput.onchange = (e) => {
+            const files = Array.from(e.target.files);
+            if(files.length > 0) {
+                document.getElementById('dropZone').style.display = 'none';
+                document.getElementById('renameGrid').style.display = 'grid';
+                files.forEach((file, index) => {
+                    const id = Date.now() + index;
+                    fileQueue.push({ id, original: file });
+                    addCardUI(file, id);
+                });
+                updatePreviews();
+            }
+        };
+
+        function addCardUI(file, id) {
+            const card = document.createElement('div');
+            card.className = 'bulk-card';
+            card.innerHTML = `
+                <img class="card-preview" src="${URL.createObjectURL(file)}">
+                <div class="name-badge">
+                    <div class="name-row"><strong>Old:</strong> ${file.name}</div>
+                    <div class="name-row"><strong>New:</strong> <span id="newname-${id}">...</span></div>
+                </div>
+                <button class="action-btn btn-blue" style="padding:8px; font-size:12px;" onclick="downloadSingle(${id})">Download</button>
+            `;
+            bulkList.appendChild(card);
+        }
+
+        allInputs.forEach(id => {
+            document.getElementById(id).oninput = updatePreviews;
+            if(id === 'extOption') document.getElementById(id).onchange = updatePreviews;
+        });
+
+        function updatePreviews() {
+            const base = document.getElementById('baseName').value;
+            const isAdv = advanceToggle.checked;
+            const pre = isAdv ? document.getElementById('prefix').value : '';
+            const suf = isAdv ? document.getElementById('suffix').value : '';
+            const startVal = isAdv ? parseInt(document.getElementById('startNumber').value) : 1;
+            const start = isNaN(startVal) ? 1 : startVal;
+            const extOpt = isAdv ? document.getElementById('extOption').value : 'keep';
+
+            fileQueue.forEach((item, index) => {
+                let currentExt = item.original.name.split('.').pop();
+                if(extOpt && extOpt !== 'keep') currentExt = extOpt;
+
+                const newName = `${pre}${base}-${start + index}${suf}.${currentExt}`;
+                document.getElementById(`newname-${item.id}`).innerText = newName;
+                item.finalName = newName;
+            });
+        }
+
+        function downloadSingle(id) {
+            const item = fileQueue.find(f => f.id === id);
+            if(item) {
+                const a = document.createElement('a');
+                a.download = item.finalName;
+                a.href = URL.createObjectURL(item.original);
+                a.click();
+            }
+        }
+
+        document.getElementById('downloadAllBtn').onclick = () => {
+            fileQueue.forEach(item => downloadSingle(item.id));
+        };
+
+        document.getElementById('downloadZipBtn').onclick = async () => {
+            const zip = new JSZip();
+            fileQueue.forEach(item => zip.file(item.finalName, item.original));
+            const content = await zip.generateAsync({type: "blob"});
+            const a = document.createElement('a');
+            a.download = "renamed-photos.zip";
+            a.href = URL.createObjectURL(content);
+            a.click();
+        };
+    </script>
+</body>
+</html>

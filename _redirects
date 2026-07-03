@@ -1,0 +1,5 @@
+# Netlify already serves clean URLs for .html files by default
+# (e.g. a request for /index serves index.html automatically),
+# same as GitHub Pages. This file is reserved for future custom
+# redirects (e.g. old tool URL -> new tool URL) once nexitool.pro
+# goes live on Netlify.

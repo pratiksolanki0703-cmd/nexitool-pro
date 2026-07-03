@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>NexiTool Generator (Local Only — Not Deployed)</title>
+<style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 24px; }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    .warning { background: #451a03; border: 1px solid #f59e0b; color: #fde68a; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 24px; }
+    .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
+    fieldset { border: 1px solid #334155; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+    legend { font-weight: 700; font-size: 13px; color: #93c5fd; padding: 0 6px; }
+    label { display: block; font-size: 12.5px; font-weight: 600; margin: 10px 0 4px; color: #cbd5e1; }
+    input, select, textarea { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #f1f5f9; font-family: inherit; font-size: 13px; }
+    textarea { font-family: ui-monospace, Menlo, Consolas, monospace; resize: vertical; }
+    textarea.code { min-height: 140px; }
+    .row { display: flex; gap: 12px; }
+    .row > div { flex: 1; }
+    .faq-pair { border: 1px dashed #334155; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+    .faq-pair textarea { min-height: 50px; }
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 8px 14px; font-weight: 700; font-size: 13px; }
+    .btn-add { background: #1e293b; color: #93c5fd; border: 1px solid #334155; margin-top: 4px; }
+    .btn-generate { background: #2563eb; color: white; width: 100%; padding: 14px; font-size: 15px; margin-top: 8px; }
+    .btn-copy { background: #16a34a; color: white; margin-right: 8px; margin-top: 8px; }
+    .btn-download { background: #111827; color: white; border: 1px solid #334155; margin-top: 8px; }
+    .output-block { margin-bottom: 24px; }
+    .output-block h3 { font-size: 14px; margin-bottom: 6px; color: #93c5fd; }
+    #faqList { margin-bottom: 10px; }
+</style>
+</head>
+<body>
+    <h1>NexiTool Generator</h1>
+    <div class="warning">
+        ⚠️ Local-only admin tool — not linked in the site nav, marked <code>noindex</code>, and never uploaded to Netlify.
+        Paste your AI-written tool code + metadata below, click Generate, then save the output as
+        <code>tools/&lt;category-folder&gt;/&lt;tool-id&gt;.html</code> and paste the matching entry into <code>js/tools-data.js</code>.
+    </div>
+
+    <div class="layout">
+        <div>
+            <fieldset>
+                <legend>Basic Info</legend>
+                <label>Tool ID (slug, used as filename — e.g. bulk-image-compressor)</label>
+                <input id="toolId" placeholder="bulk-image-compressor">
+
+                <label>Tool Name (display title)</label>
+                <input id="toolName" placeholder="Bulk Image Compressor">
+
+                <label>Meta Description (150–160 chars, for Google + FAQ context)</label>
+                <textarea id="metaDesc" style="min-height: 60px;" placeholder="Free bulk image compressor to reduce image size online..."></textarea>
+
+                <div class="row">
+                    <div>
+                        <label>Category Name</label>
+                        <input id="category" list="categoryOptions" placeholder="Image">
+                        <datalist id="categoryOptions">
+                            <option value="Image">
+                            <option value="PDF">
+                        </datalist>
+                    </div>
+                    <div>
+                        <label>Category Folder (URL path segment)</label>
+                        <input id="categoryFolder" placeholder="image-tools">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div>
+                        <label>Color Slug (must match a .color-X class in style.css)</label>
+                        <input id="colorSlug" list="colorOptions" placeholder="image">
+                        <datalist id="colorOptions">
+                            <option value="image">
+                            <option value="pdf">
+                        </datalist>
+                    </div>
+                    <div>
+                        <label>Lucide Icon Name</label>
+                        <input id="iconName" placeholder="image-down">
+                    </div>
+                </div>
+
+                <label><input type="checkbox" id="isTrending" style="width:auto; display:inline-block; margin-right:6px;"> Mark as Trending (shows 🔥 badge on card)</label>
+            </fieldset>
+
+            <fieldset>
+                <legend>Feature List (one per line, used in schema)</legend>
+                <textarea id="features" style="min-height: 90px;" placeholder="Bulk processing&#10;Client-side, no upload&#10;Download as ZIP"></textarea>
+            </fieldset>
+
+            <fieldset>
+                <legend>FAQ</legend>
+                <div id="faqList"></div>
+                <button type="button" class="btn-add" onclick="addFaqPair()">+ Add Question</button>
+            </fieldset>
+        </div>
+
+        <div>
+            <fieldset>
+                <legend>Tool Code — pasted from your AI-generated code</legend>
+                <label>HTML (goes inside &lt;main&gt;, above the FAQ section — your upload box, controls, result UI)</label>
+                <textarea id="toolHtml" class="code" placeholder="<div class=&quot;upload-box&quot; ...>...</div>"></textarea>
+
+                <label>Extra CSS (optional — goes in a &lt;style&gt; block in &lt;head&gt;)</label>
+                <textarea id="toolCss" class="code" style="min-height: 90px;" placeholder=".my-tool-class { ... }"></textarea>
+
+                <label>JavaScript (goes in the inline &lt;script&gt; at the bottom of the page)</label>
+                <textarea id="toolJs" class="code" placeholder="const fileInput = document.getElementById('fileInput');&#10;// ... your tool logic"></textarea>
+            </fieldset>
+
+            <button class="btn-generate" onclick="generate()">⚡ Generate Tool Page</button>
+
+            <div class="output-block" style="margin-top: 24px;">
+                <h3>Generated Page HTML — save as tools/&lt;category-folder&gt;/&lt;tool-id&gt;.html</h3>
+                <textarea id="outputHtml" class="code" style="min-height: 240px;" readonly></textarea>
+                <button class="btn-copy" onclick="copyText('outputHtml')">📋 Copy</button>
+                <button class="btn-download" onclick="downloadText('outputHtml', currentToolId() + '.html')">⬇️ Download .html</button>
+            </div>
+
+            <div class="output-block">
+                <h3>tools-data.js entry — paste into the TOOLS array</h3>
+                <textarea id="outputEntry" class="code" style="min-height: 120px;" readonly></textarea>
+                <button class="btn-copy" onclick="copyText('outputEntry')">📋 Copy</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+function addFaqPair(q = '', a = '') {
+    const wrap = document.createElement('div');
+    wrap.className = 'faq-pair';
+    wrap.innerHTML = `
+        <label>Question</label>
+        <input class="faq-q" value="${escapeAttr(q)}" placeholder="Is this tool free to use?">
+        <label>Answer</label>
+        <textarea class="faq-a" placeholder="Yes, free to use with no login required.">${escapeHtml(a)}</textarea>
+        <button type="button" class="btn-add" style="margin-top:6px; color:#fca5a5;" onclick="this.parentElement.remove()">✕ Remove</button>
+    `;
+    document.getElementById('faqList').appendChild(wrap);
+}
+addFaqPair('Is this tool free to use?', 'Yes, this tool is free to use with no login required.');
+addFaqPair('Are my files uploaded to a server?', 'No, everything runs locally in your browser — your files are never uploaded anywhere.');
+
+function escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escapeAttr(str) {
+    return escapeHtml(str).replace(/"/g,'&quot;');
+}
+
+function currentToolId() {
+    return (document.getElementById('toolId').value || 'new-tool').trim();
+}
+
+function slugToTitle(s) {
+    return s.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function generate() {
+    const id = currentToolId();
+    const name = document.getElementById('toolName').value || slugToTitle(id);
+    const desc = document.getElementById('metaDesc').value.trim();
+    const category = document.getElementById('category').value.trim() || 'Image';
+    const categoryFolder = document.getElementById('categoryFolder').value.trim() || 'image-tools';
+    const colorSlug = document.getElementById('colorSlug').value.trim() || 'image';
+    const icon = document.getElementById('iconName').value.trim() || 'wrench';
+    const isTrending = document.getElementById('isTrending').checked;
+    const features = document.getElementById('features').value.split('\n').map(f => f.trim()).filter(Boolean);
+    const toolHtml = document.getElementById('toolHtml').value;
+    const toolCss = document.getElementById('toolCss').value;
+    const toolJs = document.getElementById('toolJs').value;
+
+    const faqPairs = Array.from(document.querySelectorAll('.faq-pair')).map(el => ({
+        q: el.querySelector('.faq-q').value.trim(),
+        a: el.querySelector('.faq-a').value.trim()
+    })).filter(f => f.q && f.a);
+
+    const url = `https://nexitool.pro/tools/${categoryFolder}/${id}`;
+
+    const faqSchema = faqPairs.map(f => `        {
+          "@type": "Question",
+          "name": ${JSON.stringify(f.q)},
+          "acceptedAnswer": { "@type": "Answer", "text": ${JSON.stringify(f.a)} }
+        }`).join(',\n');
+
+    const faqHtml = faqPairs.map(f => `            <div class="faq-item">
+                <button class="faq-question">${escapeHtml(f.q)} <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">${escapeHtml(f.a)}</div>
+            </div>`).join('\n');
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${escapeHtml(name)}</title>
+    <meta name="description" content="${escapeAttr(desc)}">
+    <link rel="canonical" href="${url}">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "${url}#webpage",
+      "url": "${url}",
+      "name": ${JSON.stringify(name)},
+      "description": ${JSON.stringify(desc)},
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": ${JSON.stringify(name)},
+      "url": "${url}",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Any",
+      "description": ${JSON.stringify(desc)},
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": ${JSON.stringify(features)}
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+${faqSchema}
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexitool.pro/index" },
+        { "@type": "ListItem", "position": 2, "name": ${JSON.stringify(name)}, "item": "${url}" }
+      ]
+    }
+  ]
+}
+    <\/script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"><\/script>
+    <script src="https://unpkg.com/lucide@latest"><\/script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700&display=swap" rel="stylesheet">
+${toolCss ? `    <style>\n${toolCss}\n    </style>\n` : ''}</head>
+<body class="color-${colorSlug}">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon"><i data-lucide="${icon}" style="width: 64px; height: 64px;"></i></div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">${escapeHtml(name)}</h1>
+            <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px;">${escapeHtml(desc)}</p>
+        </div>
+
+${toolHtml}
+
+        <section class="faq-section">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+${faqHtml}
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="../../js/tools-data.js"><\/script>
+    <script src="../../js/blogs-data.js"><\/script>
+    <script src="../../js/script.js"><\/script>
+    <script src="../../js/header-animation.js"><\/script>
+    <script src="../../js/ads-manager.js"><\/script>
+    <script>
+${toolJs}
+    <\/script>
+</body>
+</html>
+`;
+
+    const entry = `    {
+        id: '${id}',
+        name: '${name.replace(/'/g, "\\'")}',
+        description: '${desc.replace(/'/g, "\\'")}',
+        category: '${category}',
+        color: '${colorSlug}',
+        icon: '${icon}',
+        path: 'tools/${categoryFolder}/${id}',
+        isTrending: ${isTrending}
+    },`;
+
+    document.getElementById('outputHtml').value = html;
+    document.getElementById('outputEntry').value = entry;
+}
+
+function copyText(id) {
+    const el = document.getElementById(id);
+    el.select();
+    document.execCommand('copy');
+}
+
+function downloadText(id, filename) {
+    const blob = new Blob([document.getElementById(id).value], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+}
+</script>
+</body>
+</html>

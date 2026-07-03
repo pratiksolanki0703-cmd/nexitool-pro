@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Image Compressor Online (Compress to 20kb, 40kb, 50kb, 100kb)</title>
+    <meta name="description" content="Free bulk image compressor to reduce image size and resize photos online. Compress JPG, PNG, WEBP images in bulk without losing quality. Fast, private, browser-based, no login required.">
+    <link rel="canonical" href="https://nexitool.pro/tools/image-tools/bulk-image-compressor">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://nexitool.pro/tools/image-tools/bulk-image-compressor#webpage",
+      "url": "https://nexitool.pro/tools/image-tools/bulk-image-compressor",
+      "name": "Bulk Image Compressor Online (Compress to 20kb, 40kb, 50kb, 100kb)",
+      "description": "Free bulk image compressor to reduce image size and resize photos online. Compress JPG, PNG, WEBP images in bulk without losing quality.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Bulk Image Compressor & Resizer",
+      "url": "https://nexitool.pro/tools/image-tools/bulk-image-compressor",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any",
+      "description": "Browser-based tool to compress images to 20kb, 40kb, or 100kb. Fast client-side processing for JPG, PNG, and WebP.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Bulk image compression",
+        "Compress image to 20kb/40kb/100kb",
+        "No quality loss",
+        "Client-side processing",
+        "Download as ZIP"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is this image compressor free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, this image compressor is free to use with no login required. You can easily reduce image size to 20kb, 40kb, or 100kb for official forms."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I compress multiple images?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, you can upload and compress multiple images at once."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Will image quality be affected?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Images are optimized to reduce size while maintaining good visual quality."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are my images safe?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "All processing happens in your browser, so your files remain private and are never uploaded anywhere."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I download all images at once?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, you can download images one by one or as a ZIP file."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://nexitool.pro/index"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Bulk Image Compressor",
+          "item": "https://nexitool.pro/tools/image-tools/bulk-image-compressor"
+        }
+      ]
+    }
+  ]
+}
+    </script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --brand-blue: #3b82f6; }
+        .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--brand-blue); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 5px rgba(59, 130, 246, 0.2); } 50% { text-shadow: 0 0 20px rgba(59, 130, 246, 0.4); } }
+        .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--brand-blue), transparent); width: 150px; margin: 20px auto; }
+
+        .compressor-grid { display: none; width: 100%; grid-template-columns: 320px 1fr; gap: 30px; text-align: left; margin-top: 30px; align-items: start; }
+
+        .compression-controls {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            position: sticky;
+            top: 20px;
+            z-index: 10;
+        }
+
+        .quality-slider { width: 100%; height: 6px; background: var(--card-border); border-radius: 5px; outline: none; margin: 15px 0; cursor: pointer; -webkit-appearance: none; }
+        .quality-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: var(--brand-blue); border-radius: 50%; cursor: pointer; border: 2px solid white; }
+
+        .bulk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .bulk-card { background: white; border: 1px solid var(--card-border); border-radius: 15px; padding: 15px; position: relative; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .card-preview { width: 100%; height: 140px; border-radius: 10px; object-fit: cover; background: #f3f4f6; margin-bottom: 10px; }
+
+        .card-loader { position: absolute; inset: 0; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; border-radius: 15px; z-index: 5; flex-direction: column; }
+        .spinner { width: 25px; height: 25px; border: 3px solid #f3f3f3; border-top: 3px solid var(--brand-blue); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .stat-badge { font-size: 11px; margin-bottom: 10px; background: #eef2ff; padding: 8px; border-radius: 8px; font-weight: 700; color: #333; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .stat-row:last-child { margin-bottom: 0; border-top: 1px dashed #cbd5e1; padding-top: 4px; margin-top: 4px;}
+
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; font-size: 14px; }
+        .btn-green { background: #28a745; color: white; }
+        .btn-dark { background: #111827; color: white; }
+
+        .section-divider { border-top: 1px solid rgba(59, 130, 246, 0.15); padding: 40px 0; margin-top: 40px; }
+        .info-flex-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; text-align: left; }
+        .info-column { flex: 1; min-width: 250px; }
+        .info-column h3 { color: var(--brand-blue); margin-bottom: 15px; }
+
+        @media (max-width: 900px) { .compressor-grid { grid-template-columns: 1fr; } .compression-controls { position: relative; top: 0; } }
+    </style>
+</head>
+<body class="color-image">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon">
+                <i data-lucide="minimize-2" style="width: 64px; height: 64px;"></i>
+            </div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">
+                <span class="shining-title">Bulk Image Compressor & Resizer</span> (Reduce Image Size to 20kb, 40kb, 100kb)
+            </h1>
+            <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px;">
+                Compress images, resize photos, and reduce file size in seconds.<span style="color: var(--brand-blue);">No quality loss,</span> fast, secure, and works directly in your browser.
+            </p>
+            <div class="shining-line"></div>
+        </div>
+
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="upload-text">
+                <h3>Select Image Files</h3>
+                <p>Drag & drop JPG, PNG, or WebP here (Bulk Supported)</p>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+        </div>
+
+        <div class="compressor-grid" id="compressorGrid">
+            <div class="compression-controls">
+                <div style="display: flex; justify-content: space-between; font-weight: 600;">
+                    <span>Quality Level</span>
+                    <span id="qualityValue">80%</span>
+                </div>
+                <input type="range" id="qualitySlider" class="quality-slider" min="1" max="100" value="80">
+
+                <div class="control-group" style="margin-bottom: 15px;">
+                    <label style="font-size: 0.9rem; font-weight: 600;">Output Format</label>
+                    <select id="formatSelect" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--card-border); margin-top: 5px;">
+                        <option value="original">Keep Original</option>
+                        <option value="image/jpeg">JPEG</option>
+                        <option value="image/webp">WEBP</option>
+                        <option value="image/png">PNG</option>
+                    </select>
+                </div>
+
+                <button id="downloadAllBtn" class="action-btn btn-green">📥 Download All (Individual)</button>
+                <button id="downloadZipBtn" class="action-btn btn-dark" style="margin-top: 10px;">📦 Download as ZIP</button>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--card-border); padding-top: 15px;">
+                    <button class="action-btn" style="background:#f3f4f6; color:#444;" onclick="document.getElementById('fileInput').click()">➕ Add More Images</button>
+                    <p style="text-align: center; margin-top: 15px; font-size: 13px; opacity: 0.6; cursor: pointer;" onclick="location.reload()">🔄 Restart Session</p>
+                </div>
+            </div>
+
+            <div class="bulk-list" id="bulkList"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="../../index" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--brand-primary); font-weight: 700;">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Back to Home
+            </a>
+        </div>
+
+        <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+            <div><div style="font-size: 35px; color: #dc3545; margin-bottom: 10px;">♾️</div><h3>Bulk Compression</h3><p style="opacity: 0.8; font-size: 14px;">Compress multiple images at once.</p></div>
+            <div><div style="font-size: 35px; color: #dc3545; margin-bottom: 10px;">⚡</div><h3>No Quality Loss</h3><p style="opacity: 0.8; font-size: 14px;">Reduce size while maintaining quality.</p></div>
+            <div><div style="font-size: 35px; color: #dc3545; margin-bottom: 10px;">🛡️</div><h3>Private by Design</h3><p style="opacity: 0.8; font-size: 14px;">Safe client-side browser processing.</p></div>
+            <div><div style="font-size: 35px; color: #dc3545; margin-bottom: 10px;">📥</div><h3>Zip Download</h3><p style="opacity: 0.8; font-size: 14px;">Download all as a single ZIP file.</p></div>
+        </div>
+
+        <div class="section-divider" style="text-align: left;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Image Compressor Online – Compress to 20kb, 40kb & 100kb</h2>
+            <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
+                <p style="margin-bottom: 15px;">
+                    Need to <strong>compress image to 40kb</strong> or <strong>increase size to 100kb</strong>? This <strong>image compressor online</strong> helps you resize photos instantly for government forms and web uploads. Our <strong>bulk image compressor</strong> supports JPG, PNG, and WebP without losing quality.
+                </p>
+                <p>
+                    Whether you need a <strong>jpeg compressor to 20kb</strong> or want to <strong>reduce size in kb</strong> for multiple files, this tool works entirely in your browser. Fast, secure, and browser-based processing for all your images.
+                </p>
+            </div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How to Compress Images Online</h2>
+            <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>✅ Upload one or multiple images</li>
+                <li>✅ Adjust compression level by slider if needed</li>
+                <li>✅ Choose output format (JPG, PNG, WEBP)</li>
+                <li>✅ Images are processed instantly</li>
+                <li>✅ Download images individually or as a ZIP file</li>
+            </ul>
+        </div>
+
+        <div class="section-divider">
+            <div class="info-flex-container">
+                <div class="info-column">
+                    <h3>🔹 Why Compress Images?</h3>
+                    <p><strong>Faster Loading:</strong> Smaller images help websites load quickly.<br>
+                    <strong>Reduce File Size:</strong> Save storage without noticeable quality loss.<br>
+                    <strong>Easy Uploads:</strong> Avoid file size limits on forms and platforms.<br>
+                    <strong>Better Experience:</strong> Faster pages improve user engagement.</p>
+                </div>
+                <div class="info-column">
+                    <h3>⭐ Advanced Features (USP)</h3>
+                    <p><strong>Bulk Processing:</strong> Compress multiple images in one go.<br>
+                    <strong>Instant Results:</strong> See size reduction in real time.<br>
+                    <strong>Private & Secure:</strong> Runs fully in your browser.<br>
+                    <strong>ZIP Download:</strong> Download all images together easily.</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="faq-section">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <button class="faq-question">Is this image compressor free to use? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes, this image compressor is free to use with no login required. You can easily reduce image size to 20kb, 40kb, or 100kb for official forms.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I compress multiple images? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes, you can upload and compress multiple images at once.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Will image quality be affected? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Images are optimized to reduce size while maintaining good visual quality.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Are my images safe? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">All processing happens in your browser, so your files remain private and are never uploaded anywhere.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I download all images at once? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes, you can download images one by one or as a ZIP file.</div>
+            </div>
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="../../js/tools-data.js"></script>
+    <script src="../../js/blogs-data.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/header-animation.js"></script>
+    <script src="../../js/ads-manager.js"></script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const bulkList = document.getElementById('bulkList');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityValue = document.getElementById('qualityValue');
+        const formatSelect = document.getElementById('formatSelect');
+
+        let fileQueue = [];
+
+        fileInput.onchange = (e) => {
+            const files = Array.from(e.target.files);
+            if(files.length > 0) {
+                document.getElementById('dropZone').style.display = 'none';
+                document.getElementById('compressorGrid').style.display = 'grid';
+
+                files.forEach((file, index) => {
+                    const id = Date.now() + index;
+                    fileQueue.push({ id, original: file, compressed: null });
+                    addCardUI(file, id);
+                });
+                processBatch();
+            }
+        };
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 KB';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function addCardUI(file, id) {
+            const card = document.createElement('div');
+            card.className = 'bulk-card';
+            card.id = `card-${id}`;
+            card.innerHTML = `
+                <div class="card-loader" id="loader-${id}"><div class="spinner"></div></div>
+                <img class="card-preview" id="img-${id}" src="${URL.createObjectURL(file)}">
+                <div class="stat-badge">
+                    <div class="stat-row">
+                        <span>Original:</span>
+                        <span>${formatBytes(file.size)}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>New:</span>
+                        <span id="newsize-${id}">...</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Reduced:</span>
+                        <span id="saved-${id}" style="color:#059669">Waiting...</span>
+                    </div>
+                </div>
+                <button class="action-btn btn-green" onclick="downloadOne(${id})" style="padding:8px; font-size:12px;">Download</button>
+            `;
+            bulkList.appendChild(card);
+        }
+
+        [qualitySlider, formatSelect].forEach(el => {
+            el.oninput = () => {
+                if (el === qualitySlider) qualityValue.innerText = el.value + '%';
+                processBatch();
+            };
+        });
+
+        async function processBatch() {
+            for (let item of fileQueue) {
+                const loader = document.getElementById(`loader-${item.id}`);
+                if(loader) loader.style.display = 'flex';
+
+                await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(item.original);
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.src = e.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            canvas.getContext('2d').drawImage(img, 0, 0);
+
+                            const mime = formatSelect.value === 'original' ? item.original.type : formatSelect.value;
+                            const quality = qualitySlider.value / 100;
+
+                            canvas.toBlob(blob => {
+                                item.compressed = blob;
+                                const savedPercent = ((item.original.size - blob.size) / item.original.size * 100).toFixed(0);
+                                document.getElementById(`newsize-${item.id}`).innerText = formatBytes(blob.size);
+                                document.getElementById(`saved-${item.id}`).innerText = `${savedPercent}%`;
+                                document.getElementById(`img-${item.id}`).src = URL.createObjectURL(blob);
+                                if(loader) loader.style.display = 'none';
+                                resolve();
+                            }, mime, quality);
+                        };
+                    };
+                });
+            }
+        }
+
+        function downloadOne(id) {
+            const item = fileQueue.find(f => f.id === id);
+            if(item?.compressed) {
+                const a = document.createElement('a');
+                a.download = `compressed-${item.original.name}`;
+                a.href = URL.createObjectURL(item.compressed);
+                a.click();
+            }
+        }
+
+        document.getElementById('downloadAllBtn').onclick = () => {
+            fileQueue.forEach(item => downloadOne(item.id));
+        };
+
+        document.getElementById('downloadZipBtn').onclick = async () => {
+            const zip = new JSZip();
+            fileQueue.forEach(item => {
+                if(item.compressed) zip.file(`small-${item.original.name}`, item.compressed);
+            });
+            const content = await zip.generateAsync({type: "blob"});
+            const a = document.createElement('a');
+            a.download = "nexitool-batch.zip";
+            a.href = URL.createObjectURL(content);
+            a.click();
+        };
+    </script>
+</body>
+</html>
