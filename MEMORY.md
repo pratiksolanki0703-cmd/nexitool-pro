@@ -6,6 +6,41 @@
 - **Repository**: https://github.com/pratiksolanki0703-cmd/nexitool-pro
 - **Live Site**: https://nexitool.pro (GitHub Pages)
 
+## ⚠️ OPEN ISSUES from live-site review (2026-07-03) — NOT fixed, read this first
+After the header/footer path fix + content rewrite in commit `72b1f52`, the user
+reviewed the actual LIVE deployed site and reported these are still broken/unfinished.
+**Do not claim any of these are fixed without the user confirming on the live site —
+local `curl`/HTTP-200 checks are not sufficient proof (they only proved files are
+reachable, not that the JS actually renders correctly in a real browser).**
+
+1. **Style still looks cheap/AI-generated, not premium.** Two CSS rewrites (v2, v3)
+   were not enough — needs a real design pass, not another palette swap.
+2. **Trending badge is oversized** — big enough that it visually covers/overwhelms
+   the tool card it's on. Needs to shrink to a normal small badge.
+3. **Site still reads as a copy of text2tool.in**, despite two CSS rewrites and a full
+   content/SEO/icon rewrite. This complaint has persisted through multiple fix
+   attempts — likely needs real structural/layout differentiation, not just
+   color/copy substitution.
+4. **SEO content is too narrow.** Homepage SEO section + meta descriptions only
+   mention "Image and PDF tools," but many more tool categories are planned (see
+   the Coin/Credit Economy section below — server-side AI tools are coming). SEO
+   copy needs to scale to that without a rewrite per new category, and generally
+   needs to be much stronger.
+5. **Category color inconsistency.** PDF tool card shows pink on the outside
+   (card border) but red on the inside (icon) — no single consistent accent color
+   per category. Every category needs ONE color used everywhere it appears.
+6. **Header/footer STILL doesn't load on inner pages — only the homepage works.**
+   The relative-path fix below was verified only via local server + curl, which does
+   NOT prove real browser rendering on the actual GitHub Pages deployment. Root
+   cause is still unconfirmed on tool pages (image-tools, pdf-tools) — re-investigate
+   from scratch, don't assume the prior fix actually worked.
+7. **Missing pages entirely**: About page, Privacy Policy page, likely Terms/Contact
+   too — none of these exist yet.
+
+Next step when resuming work: re-verify #6 first (the fix claim was wrong once
+already), then work through the rest of this list in order. Confirm fixes on the
+live site before marking anything done.
+
 ## Current State (as of 2026-07-03)
 - ✅ Static website built with vanilla HTML/CSS/JS
 - ✅ Image tools section (`/tools/image-tools/`)
@@ -15,12 +50,13 @@
 - ✅ 404 errors fixed + header/footer loading issue resolved (commit 37b3f5d)
 - ✅ Mobile responsive design
 - ✅ SEO setup (sitemap.xml, robots.txt, favicon)
-- ✅ Header/footer real root-cause fix (2026-07-03): site has NO CNAME, so it's served
-  from a GitHub Pages *project subpath*, not the domain root. Absolute paths like
-  `/components/header.html` 404 there. Fixed `js/script.js` to use relative
-  `../`-prefixed paths computed from folder depth. `js/favicon.js` had its own
-  separate, outdated pretty-URL-guessing depth logic — reconciled to the same simple
-  `pathParts.length - 1` calculation.
+- ⚠️ Header/footer path fix attempted (2026-07-03, commit `72b1f52`) — site has NO
+  CNAME, so it's served from a GitHub Pages *project subpath*, not the domain root.
+  Absolute paths like `/components/header.html` 404 there. Changed `js/script.js` to
+  use relative `../`-prefixed paths computed from folder depth, and reconciled
+  `js/favicon.js`'s separate outdated depth logic to match. **User reports this is
+  STILL broken on inner pages as of the same day — see Open Issues #6 above. Treat
+  as unresolved, not fixed.**
 - ✅ All internal links use explicit `.html` extensions for now (GitHub Pages testing).
   This is TEMPORARY — once hosted on Netlify, pretty URLs will be handled via
   `_redirects`, and `.html` will be dropped again.
@@ -67,6 +103,30 @@
 - [ ] Blog system implementation
 - [ ] User feedback/rating system
 - [ ] Internationalization (i18n) for Hindi/other languages
+- [ ] **Coin/credit economy (planned, NOT started — see below)**
+
+## Planned: Coin/Credit Economy (2026-07-03, planning only, not implemented)
+NexiTool.pro is **not** 100% browser-side (text2tool.in, our sister site, is 100%
+browser-side + no login — don't claim that for NexiTool). NexiTool mixes:
+- **Browser-side tools** (image compressor, image rename, PDF compressor, etc.) —
+  always free, never cost coins.
+- **Server-side tools** (text-to-voice, text-to-image, AI chat, AI code, etc.) — cost
+  real backend/API credits, so they will deduct user coins.
+
+Model (no real-money payment on this site):
+- Passive earning: while active on-site with ads visible, +8 coins every 30 seconds.
+- Active earning: "Earn Credit" button → watch a rewarded video ad → +30 coins.
+- Server-side tool usage deducts coins; browser-side tools never do.
+- Login required (Google + Email only, to start) so coins can attach to an account.
+- Coins/credits live in **Supabase**, server-side only — never trust client state.
+- Anti-abuse: Supabase-enforced cap of **max 90 coins/minute/user**; earning stops
+  immediately if the user runs an adblocker or leaves the tab/site.
+- No paid "buy credits" option on NexiTool.pro itself — if there's enough traffic and
+  demand later, a **separate new website** will be built for that, keeping NexiTool
+  purely ad/coin-funded.
+
+Status: brain-dump from the user, explicitly not to be coded yet. No Supabase, auth,
+or coin logic exists in this repo. Revisit this section when asked to build it.
 
 ## Design Updates (2026-07-03)
 
