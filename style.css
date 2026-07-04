@@ -39,7 +39,7 @@
     --brand-blue: var(--primary-cyan);
     --brand-red: var(--accent-pink);
 
-    --header-bg: rgba(10, 11, 13, 0.72);
+    --header-bg: rgba(10, 11, 13, 0.65);
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
     --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.45);
     --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55);
@@ -140,10 +140,11 @@ header {
     z-index: 100;
     width: 100%;
     height: 68px;
-    border-bottom: 1px solid var(--card-border);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     background-color: var(--header-bg);
-    backdrop-filter: saturate(180%) blur(16px);
-    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .header-content {
