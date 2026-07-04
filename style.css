@@ -510,9 +510,21 @@ html.light .auth-google-btn:hover { background: #f8f9fa; }
 .section-indicator { width: 4px; height: 26px; background: var(--accent, var(--brand)); border-radius: 4px; }
 .mb-24 { margin-bottom: 4rem; }
 
-/* Subtle divider (was rainbow-separator) */
-.rainbow-separator, .section-divider {
+/* Subtle divider (was rainbow-separator) — used as <hr> between sections */
+.rainbow-separator {
     height: 1px; width: 100%; margin: 3.5rem 0; background: var(--card-border); border: none;
+}
+
+/* Section divider — container for content blocks (H2, paragraphs, lists) on tool pages */
+.section-divider {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 3.5rem 0;
+    margin-top: 3.5rem;
+    text-align: left;
+}
+
+html.dark .section-divider {
+    border-top-color: rgba(255, 255, 255, 0.08);
 }
 
 /* ================================================================
