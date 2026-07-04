@@ -5,14 +5,18 @@
 // This site has no CNAME/custom domain wired up yet, so GitHub Pages serves it
 // from a repo subpath (e.g. username.github.io/nexitool-pro/) rather than the
 // domain root — absolute paths like "/components/header.html" would 404 there.
-// So every asset path below is resolved RELATIVE to the current page using a
-// "../" prefix computed from how deep the current .html file sits.
-const pathParts = window.location.pathname.split('/').filter(p => p);
-
-// Last segment is always a .html file, so depth = everything before it.
-const depth = Math.max(pathParts.length - 1, 0);
-const prefix = depth > 0 ? '../'.repeat(depth) : '';
-const isSubfolder = depth > 0;
+//
+// The "../" prefix is read from THIS SCRIPT TAG's own unresolved src attribute
+// rather than window.location.pathname — pathname parsing counted the GitHub
+// Pages repo-subpath segment ("/nexitool-pro/") as an extra folder level, so
+// every tool page fetched header.html/footer.html one directory too high and
+// 404'd. Every page already hardcodes the correct "../" depth for its own
+// <script src="...js/script.js"> tag (same as every other asset on that page),
+// so reading it back here is depth-correct no matter what subpath it's hosted at.
+const scriptEl = document.currentScript
+    || Array.from(document.getElementsByTagName('script')).find(s => /(^|\/)script\.js$/.test(s.getAttribute('src') || ''));
+const prefix = (scriptEl.getAttribute('src').match(/^(\.\.\/)*/) || [''])[0];
+const isSubfolder = prefix.length > 0;
 
 // Theme Management
 let themeToggle;
@@ -52,6 +56,9 @@ async function loadComponents() {
             // If in subfolder, fix links
             if (isSubfolder) {
                 data = data.replace(/href="index\.html"/g, `href="${prefix}index.html"`);
+                data = data.replace(/href="about\.html"/g, `href="${prefix}about.html"`);
+                data = data.replace(/href="privacy-policy\.html"/g, `href="${prefix}privacy-policy.html"`);
+                data = data.replace(/href="terms-of-service\.html"/g, `href="${prefix}terms-of-service.html"`);
                 data = data.replace(/href="sitemap\.xml"/g, `href="${prefix}sitemap.xml"`);
                 data = data.replace(/href="tools\//g, `href="${prefix}tools/`);
                 data = data.replace(/href="style\.css"/g, `href="${prefix}style.css"`);
@@ -87,6 +94,9 @@ async function loadComponents() {
             // If in subfolder, fix links
             if (isSubfolder) {
                 data = data.replace(/href="index\.html"/g, `href="${prefix}index.html"`);
+                data = data.replace(/href="about\.html"/g, `href="${prefix}about.html"`);
+                data = data.replace(/href="privacy-policy\.html"/g, `href="${prefix}privacy-policy.html"`);
+                data = data.replace(/href="terms-of-service\.html"/g, `href="${prefix}terms-of-service.html"`);
                 data = data.replace(/href="sitemap\.xml"/g, `href="${prefix}sitemap.xml"`);
                 data = data.replace(/href="tools\//g, `href="${prefix}tools/`);
                 data = data.replace(/href="style\.css"/g, `href="${prefix}style.css"`);
