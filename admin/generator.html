@@ -97,6 +97,8 @@
             </div>
 
             <label><input type="checkbox" id="isTrending" style="width:auto; display:inline-block; margin-right:6px;"> Mark as Trending</label>
+
+            <label style="margin-top: 12px;"><input type="checkbox" id="isPremium" style="width:auto; display:inline-block; margin-right:6px;"> Premium Tool (requires login + token deduction)</label>
         </fieldset>
     </div>
 
@@ -296,6 +298,33 @@ function generate() {
     const isTrending = document.getElementById('isTrending').checked;
     const features = document.getElementById('features').value.split('\n').map(f => f.trim()).filter(Boolean);
     const toolCode = document.getElementById('toolCode').value;
+    const isPremium = document.getElementById('isPremium').checked;
+
+    const loginCheckCode = isPremium ? `        <!-- Premium Tool: Login Check -->
+        <div id="premiumLoginCheck" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+            <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 2rem; max-width: 400px; text-align: center;">
+                <button onclick="document.getElementById('premiumLoginCheck').style.display='none'" style="position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer;">×</button>
+                <h3 style="margin: 0 0 1rem; color: var(--text-main);">Login Required</h3>
+                <p style="margin: 0 0 1.5rem; color: var(--text-muted);">Please sign in to use this premium tool.</p>
+                <button onclick="if(window.openAuthModal) window.openAuthModal()" style="background: var(--brand); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">Sign In</button>
+            </div>
+        </div>
+
+        <script>
+        (function() {
+            async function checkLoginBeforeUse() {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (!session) {
+                    document.getElementById('premiumLoginCheck').style.display = 'flex';
+                    return false;
+                }
+                return true;
+            }
+            window.checkPremiumLogin = checkLoginBeforeUse;
+        })();
+        <\/script>
+
+` : '';
 
     const featureIcons = Array.from(document.querySelectorAll('#featureList .pair')).map(el => ({
         icon: el.querySelector('.feature-icon').value.trim(),
@@ -435,9 +464,11 @@ ${faqSchema}
             <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px;">${escapeHtml(desc)}</p>
         </div>
 
-${toolCode}
+${loginCheckCode}${toolCode}
 
-${featureSection}${contentSectionsHtml ? contentSectionsHtml + '\n\n' : ''}${seoBlockHtml}        <section class="faq-section">
+${featureSection}${contentSectionsHtml ? contentSectionsHtml + '\n\n' : ''}${seoBlockHtml}        <!-- Premium Tool: Add this comment where you handle the main action button -->
+        <!-- Before sending request: if (isPremium && !(await window.checkPremiumLogin())) return; -->
+        <!-- Then deduct tokens: await supabaseClient.rpc('spend_credit', { p_model_id: 'tool-id' }) -->        <section class="faq-section">
             <h2 class="faq-title">Frequently Asked Questions</h2>
             <div class="faq-container">
 ${faqHtml}
