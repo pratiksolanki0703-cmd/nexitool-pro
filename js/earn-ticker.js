@@ -1,4 +1,4 @@
-// Passive coin-earning ticker: +8 coins roughly every 30s while a user is
+// Passive coin-earning ticker: +5 coins roughly every 30s while a user is
 // signed in and the tab is actually visible. Server-side (earn_ad_tick RPC)
 // enforces the real 90-coins/minute combined cap — this file just decides
 // when to ask, never how much to grant.
