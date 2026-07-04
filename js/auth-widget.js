@@ -34,6 +34,17 @@
     }
     window.updateCachedBalance = setBalance;
 
+    function updateCoinUI(disabled) {
+        const badge = document.getElementById('coinBadge');
+        if (!badge) return;
+        if (disabled) {
+            badge.classList.add('disabled');
+        } else {
+            badge.classList.remove('disabled');
+        }
+    }
+    window.updateCoinUI = updateCoinUI;
+
     function renderLoggedOut(container) {
         container.innerHTML = `<button id="authSignInBtn" class="auth-signin-btn">Sign In</button>`;
         document.getElementById('authSignInBtn').addEventListener('click', openAuthModal);

@@ -231,6 +231,15 @@
     <script src="js/supabase-client.js"></script>
     <script src="js/auth-widget.js"></script>
     <script src="js/earn-ticker.js"></script>
+    <script src="js/adblock-detector.js"></script>
     <script src="js/rewarded-ads.js"></script>
+    <script>
+        // Initialize ad blocker detection when auth widget is ready
+        window.addEventListener('load', () => {
+            if (window.initAdBlockDetector) {
+                window.initAdBlockDetector();
+            }
+        });
+    </script>
 </body>
 </html>

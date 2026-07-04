@@ -2,12 +2,17 @@
 // signed in and the tab is actually visible. Server-side (earn_ad_tick RPC)
 // enforces the real 90-coins/minute combined cap — this file just decides
 // when to ask, never how much to grant.
+// Ad blocker check: stops earning if ad blocker detected or user disabled it.
 (function() {
     const TICK_INTERVAL_MS = 30000;
     let intervalId = null;
 
     async function tick() {
         if (document.visibilityState !== 'visible') return;
+
+        // Check ad blocker status
+        const adBlockStatus = window.getAdBlockStatus && window.getAdBlockStatus();
+        if (adBlockStatus && !adBlockStatus.earningAllowed) return;
 
         const { data: { session } } = await window.supabaseClient.auth.getSession();
         if (!session) return;
@@ -22,6 +27,8 @@
 
     function start() {
         if (intervalId) return;
+        const adBlockStatus = window.getAdBlockStatus && window.getAdBlockStatus();
+        if (adBlockStatus && !adBlockStatus.earningAllowed) return;
         intervalId = setInterval(tick, TICK_INTERVAL_MS);
     }
 
@@ -30,6 +37,9 @@
         clearInterval(intervalId);
         intervalId = null;
     }
+
+    window.startCoinEarning = start;
+    window.stopCoinEarning = stop;
 
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState !== 'visible') stop();
