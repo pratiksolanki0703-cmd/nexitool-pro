@@ -102,6 +102,15 @@
             </fieldset>
 
             <fieldset>
+                <legend>Content Sections (optional — the "why use this / how it works" H2 blocks)</legend>
+                <p class="hint">Each section renders as its own <code>.section-divider</code> block with a
+                category-colored H2. This replaces hand-written inline &lt;style&gt; sections — don't paste
+                those into the Tool Code box anymore, add sections here instead.</p>
+                <div id="contentSectionList"></div>
+                <button type="button" class="btn-add" onclick="addContentSection()">+ Add Section</button>
+            </fieldset>
+
+            <fieldset>
                 <legend>SEO Content Block (optional — H2 + paragraph + comparison table)</legend>
                 <div class="checkbox-row">
                     <input type="checkbox" id="addSeoBlock">
@@ -160,6 +169,19 @@ function addFaqPair(q = '', a = '') {
 addFaqPair('Is this tool free to use?', 'Yes, this tool is free to use with no login required.');
 addFaqPair('Are my files uploaded to a server?', 'No, everything runs locally in your browser — your files are never uploaded anywhere.');
 
+function addContentSection(heading = '', body = '') {
+    const wrap = document.createElement('div');
+    wrap.className = 'faq-pair';
+    wrap.innerHTML = `
+        <label>H2 Heading</label>
+        <input class="section-h2" value="${escapeAttr(heading)}" placeholder="How it works">
+        <label>Body (one paragraph, or one &lt;li&gt; line per row)</label>
+        <textarea class="section-body" placeholder="Plain paragraph text, or lines starting with - for a bullet list">${escapeHtml(body)}</textarea>
+        <button type="button" class="btn-add" style="margin-top:6px; color:#fca5a5;" onclick="this.parentElement.remove()">✕ Remove</button>
+    `;
+    document.getElementById('contentSectionList').appendChild(wrap);
+}
+
 function escapeHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -210,6 +232,11 @@ function generate() {
         a: el.querySelector('.faq-a').value.trim()
     })).filter(f => f.q && f.a);
 
+    const contentSections = Array.from(document.querySelectorAll('#contentSectionList .faq-pair')).map(el => ({
+        h2: el.querySelector('.section-h2').value.trim(),
+        body: el.querySelector('.section-body').value.trim()
+    })).filter(s => s.h2 && s.body);
+
     const url = `https://nexitool.pro/tools/${categoryFolder}/${id}.html`;
 
     const faqSchema = faqPairs.map(f => `        {
@@ -222,6 +249,18 @@ function generate() {
                 <button class="faq-question">${escapeHtml(f.q)} <i data-lucide="chevron-down" class="faq-icon"></i></button>
                 <div class="faq-answer">${escapeHtml(f.a)}</div>
             </div>`).join('\n');
+
+    const contentSectionsHtml = contentSections.map(s => {
+        const lines = s.body.split('\n').map(l => l.trim()).filter(Boolean);
+        const isList = lines.length > 1 && lines.every(l => l.startsWith('-'));
+        const bodyHtml = isList
+            ? `<ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">\n${lines.map(l => `                    <li>${escapeHtml(l.replace(/^-\s*/, ''))}</li>`).join('\n')}\n                </ul>`
+            : `<p style="font-size: 18px; line-height: 1.7; opacity: 0.8;">${escapeHtml(s.body)}</p>`;
+        return `        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">${escapeHtml(s.h2)}</h2>
+            ${bodyHtml}
+        </div>`;
+    }).join('\n\n');
 
     let seoBlockHtml = '';
     if (addSeoBlock && (seoH2 || seoPara)) {
@@ -307,9 +346,11 @@ ${faqSchema}
 
 ${toolCode}
 
-${seoBlockHtml}        <section class="faq-section">
-            <h2 class="section-title">Frequently Asked Questions</h2>
+${contentSectionsHtml ? contentSectionsHtml + '\n\n' : ''}${seoBlockHtml}        <section class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            <div class="faq-container">
 ${faqHtml}
+            </div>
         </section>
 
         <div id="relatedTools"></div>

@@ -518,9 +518,8 @@ html.light .auth-google-btn:hover { background: #f8f9fa; }
 /* ================================================================
    GRID & TOOL CARDS
    ================================================================ */
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
-@media (max-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; } }
-@media (max-width: 460px) { .grid { grid-template-columns: 1fr; } }
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+@media (max-width: 460px) { .grid { grid-template-columns: 1fr; gap: 1rem; } }
 
 /* Main card */
 .glass-card {
@@ -547,12 +546,9 @@ html.light .auth-google-btn:hover { background: #f8f9fa; }
 .card-icon i { width: 22px; height: 22px; }
 
 .trending-badge {
-    font-size: 0.68rem; font-weight: 600; padding: 0.2rem 0.55rem; border-radius: 999px;
-    background: color-mix(in srgb, var(--accent-orange) 14%, transparent);
-    color: var(--accent-orange); text-transform: uppercase; letter-spacing: 0.05em;
-    display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+    position: absolute; top: -10px; right: 14px; font-size: 1.05rem; line-height: 1;
+    filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--accent-orange) 45%, transparent));
 }
-.fire-icon { font-size: 0.85em; }
 
 .card-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-main); letter-spacing: -0.01em; transition: color 0.2s; }
 .card-desc { color: var(--text-muted); font-size: 0.9rem; flex-grow: 1; line-height: 1.6; }
@@ -656,8 +652,12 @@ footer { margin-top: 6rem; padding: 4rem 0 2rem; border-top: 1px solid var(--car
    TOOL-PAGE CONTENT BLOCKS
    ================================================================ */
 .seo-extra-block { margin: 3rem 0; padding: 2rem; border-radius: var(--radius); background: var(--card-bg); border: 1px solid var(--card-border); }
-.seo-extra-block h2 { font-size: 1.5rem; margin-bottom: 1.25rem; color: var(--text-main); font-weight: 700; }
+.seo-extra-block h2 { font-size: 1.5rem; margin-bottom: 1.25rem; color: var(--accent, var(--brand)); font-weight: 700; }
 .seo-extra-block p { color: var(--text-muted); line-height: 1.7; font-size: 1rem; margin-bottom: 1.25rem; }
+
+/* Tool page content-section H2s (the "why use this / how it works" blocks) —
+   also tie into the page's category accent color instead of plain text-main. */
+.section-divider h2, .info-column h3 { color: var(--accent, var(--brand)); }
 .comparison-table { width: 100%; border-collapse: collapse; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--card-border); }
 .comparison-table th, .comparison-table td { padding: 1rem 1.1rem; text-align: left; font-size: 0.92rem; border-bottom: 1px solid var(--card-border); }
 .comparison-table th { background: var(--bg-secondary); color: var(--text-main); font-weight: 600; }

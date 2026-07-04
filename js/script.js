@@ -201,7 +201,7 @@ function renderHome() {
                                     <div class="card-icon">
                                         <i data-lucide="${tool.icon}"></i>
                                     </div>
-                                    ${tool.isTrending && !isTrending ? '<span class="trending-badge">Trending <span class="fire-icon">🔥</span></span>' : ''}
+                                    ${tool.isTrending && !isTrending ? '<span class="trending-badge" title="Trending">🔥</span>' : ''}
                                 </div>
                                 <div class="card-body">
                                     <h3 class="card-title">${tool.name}</h3>

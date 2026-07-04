@@ -42,60 +42,10 @@
     font-size: 0.875rem;
 }
 
-/* FAQ / Accordion Styles */
-.faq-section {
-    margin-top: 4rem;
-}
-
-.faq-item {
-    margin-bottom: 1rem;
-    border: 1px solid var(--card-border);
-    border-radius: 1rem;
-    overflow: hidden;
-    background: var(--card-bg);
-}
-
-.faq-question {
-    width: 100%;
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: none;
-    border: none;
-    color: var(--text-main);
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    text-align: left;
-    transition: background 0.2s;
-}
-
-.faq-question:hover {
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.faq-icon {
-    transition: transform 0.3s ease;
-}
-
-.faq-item.active .faq-icon {
-    transform: rotate(180deg);
-}
-
-.faq-answer {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out, padding 0.3s ease;
-    color: var(--text-muted);
-    font-size: 0.875rem;
-    line-height: 1.6;
-}
-
-.faq-item.active .faq-answer {
-    max-height: 500px; /* Adjust as needed */
-    padding: 0 1.5rem 1.5rem;
-}
+/* FAQ / Accordion styles now live in one place only: style.css
+   (.faq-section / .faq-title / .faq-container / .faq-item / .faq-question / .faq-answer)
+   Tool pages use that exact same system — do NOT redefine it here, that duplication
+   with slightly different padding was what made FAQ/SEO blocks visually collide. */
 
 /* Tool Action Button */
 .tool-btn {
