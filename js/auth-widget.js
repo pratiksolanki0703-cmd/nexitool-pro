@@ -1,32 +1,36 @@
 // Auth widget: renders into #authWidget (see components/header.html).
-//  - Logged out: a "Sign In" button that opens an email/password modal.
-//  - After signup (email confirmation required): the modal switches to a
-//    "check your email" pending screen instead of silently closing.
-//  - Logged in: a coin-balance pill + a profile button. Clicking the profile
-//    button opens a dropdown with the account email, the earn-coins options
-//    (Watch Ad + passive-earning note) and Sign out.
-//
-// Balance is fetched once on session-establish, then updated ONLY from each RPC
-// response's `balance` field afterward (earn-ticker.js / rewarded-ads.js call
-// window.updateCachedBalance()) — never re-fetched on a timer.
+// Logged out: Sign In button → modal. Logged in: profile avatar + coin badge,
+// click avatar → dropdown with email, coins, coupon, earn section, sign out.
 (function() {
     let cachedBalance = 0;
     let currentEmail = '';
+    let watchAdShownOnce = false; // Track if user has seen the watch ad modal
 
-    // Where Supabase should send the user after they click the email
-    // verification link. Must be allow-listed in the project's Auth settings
-    // (Site URL + Redirect URLs) — currently the GitHub Pages URL. Using the
-    // current page URL (minus any hash) returns the user to where they signed up.
     function redirectTarget() {
         return window.location.href.split('#')[0];
+    }
+
+    // Format coins: 999 → "999", 1000 → "1.01k", 100000 → "100k", 1000000 → "1m"
+    function formatCoins(num) {
+        if (num < 1000) return num.toString();
+        if (num < 1000000) {
+            const k = (num / 1000).toFixed(2).replace(/\.?0+$/, '');
+            return k + 'k';
+        }
+        const m = (num / 1000000).toFixed(1).replace(/\.?0+$/, '');
+        return m + 'm';
     }
 
     function setBalance(balance) {
         cachedBalance = balance;
         const pill = document.getElementById('coinBalancePill');
-        if (pill) pill.textContent = `${balance} coins`;
+        const badge = document.getElementById('coinBadge');
         const ddBal = document.getElementById('profileDropdownBalance');
-        if (ddBal) ddBal.innerHTML = `<strong>${balance}</strong> coins`;
+
+        const formatted = formatCoins(balance);
+        if (pill) pill.textContent = formatted;
+        if (badge) badge.textContent = formatted;
+        if (ddBal) ddBal.innerHTML = `<strong>${formatted}</strong> <span style="font-size: 0.85rem;">(${balance} total)</span>`;
     }
     window.updateCachedBalance = setBalance;
 
@@ -35,23 +39,78 @@
         document.getElementById('authSignInBtn').addEventListener('click', openAuthModal);
     }
 
+    function showWatchAdModal() {
+        // Only show once per session; subsequent clicks go directly to the rewarded ad
+        if (watchAdShownOnce) {
+            if (window.showRewardedAd) window.showRewardedAd();
+            return;
+        }
+
+        const overlay = document.createElement('div');
+        overlay.id = 'watchAdModalOverlay';
+        overlay.className = 'auth-modal-overlay';
+        overlay.innerHTML = `
+            <div class="auth-modal">
+                <button class="auth-modal-close" id="watchAdClose">&times;</button>
+                <div style="text-align: center;">
+                    <i data-lucide="play-circle" style="width: 48px; height: 48px; color: var(--brand); margin-bottom: 1rem;"></i>
+                    <h3>Watch an Ad &amp; Earn Coins</h3>
+                    <p class="auth-modal-sub">Complete a short rewarded video to earn <strong>30 coins</strong>.</p>
+                </div>
+                <div class="auth-modal-error" style="background: rgba(255, 193, 7, 0.15); border-left: 3px solid var(--accent-orange); color: var(--accent-orange);">
+                    <strong>Important:</strong>
+                    <ul style="margin: 0.5rem 0 0 0; padding-left: 1.25rem; font-size: 0.85rem;">
+                        <li>Disable ad blockers for this to work</li>
+                        <li>Watch the entire ad — skipping it won't earn coins</li>
+                    </ul>
+                </div>
+                <button id="startWatchAd" class="auth-submit-btn" style="width: 100%; margin-top: 1.5rem;">Start Watching</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        if (window.lucide) lucide.createIcons();
+
+        watchAdShownOnce = true;
+        document.getElementById('watchAdClose').addEventListener('click', () => overlay.remove());
+        document.getElementById('startWatchAd').addEventListener('click', () => {
+            overlay.remove();
+            if (window.showRewardedAd) window.showRewardedAd();
+        });
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    }
+
     function renderLoggedIn(container) {
         const initial = (currentEmail[0] || 'u').toUpperCase();
+        const formatted = formatCoins(cachedBalance);
+
         container.innerHTML = `
-            <div class="coin-balance-pill" id="coinBalancePill">${cachedBalance} coins</div>
             <div class="profile-menu">
                 <button id="profileBtn" class="profile-btn" title="Account" aria-haspopup="true" aria-expanded="false">
                     <span class="profile-avatar">${initial}</span>
+                    <span class="coin-badge" id="coinBadge">${formatted}</span>
                 </button>
                 <div class="profile-dropdown" id="profileDropdown" hidden>
                     <div class="profile-email" title="${currentEmail}">${currentEmail}</div>
-                    <div class="profile-balance" id="profileDropdownBalance"><strong>${cachedBalance}</strong> coins</div>
+                    <div class="profile-balance" id="profileDropdownBalance">
+                        <strong>${formatted}</strong> <span style="font-size: 0.85rem;">(${cachedBalance} total)</span>
+                    </div>
+                    <div class="profile-divider"></div>
+
+                    <div class="profile-section-label">Coupon Code</div>
+                    <div class="profile-coupon">
+                        <input type="text" id="couponInput" placeholder="Enter code" class="profile-coupon-input">
+                        <button id="couponBtn" class="profile-coupon-btn">Redeem</button>
+                    </div>
+
                     <div class="profile-divider"></div>
                     <div class="profile-section-label">Earn coins</div>
-                    <button id="watchAdBtn" class="watch-ad-btn" disabled title="Coming soon">
-                        <i data-lucide="play-circle"></i> Watch Ad (coming soon)
-                    </button>
-                    <p class="profile-earn-note">You also earn coins automatically while this tab stays open.</p>
+                    <div class="profile-earn-section">
+                        <button id="watchAdBtn" class="profile-earn-btn" title="Watch a video to earn 30 coins">
+                            <i data-lucide="play-circle"></i> <span>Watch Ad</span>
+                        </button>
+                        <p class="profile-earn-note">Or earn passively — 8 coins every 30 seconds just by keeping this tab open.</p>
+                    </div>
+
                     <div class="profile-divider"></div>
                     <button id="authSignOutBtn" class="profile-signout">
                         <i data-lucide="log-out"></i> Sign out
@@ -79,7 +138,6 @@
             if (dropdown.hidden) {
                 dropdown.hidden = false;
                 profileBtn.setAttribute('aria-expanded', 'true');
-                // defer so this same click doesn't immediately close it
                 setTimeout(() => document.addEventListener('click', onOutsideClick), 0);
             } else {
                 closeDropdown();
@@ -90,8 +148,33 @@
             await window.supabaseClient.auth.signOut();
         });
 
-        document.getElementById('watchAdBtn').addEventListener('click', () => {
-            if (window.showRewardedAd) window.showRewardedAd();
+        document.getElementById('watchAdBtn').addEventListener('click', showWatchAdModal);
+
+        document.getElementById('couponBtn').addEventListener('click', async () => {
+            const code = document.getElementById('couponInput').value.trim();
+            if (!code) {
+                alert('Please enter a coupon code');
+                return;
+            }
+            document.getElementById('couponBtn').disabled = true;
+            document.getElementById('couponBtn').textContent = 'Redeeming...';
+
+            try {
+                const { data, error } = await window.supabaseClient.rpc('redeem_coupon', { p_code: code });
+                if (error) throw error;
+                if (data.success) {
+                    alert(`Success! You earned ${data.granted} coins.`);
+                    document.getElementById('couponInput').value = '';
+                    setBalance(data.balance);
+                } else {
+                    alert(`Coupon error: ${data.reason || 'Unknown error'}`);
+                }
+            } catch (e) {
+                alert(`Error: ${e.message}`);
+            }
+
+            document.getElementById('couponBtn').disabled = false;
+            document.getElementById('couponBtn').textContent = 'Redeem';
         });
     }
 
@@ -176,9 +259,6 @@
                     submitBtn.textContent = 'Sign Up';
                     return;
                 }
-                // If email confirmation is required, there's no session yet — show
-                // the "check your email" screen. If autoconfirm is ever enabled,
-                // a session comes back and we just close (onAuthStateChange handles UI).
                 if (!data.session) {
                     showVerifyPending(email);
                 } else {

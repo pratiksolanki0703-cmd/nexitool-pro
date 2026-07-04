@@ -294,8 +294,27 @@ nav a:hover, nav a.active { color: var(--text-main); }
     align-items: center;
     justify-content: center;
     transition: transform 0.15s;
+    position: relative;
 }
 .profile-btn:hover .profile-avatar { transform: scale(1.05); }
+
+.coin-badge {
+    position: absolute;
+    bottom: -6px;
+    right: -6px;
+    background: var(--brand);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.3rem 0.5rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    border: 2px solid var(--bg-main);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.profile-btn:hover .coin-badge { transform: scale(1.1); }
+.coin-badge:active { transform: scale(0.95); }
 
 .profile-dropdown {
     position: absolute;
@@ -318,6 +337,55 @@ nav a:hover, nav a.active { color: var(--text-main); }
 .profile-divider { height: 1px; background: var(--card-border); margin: 0.85rem 0; }
 .profile-section-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle); margin-bottom: 0.55rem; }
 .profile-dropdown .watch-ad-btn { width: 100%; justify-content: center; }
+.profile-coupon {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+.profile-coupon-input {
+    flex: 1;
+    background: var(--bg-secondary);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    padding: 0.5rem 0.7rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-family: inherit;
+}
+.profile-coupon-input:focus { outline: none; border-color: var(--brand); }
+.profile-coupon-btn {
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.profile-coupon-btn:hover { background: var(--brand-tint); }
+.profile-coupon-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.profile-earn-section { margin: 0; }
+.profile-earn-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: 100%;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+.profile-earn-btn:hover { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 8%, var(--bg-secondary)); }
+.profile-earn-btn i { width: 16px; height: 16px; }
 .profile-earn-note { font-size: 0.75rem; color: var(--text-subtle); line-height: 1.5; margin-top: 0.55rem; }
 .profile-signout {
     display: flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center;
