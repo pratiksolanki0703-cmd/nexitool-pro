@@ -197,8 +197,8 @@
                         <button type="submit" id="authSubmitBtn" class="auth-submit-btn">Sign In</button>
                     </form>
                     <button id="authToggleMode" class="auth-toggle-mode" type="button">Need an account? Sign up</button>
-                    <button class="auth-google-btn" disabled title="Coming soon" type="button">
-                        <i data-lucide="chrome"></i> Continue with Google (coming soon)
+                    <button id="authGoogleBtn" class="auth-google-btn" type="button">
+                        <i data-lucide="chrome"></i> Continue with Google
                     </button>
                 </div>
             </div>
@@ -235,6 +235,34 @@
             submitBtn.textContent = mode === 'signin' ? 'Sign In' : 'Sign Up';
             toggleBtn.textContent = mode === 'signin' ? 'Need an account? Sign up' : 'Already have an account? Sign in';
             errorEl.style.display = 'none';
+        });
+
+        document.getElementById('authGoogleBtn').addEventListener('click', async () => {
+            const googleBtn = document.getElementById('authGoogleBtn');
+            googleBtn.disabled = true;
+            googleBtn.textContent = 'Signing in...';
+
+            try {
+                const { error } = await window.supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: redirectTarget()
+                    }
+                });
+                if (error) {
+                    errorEl.textContent = error.message || 'Google sign-in failed';
+                    errorEl.style.display = 'block';
+                    googleBtn.disabled = false;
+                    googleBtn.innerHTML = '<i data-lucide="chrome"></i> Continue with Google';
+                    if (window.lucide) lucide.createIcons();
+                }
+            } catch (e) {
+                errorEl.textContent = e.message || 'An error occurred';
+                errorEl.style.display = 'block';
+                googleBtn.disabled = false;
+                googleBtn.innerHTML = '<i data-lucide="chrome"></i> Continue with Google';
+                if (window.lucide) lucide.createIcons();
+            }
         });
 
         document.getElementById('authEmailForm').addEventListener('submit', async (e) => {

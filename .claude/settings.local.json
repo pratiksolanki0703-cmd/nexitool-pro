@@ -2,7 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(git add *)",
-      "Bash(git commit -m 'Final Design v3: Completely unique bold neon aesthetic *)"
+      "Bash(git commit -m 'Final Design v3: Completely unique bold neon aesthetic *)",
+      "Bash(supabase --version)",
+      "Bash(supabase projects *)",
+      "Bash(supabase login *)",
+      "Bash(supabase link *)",
+      "Bash(supabase migration *)",
+      "Bash(supabase init *)",
+      "Bash(curl -s \"https://api.github.com/repos/pratiksolanki0703-cmd/nexitool-pro/actions/runs?per_page=2\")",
+      "Bash(python3 -c ' *)",
+      "Bash(curl *)",
+      "WebSearch",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }

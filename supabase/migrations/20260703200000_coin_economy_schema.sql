@@ -153,8 +153,6 @@ begin
     if v_amount > 0 then
         v_balance := v_balance + v_amount;
         update public.profiles set credit_balance = v_balance where id = v_uid;
-        insert into public.credit_ledger (user_id, amount, type, meta, balance_after)
-        values (v_uid, v_amount, 'earn_ad', jsonb_build_object('nominal', 8), v_balance);
     end if;
 
     return jsonb_build_object('balance', v_balance, 'granted', v_amount, 'capped', v_amount < 8);
