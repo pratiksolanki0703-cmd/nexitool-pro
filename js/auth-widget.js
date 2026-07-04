@@ -193,7 +193,11 @@
                     <div class="auth-modal-error" id="authModalError" style="display:none;"></div>
 
                     <button id="authGoogleBtn" class="auth-google-btn" type="button">
-                        <i data-lucide="chrome"></i> Continue with Google
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#4285F4"/>
+                            <text x="12" y="15" font-size="14" font-weight="bold" fill="white" text-anchor="middle">G</text>
+                        </svg>
+                        Continue with Google
                     </button>
 
                     <div class="auth-divider">
@@ -247,33 +251,184 @@
             errorEl.style.display = 'none';
         });
 
-        const forgotBtn = document.getElementById('authForgotBtn');
-        if (forgotBtn) {
-            forgotBtn.addEventListener('click', async () => {
-                const email = document.getElementById('authEmailInput').value.trim();
-                if (!email) {
-                    alert('Please enter your email address');
+        function showForgotPasswordModal() {
+            const resetOverlay = document.createElement('div');
+            resetOverlay.className = 'auth-modal-overlay';
+            resetOverlay.innerHTML = `
+                <div class="auth-modal">
+                    <button class="auth-modal-close" id="resetModalClose">&times;</button>
+                    <div id="resetModalBody">
+                        <!-- Step 1: Enter Email -->
+                        <div id="resetStep1" class="reset-step">
+                            <h3>Reset Password</h3>
+                            <p class="auth-modal-sub">Enter your email to receive a verification code.</p>
+                            <div class="auth-modal-error" id="resetError" style="display:none;"></div>
+                            <input type="email" id="resetEmailInput" placeholder="Email" required autocomplete="email">
+                            <button id="resetStep1Btn" class="auth-submit-btn" style="width: 100%; margin-top: 1rem;">Send Code</button>
+                        </div>
+
+                        <!-- Step 2: Enter OTP -->
+                        <div id="resetStep2" class="reset-step" style="display:none;">
+                            <h3>Verify Code</h3>
+                            <p class="auth-modal-sub">We sent a code to <span id="resetEmailDisplay"></span></p>
+                            <div class="auth-modal-error" id="resetError2" style="display:none;"></div>
+                            <input type="text" id="resetOtpInput" placeholder="6-digit code" maxlength="6" required autocomplete="off">
+                            <button id="resetStep2Btn" class="auth-submit-btn" style="width: 100%; margin-top: 1rem;">Verify Code</button>
+                            <button id="resetBackBtn" class="auth-link-btn" style="width: 100%; margin-top: 0.5rem;">← Back</button>
+                        </div>
+
+                        <!-- Step 3: New Password -->
+                        <div id="resetStep3" class="reset-step" style="display:none;">
+                            <h3>New Password</h3>
+                            <p class="auth-modal-sub">Enter a new password (minimum 8 characters).</p>
+                            <div class="auth-modal-error" id="resetError3" style="display:none;"></div>
+                            <input type="password" id="resetPasswordInput" placeholder="New password (min 8 chars)" required autocomplete="new-password" minlength="8">
+                            <input type="password" id="resetPasswordConfirm" placeholder="Confirm password" required autocomplete="new-password" minlength="8">
+                            <button id="resetStep3Btn" class="auth-submit-btn" style="width: 100%; margin-top: 1rem;">Reset Password</button>
+                            <button id="resetBackBtn2" class="auth-link-btn" style="width: 100%; margin-top: 0.5rem;">← Back</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(resetOverlay);
+
+            let resetEmail = '';
+            let resetOtp = '';
+
+            document.getElementById('resetModalClose').addEventListener('click', () => resetOverlay.remove());
+            resetOverlay.addEventListener('click', (e) => { if (e.target === resetOverlay) resetOverlay.remove(); });
+
+            // Step 1: Send OTP
+            document.getElementById('resetStep1Btn').addEventListener('click', async () => {
+                resetEmail = document.getElementById('resetEmailInput').value.trim();
+                if (!resetEmail) {
+                    document.getElementById('resetError').textContent = 'Please enter your email';
+                    document.getElementById('resetError').style.display = 'block';
                     return;
                 }
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Sending...';
+
+                const btn = document.getElementById('resetStep1Btn');
+                btn.disabled = true;
+                btn.textContent = 'Sending...';
+                const errEl = document.getElementById('resetError');
+                errEl.style.display = 'none';
+
                 try {
-                    const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
-                        redirectTo: redirectTarget()
-                    });
+                    const { error } = await window.supabaseClient.auth.signInWithOtp({ email: resetEmail });
                     if (error) {
-                        errorEl.textContent = error.message;
-                        errorEl.style.display = 'block';
+                        errEl.textContent = error.message;
+                        errEl.style.display = 'block';
                     } else {
-                        alert(`Password reset link sent to ${email}. Check your email.`);
+                        document.getElementById('resetEmailDisplay').textContent = resetEmail;
+                        document.getElementById('resetStep1').style.display = 'none';
+                        document.getElementById('resetStep2').style.display = 'block';
                     }
                 } catch (e) {
-                    errorEl.textContent = e.message;
-                    errorEl.style.display = 'block';
+                    errEl.textContent = e.message;
+                    errEl.style.display = 'block';
                 }
-                submitBtn.disabled = false;
-                submitBtn.textContent = mode === 'signin' ? 'Continue with Email' : 'Create Account';
+
+                btn.disabled = false;
+                btn.textContent = 'Send Code';
             });
+
+            // Step 2: Verify OTP
+            document.getElementById('resetStep2Btn').addEventListener('click', async () => {
+                resetOtp = document.getElementById('resetOtpInput').value.trim();
+                if (!resetOtp || resetOtp.length !== 6) {
+                    document.getElementById('resetError2').textContent = 'Please enter a valid 6-digit code';
+                    document.getElementById('resetError2').style.display = 'block';
+                    return;
+                }
+
+                const btn = document.getElementById('resetStep2Btn');
+                btn.disabled = true;
+                btn.textContent = 'Verifying...';
+                const errEl = document.getElementById('resetError2');
+                errEl.style.display = 'none';
+
+                try {
+                    const { error } = await window.supabaseClient.auth.verifyOtp({
+                        email: resetEmail,
+                        token: resetOtp,
+                        type: 'email'
+                    });
+                    if (error) {
+                        errEl.textContent = error.message;
+                        errEl.style.display = 'block';
+                    } else {
+                        document.getElementById('resetStep2').style.display = 'none';
+                        document.getElementById('resetStep3').style.display = 'block';
+                    }
+                } catch (e) {
+                    errEl.textContent = e.message;
+                    errEl.style.display = 'block';
+                }
+
+                btn.disabled = false;
+                btn.textContent = 'Verify Code';
+            });
+
+            // Step 3: Set New Password
+            document.getElementById('resetStep3Btn').addEventListener('click', async () => {
+                const pwd = document.getElementById('resetPasswordInput').value;
+                const pwdConfirm = document.getElementById('resetPasswordConfirm').value;
+                const errEl = document.getElementById('resetError3');
+                errEl.style.display = 'none';
+
+                if (pwd.length < 8) {
+                    errEl.textContent = 'Password must be at least 8 characters';
+                    errEl.style.display = 'block';
+                    return;
+                }
+
+                if (pwd !== pwdConfirm) {
+                    errEl.textContent = 'Passwords do not match';
+                    errEl.style.display = 'block';
+                    return;
+                }
+
+                const btn = document.getElementById('resetStep3Btn');
+                btn.disabled = true;
+                btn.textContent = 'Resetting...';
+
+                try {
+                    const { error } = await window.supabaseClient.auth.updateUser({ password: pwd });
+                    if (error) {
+                        errEl.textContent = error.message;
+                        errEl.style.display = 'block';
+                    } else {
+                        alert('Password reset successfully! Please sign in with your new password.');
+                        resetOverlay.remove();
+                    }
+                } catch (e) {
+                    errEl.textContent = e.message;
+                    errEl.style.display = 'block';
+                }
+
+                btn.disabled = false;
+                btn.textContent = 'Reset Password';
+            });
+
+            // Back buttons
+            document.getElementById('resetBackBtn').addEventListener('click', () => {
+                document.getElementById('resetStep2').style.display = 'none';
+                document.getElementById('resetStep1').style.display = 'block';
+                document.getElementById('resetError').style.display = 'none';
+                document.getElementById('resetError2').style.display = 'none';
+            });
+
+            document.getElementById('resetBackBtn2').addEventListener('click', () => {
+                document.getElementById('resetStep3').style.display = 'none';
+                document.getElementById('resetStep2').style.display = 'block';
+                document.getElementById('resetError2').style.display = 'none';
+                document.getElementById('resetError3').style.display = 'none';
+            });
+        }
+
+        const forgotBtn = document.getElementById('authForgotBtn');
+        if (forgotBtn) {
+            forgotBtn.addEventListener('click', showForgotPasswordModal);
         }
 
         document.getElementById('authGoogleBtn').addEventListener('click', async () => {
