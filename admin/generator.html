@@ -8,179 +8,258 @@
 <style>
     * { box-sizing: border-box; }
     body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 24px; }
-    h1 { font-size: 22px; margin-bottom: 4px; }
-    .warning { background: #451a03; border: 1px solid #f59e0b; color: #fde68a; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 24px; }
-    .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
-    @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .warning { background: #451a03; border: 1px solid #f59e0b; color: #fde68a; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 24px; }
+    .step { max-width: 900px; margin: 0 auto 32px; }
+    .step-title { font-size: 16px; font-weight: 700; color: #60a5fa; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .step-title::before { content: attr(data-step); display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #1e293b; border: 2px solid #60a5fa; border-radius: 50%; font-size: 12px; }
     fieldset { border: 1px solid #334155; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
     legend { font-weight: 700; font-size: 13px; color: #93c5fd; padding: 0 6px; }
     label { display: block; font-size: 12.5px; font-weight: 600; margin: 10px 0 4px; color: #cbd5e1; }
     input, select, textarea { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #f1f5f9; font-family: inherit; font-size: 13px; }
     textarea { font-family: ui-monospace, Menlo, Consolas, monospace; resize: vertical; }
-    textarea.code { min-height: 140px; }
+    textarea.code { min-height: 200px; }
     .row { display: flex; gap: 12px; }
     .row > div { flex: 1; }
-    .faq-pair { border: 1px dashed #334155; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
-    .faq-pair textarea { min-height: 50px; }
+    .pair { border: 1px dashed #334155; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+    .pair textarea { min-height: 60px; }
     .hint { font-size: 11.5px; color: #64748b; margin-top: 4px; }
     button { cursor: pointer; border: none; border-radius: 6px; padding: 8px 14px; font-weight: 700; font-size: 13px; }
     .btn-add { background: #1e293b; color: #93c5fd; border: 1px solid #334155; margin-top: 4px; }
-    .btn-generate { background: #2563eb; color: white; width: 100%; padding: 14px; font-size: 15px; margin-top: 8px; }
+    .btn-generate { background: #2563eb; color: white; width: 100%; padding: 14px; font-size: 15px; margin-top: 8px; margin-bottom: 32px; }
     .btn-copy { background: #16a34a; color: white; margin-right: 8px; margin-top: 8px; }
     .btn-download { background: #111827; color: white; border: 1px solid #334155; margin-top: 8px; }
     .output-block { margin-bottom: 24px; }
     .output-block h3 { font-size: 14px; margin-bottom: 6px; color: #93c5fd; }
-    #faqList { margin-bottom: 10px; }
     .checkbox-row { display: flex; align-items: center; gap: 6px; margin: 10px 0 4px; }
     .checkbox-row input { width: auto; }
     .checkbox-row label { margin: 0; }
+    .icon-preview { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 10px; }
+    .icon-item { padding: 12px; border-radius: 8px; border: 1px solid #334155; text-align: center; font-size: 28px; }
+    .icon-item.image { background: rgba(59, 130, 246, 0.15); border-color: #3b82f6; }
+    .icon-item.pdf { background: rgba(244, 63, 94, 0.15); border-color: #f43f5e; }
+    .icon-item.security { background: rgba(139, 92, 246, 0.15); border-color: #8b5cf6; }
+    .icon-item.dev { background: rgba(234, 179, 8, 0.15); border-color: #eab308; }
 </style>
 </head>
 <body>
     <h1>NexiTool Generator</h1>
     <div class="warning">
-        ⚠️ Local-only admin tool — not linked in the site nav, marked <code>noindex</code>, and never uploaded to Netlify/hosting.
-        Paste your AI-written tool code + metadata below, click Generate, then save the output as
-        <code>tools/&lt;category-folder&gt;/&lt;tool-id&gt;.html</code> and paste the matching entry into <code>js/tools-data.js</code>.
+        ⚠️ Local-only admin tool — not linked in the site nav, marked <code>noindex</code>, and never uploaded to hosting.
+        Fill out the steps below, click Generate, then save output as <code>tools/&lt;category-folder&gt;/&lt;tool-id&gt;.html</code>
+        and paste the entry into <code>js/tools-data.js</code>.
     </div>
 
-    <div class="layout">
-        <div>
-            <fieldset>
-                <legend>Basic Info</legend>
-                <label>Tool ID (slug, used as filename — e.g. bulk-image-compressor)</label>
-                <input id="toolId" placeholder="bulk-image-compressor">
-
-                <label>Tool Name (display title)</label>
-                <input id="toolName" placeholder="Bulk Image Compressor">
-
-                <label>Meta Description (150–160 chars, for Google + FAQ context)</label>
-                <textarea id="metaDesc" style="min-height: 60px;" placeholder="Free bulk image compressor to reduce image size online..."></textarea>
-
-                <div class="row">
-                    <div>
-                        <label>Category Name</label>
-                        <input id="category" list="categoryOptions" placeholder="Image">
-                        <datalist id="categoryOptions">
-                            <option value="Image">
-                            <option value="PDF">
-                        </datalist>
-                    </div>
-                    <div>
-                        <label>Category Folder (URL path segment)</label>
-                        <input id="categoryFolder" placeholder="image-tools">
-                    </div>
+    <!-- STEP 1: Basic Info -->
+    <div class="step">
+        <div class="step-title" data-step="1">Basic Info</div>
+        <fieldset>
+            <legend>Tool Metadata</legend>
+            <div class="row">
+                <div>
+                    <label>Tool ID (slug)</label>
+                    <input id="toolId" placeholder="bulk-image-compressor">
                 </div>
-
-                <div class="row">
-                    <div>
-                        <label>Color Slug (must match a .color-X class in style.css)</label>
-                        <input id="colorSlug" list="colorOptions" placeholder="image">
-                        <datalist id="colorOptions">
-                            <option value="image">
-                            <option value="pdf">
-                        </datalist>
-                    </div>
-                    <div>
-                        <label>Lucide Icon Name</label>
-                        <input id="iconName" placeholder="image-down">
-                    </div>
+                <div>
+                    <label>Tool Name</label>
+                    <input id="toolName" placeholder="Bulk Image Compressor">
                 </div>
+            </div>
 
-                <label><input type="checkbox" id="isTrending" style="width:auto; display:inline-block; margin-right:6px;"> Mark as Trending (shows 🔥 badge on card)</label>
-            </fieldset>
+            <label>Meta Description (150–160 chars)</label>
+            <textarea id="metaDesc" style="min-height: 60px;" placeholder="Free bulk image compressor..."></textarea>
 
-            <fieldset>
-                <legend>Feature List (one per line, used in schema)</legend>
-                <textarea id="features" style="min-height: 90px;" placeholder="Bulk processing&#10;Client-side, no upload&#10;Download as ZIP"></textarea>
-            </fieldset>
-
-            <fieldset>
-                <legend>FAQ</legend>
-                <div id="faqList"></div>
-                <button type="button" class="btn-add" onclick="addFaqPair()">+ Add Question</button>
-            </fieldset>
-
-            <fieldset>
-                <legend>Content Sections (optional — the "why use this / how it works" H2 blocks)</legend>
-                <p class="hint">Each section renders as its own <code>.section-divider</code> block with a
-                category-colored H2. This replaces hand-written inline &lt;style&gt; sections — don't paste
-                those into the Tool Code box anymore, add sections here instead.</p>
-                <div id="contentSectionList"></div>
-                <button type="button" class="btn-add" onclick="addContentSection()">+ Add Section</button>
-            </fieldset>
-
-            <fieldset>
-                <legend>SEO Content Block (optional — H2 + paragraph + comparison table)</legend>
-                <div class="checkbox-row">
-                    <input type="checkbox" id="addSeoBlock">
-                    <label for="addSeoBlock" style="margin:0;">Add this block to the generated page (skip if not relevant for this tool)</label>
+            <div class="row">
+                <div>
+                    <label>Category</label>
+                    <input id="category" list="categoryOptions" placeholder="Image">
+                    <datalist id="categoryOptions">
+                        <option value="Image">
+                        <option value="PDF">
+                    </datalist>
                 </div>
+                <div>
+                    <label>Category Folder</label>
+                    <input id="categoryFolder" placeholder="image-tools">
+                </div>
+                <div>
+                    <label>Color Slug</label>
+                    <input id="colorSlug" list="colorOptions" placeholder="image">
+                    <datalist id="colorOptions">
+                        <option value="image">
+                        <option value="pdf">
+                    </datalist>
+                </div>
+                <div>
+                    <label>Icon (Lucide)</label>
+                    <input id="iconName" placeholder="image-down">
+                </div>
+            </div>
 
-                <label>H2 Heading</label>
-                <input id="seoH2" placeholder="e.g. Why Use Our Bulk Image Compressor Over Others?">
+            <label><input type="checkbox" id="isTrending" style="width:auto; display:inline-block; margin-right:6px;"> Mark as Trending</label>
+        </fieldset>
+    </div>
 
-                <label>Paragraph</label>
-                <textarea id="seoPara" style="min-height: 80px;" placeholder="Write 2-4 original sentences here — explain what makes this tool useful, in your own words."></textarea>
+    <!-- STEP 2: Feature Icons -->
+    <div class="step">
+        <div class="step-title" data-step="2">Feature Icons (appears above tool code)</div>
+        <fieldset>
+            <legend>Pick 4 icons that describe the tool (category-colored)</legend>
+            <div id="categoryPreview"></div>
+            <div id="featureList"></div>
+            <button type="button" class="btn-add" onclick="addFeatureIcon()">+ Add Feature Icon</button>
+        </fieldset>
+    </div>
 
-                <label>Comparison Table Rows (optional — one row per line, format: Feature | This Tool | Alternatives)</label>
-                <textarea id="comparisonRows" style="min-height: 80px;" placeholder="No File Upload | Yes, 100% Browser | Usually server upload&#10;Free to Use | Yes | Often limited free tier&#10;File Limit | Unlimited | Often 5-10 files max"></textarea>
-                <p class="hint">Leave this box empty to show just the H2 + paragraph without a table.</p>
-            </fieldset>
+    <!-- STEP 3: Tool Code -->
+    <div class="step">
+        <div class="step-title" data-step="3">Tool Code</div>
+        <fieldset>
+            <legend>Paste your complete tool code here</legend>
+            <label>Upload box, controls, result UI — everything (copy from your AI output)</label>
+            <textarea id="toolCode" class="code" placeholder="<div class='upload-box'>..."></textarea>
+        </fieldset>
+    </div>
+
+    <!-- STEP 4: Content Sections -->
+    <div class="step">
+        <div class="step-title" data-step="4">Content Sections ("Why use" / "How it works")</div>
+        <fieldset>
+            <legend>Optional — add H2 blocks with category-colored headings</legend>
+            <div id="contentSectionList"></div>
+            <button type="button" class="btn-add" onclick="addContentSection()">+ Add Section</button>
+        </fieldset>
+    </div>
+
+    <!-- STEP 5: Features & FAQ -->
+    <div class="step">
+        <div class="step-title" data-step="5">Features & FAQ</div>
+        <fieldset>
+            <legend>Feature List (one per line, for schema)</legend>
+            <textarea id="features" style="min-height: 80px;" placeholder="Bulk processing&#10;Client-side, no upload&#10;Download as ZIP"></textarea>
+        </fieldset>
+
+        <fieldset>
+            <legend>FAQ Questions</legend>
+            <div id="faqList"></div>
+            <button type="button" class="btn-add" onclick="addFaqPair()">+ Add Question</button>
+        </fieldset>
+    </div>
+
+    <!-- STEP 6: SEO Block -->
+    <div class="step">
+        <div class="step-title" data-step="6">SEO Content (optional)</div>
+        <fieldset>
+            <legend>Add SEO H2 + paragraph + comparison table</legend>
+            <div class="checkbox-row">
+                <input type="checkbox" id="addSeoBlock">
+                <label for="addSeoBlock" style="margin:0;">Include this block</label>
+            </div>
+
+            <label>SEO H2 Heading</label>
+            <input id="seoH2" placeholder="Why Use Our Bulk Image Compressor Over Others?">
+
+            <label>Paragraph</label>
+            <textarea id="seoPara" style="min-height: 80px;" placeholder="Explain what makes this tool useful..."></textarea>
+
+            <label>Comparison Table (Feature | This Tool | Alternatives)</label>
+            <textarea id="comparisonRows" style="min-height: 80px;" placeholder="No File Upload | Yes | Usually server upload&#10;Free | Yes | Often limited tier"></textarea>
+        </fieldset>
+    </div>
+
+    <!-- Generate Button -->
+    <div class="step">
+        <button class="btn-generate" onclick="generate()">⚡ Generate Tool Page</button>
+    </div>
+
+    <!-- Output -->
+    <div class="step">
+        <div class="step-title" data-step="→">Generated HTML</div>
+        <div class="output-block">
+            <h3>Save as: tools/&lt;category-folder&gt;/&lt;tool-id&gt;.html</h3>
+            <textarea id="outputHtml" class="code" style="min-height: 240px;" readonly></textarea>
+            <button class="btn-copy" onclick="copyText('outputHtml')">📋 Copy</button>
+            <button class="btn-download" onclick="downloadText('outputHtml', currentToolId() + '.html')">⬇️ Download</button>
         </div>
 
-        <div>
-            <fieldset>
-                <legend>Tool Code — pasted from your AI-generated code</legend>
-                <label>Full tool code (goes inside &lt;main&gt;, above the FAQ section). Paste the whole block — upload box, controls, result UI, and any inline &lt;style&gt;/&lt;script&gt; tags your AI code included. One box, nothing gets split up.</label>
-                <textarea id="toolCode" class="code" style="min-height: 320px;" placeholder="<div class=&quot;upload-box&quot; ...>...</div>&#10;<style>...</style>&#10;<script>...</script>"></textarea>
-            </fieldset>
-
-            <button class="btn-generate" onclick="generate()">⚡ Generate Tool Page</button>
-
-            <div class="output-block" style="margin-top: 24px;">
-                <h3>Generated Page HTML — save as tools/&lt;category-folder&gt;/&lt;tool-id&gt;.html</h3>
-                <textarea id="outputHtml" class="code" style="min-height: 240px;" readonly></textarea>
-                <button class="btn-copy" onclick="copyText('outputHtml')">📋 Copy</button>
-                <button class="btn-download" onclick="downloadText('outputHtml', currentToolId() + '.html')">⬇️ Download .html</button>
-            </div>
-
-            <div class="output-block">
-                <h3>tools-data.js entry — paste into the TOOLS array</h3>
-                <textarea id="outputEntry" class="code" style="min-height: 120px;" readonly></textarea>
-                <button class="btn-copy" onclick="copyText('outputEntry')">📋 Copy</button>
-            </div>
+        <div class="output-block">
+            <h3>Paste into js/tools-data.js TOOLS array:</h3>
+            <textarea id="outputEntry" class="code" style="min-height: 120px;" readonly></textarea>
+            <button class="btn-copy" onclick="copyText('outputEntry')">📋 Copy</button>
         </div>
     </div>
 
 <script>
-function addFaqPair(q = '', a = '') {
-    const wrap = document.createElement('div');
-    wrap.className = 'faq-pair';
-    wrap.innerHTML = `
-        <label>Question</label>
-        <input class="faq-q" value="${escapeAttr(q)}" placeholder="Is this tool free to use?">
-        <label>Answer</label>
-        <textarea class="faq-a" placeholder="Yes, free to use with no login required.">${escapeHtml(a)}</textarea>
-        <button type="button" class="btn-add" style="margin-top:6px; color:#fca5a5;" onclick="this.parentElement.remove()">✕ Remove</button>
-    `;
-    document.getElementById('faqList').appendChild(wrap);
+const FEATURE_ICONS = {
+    image: [
+        { icon: 'layers', label: 'Batch Processing', color: '#3b82f6' },
+        { icon: 'minimize-2', label: 'Compression', color: '#3b82f6' },
+        { icon: 'download-cloud', label: 'Quick Download', color: '#3b82f6' },
+        { icon: 'shield-check', label: 'Privacy Safe', color: '#3b82f6' }
+    ],
+    pdf: [
+        { icon: 'layers', label: 'Batch Processing', color: '#f43f5e' },
+        { icon: 'minimize-2', label: 'Size Reduction', color: '#f43f5e' },
+        { icon: 'download-cloud', label: 'Fast Export', color: '#f43f5e' },
+        { icon: 'shield-check', label: 'Secure', color: '#f43f5e' }
+    ]
+};
+
+function updateCategoryPreview() {
+    const colorSlug = document.getElementById('colorSlug').value || 'image';
+    const icons = FEATURE_ICONS[colorSlug] || FEATURE_ICONS.image;
+    const html = icons.map(i => `<div class="icon-item ${colorSlug}" title="${i.label}"><i data-lucide="${i.icon}" style="width: 24px; height: 24px;"></i></div>`).join('');
+    document.getElementById('categoryPreview').innerHTML = '<div style="margin-bottom: 12px; font-size: 12px; color: #94a3b8;">Sample icons for this category:</div><div class="icon-preview">' + html + '</div>';
 }
-addFaqPair('Is this tool free to use?', 'Yes, this tool is free to use with no login required.');
-addFaqPair('Are my files uploaded to a server?', 'No, everything runs locally in your browser — your files are never uploaded anywhere.');
+
+document.getElementById('colorSlug').addEventListener('change', updateCategoryPreview);
+
+function addFeatureIcon(icon = '', label = '') {
+    const wrap = document.createElement('div');
+    wrap.className = 'pair';
+    wrap.innerHTML = `
+        <label>Icon Name (lucide)</label>
+        <input class="feature-icon" value="${escapeAttr(icon)}" placeholder="layers">
+        <label>Label</label>
+        <input class="feature-label" value="${escapeAttr(label)}" placeholder="Bulk Processing">
+        <button type="button" class="btn-add" style="color:#fca5a5;" onclick="this.parentElement.remove()">✕ Remove</button>
+    `;
+    document.getElementById('featureList').appendChild(wrap);
+}
+
+addFeatureIcon('layers', 'Batch Processing');
+addFeatureIcon('minimize-2', 'Compression');
+addFeatureIcon('download-cloud', 'Quick Download');
+addFeatureIcon('shield-check', 'Privacy Safe');
 
 function addContentSection(heading = '', body = '') {
     const wrap = document.createElement('div');
-    wrap.className = 'faq-pair';
+    wrap.className = 'pair';
     wrap.innerHTML = `
         <label>H2 Heading</label>
         <input class="section-h2" value="${escapeAttr(heading)}" placeholder="How it works">
-        <label>Body (one paragraph, or one &lt;li&gt; line per row)</label>
-        <textarea class="section-body" placeholder="Plain paragraph text, or lines starting with - for a bullet list">${escapeHtml(body)}</textarea>
-        <button type="button" class="btn-add" style="margin-top:6px; color:#fca5a5;" onclick="this.parentElement.remove()">✕ Remove</button>
+        <label>Body (paragraph or bullet list)</label>
+        <textarea class="section-body" placeholder="Plain text or lines starting with -">${escapeHtml(body)}</textarea>
+        <button type="button" class="btn-add" style="color:#fca5a5;" onclick="this.parentElement.remove()">✕ Remove</button>
     `;
     document.getElementById('contentSectionList').appendChild(wrap);
 }
+
+function addFaqPair(q = '', a = '') {
+    const wrap = document.createElement('div');
+    wrap.className = 'pair';
+    wrap.innerHTML = `
+        <label>Question</label>
+        <input class="faq-q" value="${escapeAttr(q)}" placeholder="Is this tool free?">
+        <label>Answer</label>
+        <textarea class="faq-a" placeholder="Yes, completely free...">${escapeHtml(a)}</textarea>
+        <button type="button" class="btn-add" style="color:#fca5a5;" onclick="this.parentElement.remove()">✕ Remove</button>
+    `;
+    document.getElementById('faqList').appendChild(wrap);
+}
+
+addFaqPair('Is this tool free to use?', 'Yes, this tool is completely free.');
+addFaqPair('Are my files uploaded?', 'No, everything runs locally in your browser.');
 
 function escapeHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -191,10 +270,6 @@ function escapeAttr(str) {
 
 function currentToolId() {
     return (document.getElementById('toolId').value || 'new-tool').trim();
-}
-
-function slugToTitle(s) {
-    return s.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
 function buildComparisonTable(rowsText) {
@@ -212,7 +287,7 @@ ${body}
 
 function generate() {
     const id = currentToolId();
-    const name = document.getElementById('toolName').value || slugToTitle(id);
+    const name = document.getElementById('toolName').value || id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     const desc = document.getElementById('metaDesc').value.trim();
     const category = document.getElementById('category').value.trim() || 'Image';
     const categoryFolder = document.getElementById('categoryFolder').value.trim() || 'image-tools';
@@ -222,20 +297,20 @@ function generate() {
     const features = document.getElementById('features').value.split('\n').map(f => f.trim()).filter(Boolean);
     const toolCode = document.getElementById('toolCode').value;
 
-    const addSeoBlock = document.getElementById('addSeoBlock').checked;
-    const seoH2 = document.getElementById('seoH2').value.trim();
-    const seoPara = document.getElementById('seoPara').value.trim();
-    const comparisonRows = document.getElementById('comparisonRows').value;
+    const featureIcons = Array.from(document.querySelectorAll('#featureList .pair')).map(el => ({
+        icon: el.querySelector('.feature-icon').value.trim(),
+        label: el.querySelector('.feature-label').value.trim()
+    })).filter(f => f.icon && f.label);
 
-    const faqPairs = Array.from(document.querySelectorAll('.faq-pair')).map(el => ({
-        q: el.querySelector('.faq-q').value.trim(),
-        a: el.querySelector('.faq-a').value.trim()
-    })).filter(f => f.q && f.a);
-
-    const contentSections = Array.from(document.querySelectorAll('#contentSectionList .faq-pair')).map(el => ({
+    const contentSections = Array.from(document.querySelectorAll('#contentSectionList .pair')).map(el => ({
         h2: el.querySelector('.section-h2').value.trim(),
         body: el.querySelector('.section-body').value.trim()
     })).filter(s => s.h2 && s.body);
+
+    const faqPairs = Array.from(document.querySelectorAll('#faqList .pair')).map(el => ({
+        q: el.querySelector('.faq-q').value.trim(),
+        a: el.querySelector('.faq-a').value.trim()
+    })).filter(f => f.q && f.a);
 
     const url = `https://nexitool.pro/tools/${categoryFolder}/${id}.html`;
 
@@ -245,10 +320,16 @@ function generate() {
           "acceptedAnswer": { "@type": "Answer", "text": ${JSON.stringify(f.a)} }
         }`).join(',\n');
 
-    const faqHtml = faqPairs.map(f => `            <div class="faq-item">
-                <button class="faq-question">${escapeHtml(f.q)} <i data-lucide="chevron-down" class="faq-icon"></i></button>
-                <div class="faq-answer">${escapeHtml(f.a)}</div>
+    const featureIconsHtml = featureIcons.map(f => `            <div style="text-align: center;">
+                <div style="font-size: 24px; margin-bottom: 8px; color: var(--accent);"><i data-lucide="${f.icon}" style="width: 28px; height: 28px;"></i></div>
+                <p style="font-size: 13px; margin: 0; font-weight: 500;">${escapeHtml(f.label)}</p>
             </div>`).join('\n');
+
+    const featureSection = featureIcons.length > 0 ? `        <div style="display: grid; grid-template-columns: repeat(${Math.min(featureIcons.length, 4)}, 1fr); gap: 20px; margin: 30px 0; text-align: center;">
+${featureIconsHtml}
+        </div>
+
+` : '';
 
     const contentSectionsHtml = contentSections.map(s => {
         const lines = s.body.split('\n').map(l => l.trim()).filter(Boolean);
@@ -262,16 +343,26 @@ function generate() {
         </div>`;
     }).join('\n\n');
 
+    const faqHtml = faqPairs.map(f => `            <div class="faq-item">
+                <button class="faq-question">${escapeHtml(f.q)} <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">${escapeHtml(f.a)}</div>
+            </div>`).join('\n');
+
     let seoBlockHtml = '';
-    if (addSeoBlock && (seoH2 || seoPara)) {
-        const tableHtml = buildComparisonTable(comparisonRows);
-        seoBlockHtml = `        <section class="seo-extra-block">
+    if (document.getElementById('addSeoBlock').checked) {
+        const seoH2 = document.getElementById('seoH2').value.trim();
+        const seoPara = document.getElementById('seoPara').value.trim();
+        const comparisonRows = document.getElementById('comparisonRows').value;
+        if (seoH2 || seoPara) {
+            const tableHtml = buildComparisonTable(comparisonRows);
+            seoBlockHtml = `        <section class="seo-extra-block">
             ${seoH2 ? `<h2>${escapeHtml(seoH2)}</h2>` : ''}
             ${seoPara ? `<p>${escapeHtml(seoPara)}</p>` : ''}
 ${tableHtml}
         </section>
 
 `;
+        }
     }
 
     const html = `<!DOCTYPE html>
@@ -346,7 +437,7 @@ ${faqSchema}
 
 ${toolCode}
 
-${contentSectionsHtml ? contentSectionsHtml + '\n\n' : ''}${seoBlockHtml}        <section class="faq-section">
+${featureSection}${contentSectionsHtml ? contentSectionsHtml + '\n\n' : ''}${seoBlockHtml}        <section class="faq-section">
             <h2 class="faq-title">Frequently Asked Questions</h2>
             <div class="faq-container">
 ${faqHtml}
@@ -401,6 +492,9 @@ function downloadText(id, filename) {
     a.download = filename;
     a.click();
 }
+
+// Init preview
+updateCategoryPreview();
 </script>
 </body>
 </html>
