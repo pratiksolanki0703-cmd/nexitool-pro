@@ -21,6 +21,11 @@
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>https://nexitool.pro/coin.html</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
         <loc>https://nexitool.pro/about.html</loc>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>

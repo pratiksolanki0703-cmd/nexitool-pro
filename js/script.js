@@ -56,6 +56,7 @@ async function loadComponents() {
             // If in subfolder, fix links
             if (isSubfolder) {
                 data = data.replace(/href="index\.html"/g, `href="${prefix}index.html"`);
+                data = data.replace(/href="coin\.html"/g, `href="${prefix}coin.html"`);
                 data = data.replace(/href="about\.html"/g, `href="${prefix}about.html"`);
                 data = data.replace(/href="privacy-policy\.html"/g, `href="${prefix}privacy-policy.html"`);
                 data = data.replace(/href="terms-of-service\.html"/g, `href="${prefix}terms-of-service.html"`);
@@ -94,6 +95,7 @@ async function loadComponents() {
             // If in subfolder, fix links
             if (isSubfolder) {
                 data = data.replace(/href="index\.html"/g, `href="${prefix}index.html"`);
+                data = data.replace(/href="coin\.html"/g, `href="${prefix}coin.html"`);
                 data = data.replace(/href="about\.html"/g, `href="${prefix}about.html"`);
                 data = data.replace(/href="privacy-policy\.html"/g, `href="${prefix}privacy-policy.html"`);
                 data = data.replace(/href="terms-of-service\.html"/g, `href="${prefix}terms-of-service.html"`);
