@@ -21,8 +21,9 @@
     textarea.code { min-height: 200px; }
     .row { display: flex; gap: 12px; }
     .row > div { flex: 1; }
-    .pair { border: 1px dashed #334155; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+    .pair { border: 1px dashed #334155; border-radius: 8px; padding: 12px; margin-bottom: 10px; background: #0f172a; }
     .pair textarea { min-height: 60px; }
+    .nested { margin-left: 20px; padding-left: 12px; border-left: 2px solid #475569; }
     .hint { font-size: 11.5px; color: #64748b; margin-top: 4px; }
     button { cursor: pointer; border: none; border-radius: 6px; padding: 8px 14px; font-weight: 700; font-size: 13px; }
     .btn-add { background: #1e293b; color: #93c5fd; border: 1px solid #334155; margin-top: 4px; }
@@ -34,20 +35,14 @@
     .checkbox-row { display: flex; align-items: center; gap: 6px; margin: 10px 0 4px; }
     .checkbox-row input { width: auto; }
     .checkbox-row label { margin: 0; }
-    .icon-preview { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 10px; }
-    .icon-item { padding: 12px; border-radius: 8px; border: 1px solid #334155; text-align: center; font-size: 28px; }
-    .icon-item.image { background: rgba(59, 130, 246, 0.15); border-color: #3b82f6; }
-    .icon-item.pdf { background: rgba(244, 63, 94, 0.15); border-color: #f43f5e; }
-    .icon-item.security { background: rgba(139, 92, 246, 0.15); border-color: #8b5cf6; }
-    .icon-item.dev { background: rgba(234, 179, 8, 0.15); border-color: #eab308; }
+    .ad-item { background: #1e293b; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #334155; }
+    .content-level { margin-left: 20px; padding: 12px; background: #1e293b; border-left: 3px solid #60a5fa; margin-bottom: 8px; }
 </style>
 </head>
 <body>
     <h1>NexiTool Generator</h1>
     <div class="warning">
-        ⚠️ Local-only admin tool — not linked in the site nav, marked <code>noindex</code>, and never uploaded to hosting.
-        Fill out the steps below, click Generate, then save output as <code>tools/&lt;category-folder&gt;/&lt;tool-id&gt;.html</code>
-        and paste the entry into <code>js/tools-data.js</code>.
+        ⚠️ Local-only admin tool — Generate tool pages with full control over ads placement, lazy loading, and hierarchical content structure.
     </div>
 
     <!-- STEP 1: Basic Info -->
@@ -97,17 +92,15 @@
             </div>
 
             <label><input type="checkbox" id="isTrending" style="width:auto; display:inline-block; margin-right:6px;"> Mark as Trending</label>
-
             <label style="margin-top: 12px;"><input type="checkbox" id="isPremium" style="width:auto; display:inline-block; margin-right:6px;"> Premium Tool (requires login + token deduction)</label>
         </fieldset>
     </div>
 
     <!-- STEP 2: Feature Icons -->
     <div class="step">
-        <div class="step-title" data-step="2">Feature Icons (appears above tool code)</div>
+        <div class="step-title" data-step="2">Feature Icons</div>
         <fieldset>
-            <legend>Pick 4 icons that describe the tool (category-colored)</legend>
-            <div id="categoryPreview"></div>
+            <legend>4 icons (category-colored, appear above tool code)</legend>
             <div id="featureList"></div>
             <button type="button" class="btn-add" onclick="addFeatureIcon()">+ Add Feature Icon</button>
         </fieldset>
@@ -117,27 +110,37 @@
     <div class="step">
         <div class="step-title" data-step="3">Tool Code</div>
         <fieldset>
-            <legend>Paste your complete tool code here</legend>
-            <label>Upload box, controls, result UI — everything (copy from your AI output)</label>
+            <legend>Paste complete tool code (upload box, controls, UI)</legend>
             <textarea id="toolCode" class="code" placeholder="<div class='upload-box'>..."></textarea>
         </fieldset>
     </div>
 
-    <!-- STEP 4: Content Sections -->
+    <!-- STEP 4: Ads Placement -->
     <div class="step">
-        <div class="step-title" data-step="4">Content Sections ("Why use" / "How it works")</div>
+        <div class="step-title" data-step="4">Ads Placement</div>
         <fieldset>
-            <legend>Optional — add H2 blocks with category-colored headings</legend>
-            <div id="contentSectionList"></div>
-            <button type="button" class="btn-add" onclick="addContentSection()">+ Add Section</button>
+            <legend>Add ads with placement control and lazy load option</legend>
+            <div id="adsList"></div>
+            <button type="button" class="btn-add" onclick="addAd()">+ Add Ad</button>
         </fieldset>
     </div>
 
-    <!-- STEP 5: Features & FAQ -->
+    <!-- STEP 5: Hierarchical Content -->
     <div class="step">
-        <div class="step-title" data-step="5">Features & FAQ</div>
+        <div class="step-title" data-step="5">Content Structure (H2 → H3 → H4)</div>
         <fieldset>
-            <legend>Feature List (one per line, for schema)</legend>
+            <legend>Build hierarchical content with proper SEO structure</legend>
+            <p class="hint">Each H2 can have paragraphs or H3s. Each H3 can have paragraphs or H4s. User can skip levels.</p>
+            <div id="contentSectionList"></div>
+            <button type="button" class="btn-add" onclick="addH2Section()">+ Add H2 Section</button>
+        </fieldset>
+    </div>
+
+    <!-- STEP 6: Features & FAQ -->
+    <div class="step">
+        <div class="step-title" data-step="6">Features & FAQ</div>
+        <fieldset>
+            <legend>Feature List (for schema)</legend>
             <textarea id="features" style="min-height: 80px;" placeholder="Bulk processing&#10;Client-side, no upload&#10;Download as ZIP"></textarea>
         </fieldset>
 
@@ -148,9 +151,9 @@
         </fieldset>
     </div>
 
-    <!-- STEP 6: SEO Block -->
+    <!-- STEP 7: SEO Block -->
     <div class="step">
-        <div class="step-title" data-step="6">SEO Content (optional)</div>
+        <div class="step-title" data-step="7">SEO Content (optional)</div>
         <fieldset>
             <legend>Add SEO H2 + paragraph + comparison table</legend>
             <div class="checkbox-row">
@@ -192,30 +195,6 @@
     </div>
 
 <script>
-const FEATURE_ICONS = {
-    image: [
-        { icon: 'layers', label: 'Batch Processing', color: '#3b82f6' },
-        { icon: 'minimize-2', label: 'Compression', color: '#3b82f6' },
-        { icon: 'download-cloud', label: 'Quick Download', color: '#3b82f6' },
-        { icon: 'shield-check', label: 'Privacy Safe', color: '#3b82f6' }
-    ],
-    pdf: [
-        { icon: 'layers', label: 'Batch Processing', color: '#f43f5e' },
-        { icon: 'minimize-2', label: 'Size Reduction', color: '#f43f5e' },
-        { icon: 'download-cloud', label: 'Fast Export', color: '#f43f5e' },
-        { icon: 'shield-check', label: 'Secure', color: '#f43f5e' }
-    ]
-};
-
-function updateCategoryPreview() {
-    const colorSlug = document.getElementById('colorSlug').value || 'image';
-    const icons = FEATURE_ICONS[colorSlug] || FEATURE_ICONS.image;
-    const html = icons.map(i => `<div class="icon-item ${colorSlug}" title="${i.label}"><i data-lucide="${i.icon}" style="width: 24px; height: 24px;"></i></div>`).join('');
-    document.getElementById('categoryPreview').innerHTML = '<div style="margin-bottom: 12px; font-size: 12px; color: #94a3b8;">Sample icons for this category:</div><div class="icon-preview">' + html + '</div>';
-}
-
-document.getElementById('colorSlug').addEventListener('change', updateCategoryPreview);
-
 function addFeatureIcon(icon = '', label = '') {
     const wrap = document.createElement('div');
     wrap.className = 'pair';
@@ -234,17 +213,138 @@ addFeatureIcon('minimize-2', 'Compression');
 addFeatureIcon('download-cloud', 'Quick Download');
 addFeatureIcon('shield-check', 'Privacy Safe');
 
-function addContentSection(heading = '', body = '') {
+function addAd(type = '', placement = '', lazyLoad = false) {
+    const wrap = document.createElement('div');
+    wrap.className = 'ad-item';
+    wrap.innerHTML = `
+        <label>Ad Type</label>
+        <select class="ad-type">
+            <option value="display-ads" ${type === 'display-ads' ? 'selected' : ''}>Display Ads</option>
+            <option value="in-feed-ads" ${type === 'in-feed-ads' ? 'selected' : ''}>In-Feed Ads</option>
+            <option value="in-article-ads" ${type === 'in-article-ads' ? 'selected' : ''}>In-Article Ads</option>
+            <option value="multiplex-ads" ${type === 'multiplex-ads' ? 'selected' : ''}>Multiplex Ads</option>
+        </select>
+
+        <label style="margin-top: 10px;">Placement</label>
+        <select class="ad-placement">
+            <option value="after-upload" ${placement === 'after-upload' ? 'selected' : ''}>After Upload Box</option>
+            <option value="after-code" ${placement === 'after-code' ? 'selected' : ''}>After Tool Code</option>
+            <option value="before-faq" ${placement === 'before-faq' ? 'selected' : ''}>Before FAQ</option>
+            <option value="after-faq" ${placement === 'after-faq' ? 'selected' : ''}>After FAQ</option>
+        </select>
+
+        <div class="checkbox-row" style="margin-top: 10px;">
+            <input type="checkbox" class="ad-lazy" ${lazyLoad ? 'checked' : ''}>
+            <label style="margin: 0;">Lazy load this ad (load on scroll)</label>
+        </div>
+
+        <button type="button" class="btn-add" style="color:#fca5a5; margin-top: 10px;" onclick="this.parentElement.remove()">✕ Remove Ad</button>
+    `;
+    document.getElementById('adsList').appendChild(wrap);
+}
+
+function addH2Section(h2Text = '', content = []) {
     const wrap = document.createElement('div');
     wrap.className = 'pair';
     wrap.innerHTML = `
         <label>H2 Heading</label>
-        <input class="section-h2" value="${escapeAttr(heading)}" placeholder="How it works">
-        <label>Body (paragraph or bullet list)</label>
-        <textarea class="section-body" placeholder="Plain text or lines starting with -">${escapeHtml(body)}</textarea>
-        <button type="button" class="btn-add" style="color:#fca5a5;" onclick="this.parentElement.remove()">✕ Remove</button>
+        <input class="h2-text" value="${escapeAttr(h2Text)}" placeholder="Why use this tool">
+
+        <div class="content-level">
+            <p style="margin: 0 0 10px; font-size: 12px; color: #94a3b8;">H2 Content (paragraphs or H3s)</p>
+            <div class="h2-content"></div>
+            <button type="button" class="btn-add" onclick="addH3ToH2(this)">+ Add Paragraph or H3</button>
+        </div>
+
+        <button type="button" class="btn-add" style="color:#fca5a5; margin-top: 10px;" onclick="this.parentElement.remove()">✕ Remove Section</button>
     `;
     document.getElementById('contentSectionList').appendChild(wrap);
+}
+
+function addH3ToH2(btn) {
+    const h2Content = btn.previousElementSibling;
+    const choice = prompt('Add:\n1 = Paragraph\n2 = H3 heading', '1');
+
+    if (choice === '1') {
+        const para = document.createElement('div');
+        para.className = 'pair';
+        para.innerHTML = `
+            <label>Paragraph</label>
+            <textarea class="h3-para" placeholder="Content paragraph..."></textarea>
+            <button type="button" class="btn-add" style="color:#fca5a5;" onclick="this.parentElement.remove()">✕</button>
+        `;
+        h2Content.appendChild(para);
+    } else if (choice === '2') {
+        addH3(h2Content);
+    }
+}
+
+function addH3(parentContainer) {
+    const wrap = document.createElement('div');
+    wrap.className = 'pair';
+    wrap.style.marginLeft = '20px';
+    wrap.innerHTML = `
+        <label>H3 Heading</label>
+        <input class="h3-text" placeholder="Sub-topic">
+
+        <div class="content-level">
+            <p style="margin: 0 0 10px; font-size: 11px; color: #94a3b8;">H3 Content (paragraphs or H4s)</p>
+            <div class="h3-content"></div>
+            <button type="button" class="btn-add" onclick="addH4ToH3(this)">+ Add Paragraph or H4</button>
+        </div>
+
+        <button type="button" class="btn-add" style="color:#fca5a5;" onclick="this.parentElement.remove()">✕ Remove H3</button>
+    `;
+    parentContainer.appendChild(wrap);
+}
+
+function addH4ToH3(btn) {
+    const h3Content = btn.previousElementSibling;
+    const choice = prompt('Add:\n1 = Paragraph\n2 = H4 heading', '1');
+
+    if (choice === '1') {
+        const para = document.createElement('div');
+        para.className = 'pair';
+        para.innerHTML = `
+            <label>Paragraph</label>
+            <textarea class="h4-para" placeholder="Content paragraph..."></textarea>
+            <button type="button" class="btn-add" style="color:#fca5a5;" onclick="this.parentElement.remove()">✕</button>
+        `;
+        h3Content.appendChild(para);
+    } else if (choice === '2') {
+        addH4(h3Content);
+    }
+}
+
+function addH4(parentContainer) {
+    const wrap = document.createElement('div');
+    wrap.className = 'pair';
+    wrap.style.marginLeft = '20px';
+    wrap.innerHTML = `
+        <label>H4 Heading</label>
+        <input class="h4-text" placeholder="Detail heading">
+
+        <div class="content-level">
+            <p style="margin: 0 0 10px; font-size: 11px; color: #94a3b8;">H4 Content (paragraphs only)</p>
+            <div class="h4-content"></div>
+            <button type="button" class="btn-add" onclick="addParaToH4(this)">+ Add Paragraph</button>
+        </div>
+
+        <button type="button" class="btn-add" style="color:#fca5a5;" onclick="this.parentElement.remove()">✕ Remove H4</button>
+    `;
+    parentContainer.appendChild(wrap);
+}
+
+function addParaToH4(btn) {
+    const h4Content = btn.previousElementSibling;
+    const para = document.createElement('div');
+    para.className = 'pair';
+    para.innerHTML = `
+        <label>Paragraph</label>
+        <textarea class="h4-para" placeholder="Content paragraph..."></textarea>
+        <button type="button" class="btn-add" style="color:#fca5a5;" onclick="this.parentElement.remove()">✕</button>
+    `;
+    h4Content.appendChild(para);
 }
 
 function addFaqPair(q = '', a = '') {
@@ -274,17 +374,81 @@ function currentToolId() {
     return (document.getElementById('toolId').value || 'new-tool').trim();
 }
 
-function buildComparisonTable(rowsText) {
-    const rows = rowsText.split('\n').map(l => l.trim()).filter(Boolean)
-        .map(l => l.split('|').map(c => c.trim()));
-    if (!rows.length) return '';
-    const body = rows.map(r => `                    <tr><td>${escapeHtml(r[0] || '')}</td><td>${escapeHtml(r[1] || '')}</td><td>${escapeHtml(r[2] || '')}</td></tr>`).join('\n');
-    return `                <table class="comparison-table">
-                    <thead><tr><th>Feature</th><th>This Tool</th><th>Alternatives</th></tr></thead>
-                    <tbody>
-${body}
-                    </tbody>
-                </table>`;
+function buildHierarchicalContent(h2Container) {
+    let html = '';
+    const h2Text = h2Container.querySelector('.h2-text').value.trim();
+    if (!h2Text) return '';
+
+    html += `        <div class="section-divider">
+            <h2>${escapeHtml(h2Text)}</h2>
+`;
+
+    const h2Content = h2Container.querySelector('.h2-content');
+    h2Content.querySelectorAll(':scope > .pair').forEach(item => {
+        if (item.querySelector('.h3-text')) {
+            // H3
+            const h3Text = item.querySelector('.h3-text').value.trim();
+            html += `            <h3>${escapeHtml(h3Text)}</h3>
+`;
+            item.querySelector('.h3-content').querySelectorAll(':scope > .pair').forEach(h3Item => {
+                if (h3Item.querySelector('.h4-text')) {
+                    // H4
+                    const h4Text = h3Item.querySelector('.h4-text').value.trim();
+                    html += `            <h4>${escapeHtml(h4Text)}</h4>
+`;
+                    h3Item.querySelector('.h4-content').querySelectorAll('textarea.h4-para').forEach(para => {
+                        const text = para.value.trim();
+                        if (text) html += `            <p>${escapeHtml(text)}</p>
+`;
+                    });
+                } else {
+                    // Paragraph under H3
+                    const text = h3Item.querySelector('textarea.h3-para').value.trim();
+                    if (text) html += `            <p>${escapeHtml(text)}</p>
+`;
+                }
+            });
+        } else {
+            // Paragraph under H2
+            const text = item.querySelector('textarea.h3-para').value.trim();
+            if (text) html += `            <p>${escapeHtml(text)}</p>
+`;
+        }
+    });
+
+    html += `        </div>
+
+`;
+    return html;
+}
+
+function buildAdCode(adType, placement, lazyLoad) {
+    const containerId = adType;
+    if (lazyLoad) {
+        return `        <div id="${containerId}"></div>
+        <script>
+        (function() {
+            const container = document.getElementById('${containerId}');
+            if (!container) return;
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const script = document.createElement('script');
+                        script.src = '../../ads/${adType}.js';
+                        container.appendChild(script);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+            observer.observe(container);
+        })();
+        <\/script>
+`;
+    } else {
+        return `        <div id="${containerId}"></div>
+        <script src="../../ads/${adType}.js"><\/script>
+`;
+    }
 }
 
 function generate() {
@@ -296,10 +460,90 @@ function generate() {
     const colorSlug = document.getElementById('colorSlug').value.trim() || 'image';
     const icon = document.getElementById('iconName').value.trim() || 'wrench';
     const isTrending = document.getElementById('isTrending').checked;
+    const isPremium = document.getElementById('isPremium').checked;
     const features = document.getElementById('features').value.split('\n').map(f => f.trim()).filter(Boolean);
     const toolCode = document.getElementById('toolCode').value;
-    const isPremium = document.getElementById('isPremium').checked;
 
+    // Collect ads
+    const ads = [];
+    document.querySelectorAll('#adsList .ad-item').forEach(adItem => {
+        ads.push({
+            type: adItem.querySelector('.ad-type').value,
+            placement: adItem.querySelector('.ad-placement').value,
+            lazyLoad: adItem.querySelector('.ad-lazy').checked
+        });
+    });
+
+    // Build hierarchical content
+    let contentHtml = '';
+    document.querySelectorAll('#contentSectionList > .pair').forEach(h2Container => {
+        contentHtml += buildHierarchicalContent(h2Container);
+    });
+
+    // Build ads by placement
+    const adsByPlacement = {};
+    ads.forEach(ad => {
+        if (!adsByPlacement[ad.placement]) adsByPlacement[ad.placement] = [];
+        adsByPlacement[ad.placement].push(ad);
+    });
+
+    function getAdsForPlacement(placement) {
+        return (adsByPlacement[placement] || []).map(ad => buildAdCode(ad.type, ad.placement, ad.lazyLoad)).join('');
+    }
+
+    // Feature icons
+    const featureIcons = Array.from(document.querySelectorAll('#featureList .pair')).map(el => ({
+        icon: el.querySelector('.feature-icon').value.trim(),
+        label: el.querySelector('.feature-label').value.trim()
+    })).filter(f => f.icon && f.label);
+
+    const featureIconsHtml = featureIcons.map(f => `            <div style="text-align: center;">
+                <div style="font-size: 24px; margin-bottom: 8px; color: var(--accent);"><i data-lucide="${f.icon}" style="width: 28px; height: 28px;"></i></div>
+                <p style="font-size: 13px; margin: 0; font-weight: 500;">${escapeHtml(f.label)}</p>
+            </div>`).join('\n');
+
+    const featureSection = featureIcons.length > 0 ? `        <div style="display: grid; grid-template-columns: repeat(${Math.min(featureIcons.length, 4)}, 1fr); gap: 20px; margin: 30px 0; text-align: center;">
+${featureIconsHtml}
+        </div>
+
+` : '';
+
+    // FAQ
+    const faqPairs = Array.from(document.querySelectorAll('#faqList .pair')).map(el => ({
+        q: el.querySelector('.faq-q').value.trim(),
+        a: el.querySelector('.faq-a').value.trim()
+    })).filter(f => f.q && f.a);
+
+    const faqSchema = faqPairs.map(f => `        {
+          "@type": "Question",
+          "name": ${JSON.stringify(f.q)},
+          "acceptedAnswer": { "@type": "Answer", "text": ${JSON.stringify(f.a)} }
+        }`).join(',\n');
+
+    const faqHtml = faqPairs.map(f => `            <div class="faq-item">
+                <button class="faq-question">${escapeHtml(f.q)} <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">${escapeHtml(f.a)}</div>
+            </div>`).join('\n');
+
+    // SEO block
+    let seoBlockHtml = '';
+    if (document.getElementById('addSeoBlock').checked) {
+        const seoH2 = document.getElementById('seoH2').value.trim();
+        const seoPara = document.getElementById('seoPara').value.trim();
+        const comparisonRows = document.getElementById('comparisonRows').value;
+        if (seoH2 || seoPara) {
+            const tableHtml = buildComparisonTable(comparisonRows);
+            seoBlockHtml = `        <section class="seo-extra-block">
+            ${seoH2 ? `<h2>${escapeHtml(seoH2)}</h2>` : ''}
+            ${seoPara ? `<p>${escapeHtml(seoPara)}</p>` : ''}
+${tableHtml}
+        </section>
+
+`;
+        }
+    }
+
+    // Premium login check code
     const loginCheckCode = isPremium ? `        <!-- Premium Tool: Login Check -->
         <div id="premiumLoginCheck" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
             <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 2rem; max-width: 400px; text-align: center;">
@@ -326,73 +570,7 @@ function generate() {
 
 ` : '';
 
-    const featureIcons = Array.from(document.querySelectorAll('#featureList .pair')).map(el => ({
-        icon: el.querySelector('.feature-icon').value.trim(),
-        label: el.querySelector('.feature-label').value.trim()
-    })).filter(f => f.icon && f.label);
-
-    const contentSections = Array.from(document.querySelectorAll('#contentSectionList .pair')).map(el => ({
-        h2: el.querySelector('.section-h2').value.trim(),
-        body: el.querySelector('.section-body').value.trim()
-    })).filter(s => s.h2 && s.body);
-
-    const faqPairs = Array.from(document.querySelectorAll('#faqList .pair')).map(el => ({
-        q: el.querySelector('.faq-q').value.trim(),
-        a: el.querySelector('.faq-a').value.trim()
-    })).filter(f => f.q && f.a);
-
     const url = `https://nexitool.pro/tools/${categoryFolder}/${id}.html`;
-
-    const faqSchema = faqPairs.map(f => `        {
-          "@type": "Question",
-          "name": ${JSON.stringify(f.q)},
-          "acceptedAnswer": { "@type": "Answer", "text": ${JSON.stringify(f.a)} }
-        }`).join(',\n');
-
-    const featureIconsHtml = featureIcons.map(f => `            <div style="text-align: center;">
-                <div style="font-size: 24px; margin-bottom: 8px; color: var(--accent);"><i data-lucide="${f.icon}" style="width: 28px; height: 28px;"></i></div>
-                <p style="font-size: 13px; margin: 0; font-weight: 500;">${escapeHtml(f.label)}</p>
-            </div>`).join('\n');
-
-    const featureSection = featureIcons.length > 0 ? `        <div style="display: grid; grid-template-columns: repeat(${Math.min(featureIcons.length, 4)}, 1fr); gap: 20px; margin: 30px 0; text-align: center;">
-${featureIconsHtml}
-        </div>
-
-` : '';
-
-    const contentSectionsHtml = contentSections.map(s => {
-        const lines = s.body.split('\n').map(l => l.trim()).filter(Boolean);
-        const isList = lines.length > 1 && lines.every(l => l.startsWith('-'));
-        const bodyHtml = isList
-            ? `<ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">\n${lines.map(l => `                    <li>${escapeHtml(l.replace(/^-\s*/, ''))}</li>`).join('\n')}\n                </ul>`
-            : `<p style="font-size: 18px; line-height: 1.7; opacity: 0.8;">${escapeHtml(s.body)}</p>`;
-        return `        <div class="section-divider">
-            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">${escapeHtml(s.h2)}</h2>
-            ${bodyHtml}
-        </div>`;
-    }).join('\n\n');
-
-    const faqHtml = faqPairs.map(f => `            <div class="faq-item">
-                <button class="faq-question">${escapeHtml(f.q)} <i data-lucide="chevron-down" class="faq-icon"></i></button>
-                <div class="faq-answer">${escapeHtml(f.a)}</div>
-            </div>`).join('\n');
-
-    let seoBlockHtml = '';
-    if (document.getElementById('addSeoBlock').checked) {
-        const seoH2 = document.getElementById('seoH2').value.trim();
-        const seoPara = document.getElementById('seoPara').value.trim();
-        const comparisonRows = document.getElementById('comparisonRows').value;
-        if (seoH2 || seoPara) {
-            const tableHtml = buildComparisonTable(comparisonRows);
-            seoBlockHtml = `        <section class="seo-extra-block">
-            ${seoH2 ? `<h2>${escapeHtml(seoH2)}</h2>` : ''}
-            ${seoPara ? `<p>${escapeHtml(seoPara)}</p>` : ''}
-${tableHtml}
-        </section>
-
-`;
-        }
-    }
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -464,18 +642,16 @@ ${faqSchema}
             <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px;">${escapeHtml(desc)}</p>
         </div>
 
-${loginCheckCode}${toolCode}
+${getAdsForPlacement('after-upload')}${loginCheckCode}${toolCode}
 
-${featureSection}${contentSectionsHtml ? contentSectionsHtml + '\n\n' : ''}${seoBlockHtml}        <!-- Premium Tool: Add this comment where you handle the main action button -->
-        <!-- Before sending request: if (isPremium && !(await window.checkPremiumLogin())) return; -->
-        <!-- Then deduct tokens: await supabaseClient.rpc('spend_credit', { p_model_id: 'tool-id' }) -->        <section class="faq-section">
+${featureSection}${getAdsForPlacement('after-code')}${contentHtml}${getAdsForPlacement('before-faq')}${seoBlockHtml}        <section class="faq-section">
             <h2 class="faq-title">Frequently Asked Questions</h2>
             <div class="faq-container">
 ${faqHtml}
             </div>
         </section>
 
-        <div id="relatedTools"></div>
+${getAdsForPlacement('after-faq')}        <div id="relatedTools"></div>
         <div id="relatedBlogs"></div>
     </main>
 
@@ -516,6 +692,19 @@ ${faqHtml}
     document.getElementById('outputEntry').value = entry;
 }
 
+function buildComparisonTable(rowsText) {
+    const rows = rowsText.split('\n').map(l => l.trim()).filter(Boolean)
+        .map(l => l.split('|').map(c => c.trim()));
+    if (!rows.length) return '';
+    const body = rows.map(r => `                    <tr><td>${escapeHtml(r[0] || '')}</td><td>${escapeHtml(r[1] || '')}</td><td>${escapeHtml(r[2] || '')}</td></tr>`).join('\n');
+    return `                <table class="comparison-table">
+                    <thead><tr><th>Feature</th><th>This Tool</th><th>Alternatives</th></tr></thead>
+                    <tbody>
+${body}
+                    </tbody>
+                </table>`;
+}
+
 function copyText(id) {
     const el = document.getElementById(id);
     el.select();
@@ -530,8 +719,8 @@ function downloadText(id, filename) {
     a.click();
 }
 
-// Init preview
-updateCategoryPreview();
+// Add one H2 by default
+addH2Section();
 </script>
 </body>
 </html>
