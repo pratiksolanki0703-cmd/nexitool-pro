@@ -3,6 +3,18 @@
     // CONFIGURATION: favicon file (subfolder-depth-aware)
     const FAVICON_URL = 'favicon.ico';
 
+    // The "../" prefix is read from THIS SCRIPT TAG's own unresolved src attribute
+    // rather than window.location.pathname — pathname parsing counted the GitHub
+    // Pages repo-subpath segment ("/nexitool-pro/") as an extra folder level, so
+    // tool pages pointed the favicon/logo one directory too high and 404'd (this
+    // is why the logo failed to load on tool pages). Every page already hardcodes
+    // the correct "../" depth for its own <script src="...js/favicon.js"> tag, so
+    // reading it back here is depth-correct no matter what subpath it's hosted at.
+    // Captured now, at top-level sync execution, while document.currentScript is valid.
+    const scriptEl = document.currentScript
+        || Array.from(document.getElementsByTagName('script')).find(s => /(^|\/)favicon\.js$/.test(s.getAttribute('src') || ''));
+    const prefix = scriptEl ? (scriptEl.getAttribute('src').match(/^(\.\.\/)*/) || [''])[0] : '';
+
     // LOGIC: Injects the favicon into the head and updates logo images
     function setFavicon() {
         let link = document.querySelector("link[rel~='icon']");
@@ -11,18 +23,14 @@
             link.rel = 'icon';
             document.getElementsByTagName('head')[0].appendChild(link);
         }
-        
-        // If the URL is a relative path (like 'favicon.ico'), 
-        // we need to handle subfolders
+
+        // If the URL is a relative path (like 'favicon.ico'),
+        // prefix it with this page's own script-derived depth.
         let finalUrl = FAVICON_URL;
         if (!FAVICON_URL.startsWith('data:') && !FAVICON_URL.startsWith('http')) {
-            // All pages currently use explicit .html filenames, so depth is simply
-            // everything before the last path segment (kept in sync with js/script.js).
-            const pathParts = window.location.pathname.split('/').filter(p => p);
-            const depth = Math.max(pathParts.length - 1, 0);
-            finalUrl = '../'.repeat(depth) + FAVICON_URL;
+            finalUrl = prefix + FAVICON_URL;
         }
-        
+
         link.href = finalUrl;
 
         // Update any logo images on the page

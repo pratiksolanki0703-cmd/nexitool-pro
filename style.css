@@ -369,14 +369,10 @@ nav a.active::before {
     white-space: nowrap;
 }
 
-/* Below 768px there's no room for the full auth widget (logo + theme/menu
-   icons already fill a phone-width header) — the "Watch Ad" button is also
-   still disabled/"coming soon" at this stage, so it's the first to go. */
+/* On phone-width the header only shows the coin pill + a compact profile
+   button; the Watch Ad button now lives inside the profile dropdown, so it no
+   longer needs to be hidden here (it was previously a standalone header item). */
 @media (max-width: 768px) {
-    .watch-ad-btn {
-        display: none;
-    }
-
     .coin-balance-pill {
         font-size: 0.75rem;
         padding: 0.4rem 0.6rem;
@@ -500,6 +496,148 @@ nav a.active::before {
     font-size: 0.85rem;
     cursor: not-allowed;
     opacity: 0.6;
+}
+
+/* "Check your email" pending screen (after signup) */
+.auth-verify-pending {
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
+.auth-verify-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--primary-neon);
+    margin-bottom: 0.75rem;
+}
+
+.auth-verify-hint {
+    color: var(--text-subtle);
+    font-size: 0.8rem;
+    margin: 1rem 0 1.5rem;
+}
+
+/* Profile menu + dropdown (logged-in header) */
+.profile-menu {
+    position: relative;
+}
+
+.profile-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-neon), var(--primary-cyan));
+    color: #0d0f15;
+    font-weight: 800;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 12px rgba(0, 255, 136, 0.35);
+    transition: transform 0.2s;
+}
+
+.profile-btn:hover .profile-avatar {
+    transform: scale(1.06);
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    right: 0;
+    width: 260px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 1rem;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    z-index: 200;
+    animation: slideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-dropdown[hidden] {
+    display: none;
+}
+
+.profile-email {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-balance {
+    font-size: 1.35rem;
+    color: var(--text-main);
+    margin-top: 0.25rem;
+}
+
+.profile-balance strong {
+    color: var(--primary-neon);
+}
+
+.profile-divider {
+    height: 1px;
+    background: var(--card-border);
+    margin: 0.9rem 0;
+}
+
+.profile-section-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-subtle);
+    margin-bottom: 0.6rem;
+}
+
+.profile-dropdown .watch-ad-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.profile-earn-note {
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+    line-height: 1.5;
+    margin-top: 0.6rem;
+}
+
+.profile-signout {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.6rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.profile-signout:hover {
+    border-color: var(--accent-pink);
+    color: var(--accent-pink);
+}
+
+.profile-signout i {
+    width: 16px;
+    height: 16px;
 }
 
 /* Mobile Menu */
