@@ -191,15 +191,25 @@
                     <h3>Sign in to NexiTool</h3>
                     <p class="auth-modal-sub">Earn coins by watching ads. No payments, ever.</p>
                     <div class="auth-modal-error" id="authModalError" style="display:none;"></div>
-                    <form id="authEmailForm">
-                        <input type="email" id="authEmailInput" placeholder="Email" required autocomplete="email">
-                        <input type="password" id="authPasswordInput" placeholder="Password (min 6 chars)" required autocomplete="current-password" minlength="6">
-                        <button type="submit" id="authSubmitBtn" class="auth-submit-btn">Sign In</button>
-                    </form>
-                    <button id="authToggleMode" class="auth-toggle-mode" type="button">Need an account? Sign up</button>
+
                     <button id="authGoogleBtn" class="auth-google-btn" type="button">
                         <i data-lucide="chrome"></i> Continue with Google
                     </button>
+
+                    <div class="auth-divider">
+                        <span>or</span>
+                    </div>
+
+                    <form id="authEmailForm">
+                        <input type="email" id="authEmailInput" placeholder="Email" required autocomplete="email">
+                        <input type="password" id="authPasswordInput" placeholder="Password (min 6 chars)" required autocomplete="current-password" minlength="6">
+                        <button type="submit" id="authSubmitBtn" class="auth-submit-btn">Continue with Email</button>
+                    </form>
+
+                    <div class="auth-footer-links">
+                        <button id="authForgotBtn" class="auth-link-btn" type="button">Forgot password?</button>
+                        <button id="authToggleMode" class="auth-link-btn" type="button">Need an account? Sign up</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -232,10 +242,39 @@
 
         toggleBtn.addEventListener('click', () => {
             mode = mode === 'signin' ? 'signup' : 'signin';
-            submitBtn.textContent = mode === 'signin' ? 'Sign In' : 'Sign Up';
+            submitBtn.textContent = mode === 'signin' ? 'Continue with Email' : 'Create Account';
             toggleBtn.textContent = mode === 'signin' ? 'Need an account? Sign up' : 'Already have an account? Sign in';
             errorEl.style.display = 'none';
         });
+
+        const forgotBtn = document.getElementById('authForgotBtn');
+        if (forgotBtn) {
+            forgotBtn.addEventListener('click', async () => {
+                const email = document.getElementById('authEmailInput').value.trim();
+                if (!email) {
+                    alert('Please enter your email address');
+                    return;
+                }
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Sending...';
+                try {
+                    const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+                        redirectTo: redirectTarget()
+                    });
+                    if (error) {
+                        errorEl.textContent = error.message;
+                        errorEl.style.display = 'block';
+                    } else {
+                        alert(`Password reset link sent to ${email}. Check your email.`);
+                    }
+                } catch (e) {
+                    errorEl.textContent = e.message;
+                    errorEl.style.display = 'block';
+                }
+                submitBtn.disabled = false;
+                submitBtn.textContent = mode === 'signin' ? 'Continue with Email' : 'Create Account';
+            });
+        }
 
         document.getElementById('authGoogleBtn').addEventListener('click', async () => {
             const googleBtn = document.getElementById('authGoogleBtn');

@@ -148,14 +148,14 @@ begin
       and type in ('earn_ad', 'earn_video')
       and created_at > now() - interval '1 minute';
 
-    v_amount := least(8, greatest(90 - v_recent, 0));
+    v_amount := least(5, greatest(90 - v_recent, 0));
 
     if v_amount > 0 then
         v_balance := v_balance + v_amount;
         update public.profiles set credit_balance = v_balance where id = v_uid;
     end if;
 
-    return jsonb_build_object('balance', v_balance, 'granted', v_amount, 'capped', v_amount < 8);
+    return jsonb_build_object('balance', v_balance, 'granted', v_amount, 'capped', v_amount < 5);
 end;
 $$;
 
