@@ -1,9 +1,7 @@
-// Shows a one-time welcome guide (content from js/guide-content.js) the first
-// time a user is seen logged in on this browser. Tracked via localStorage so
-// it never repeats.
+// Shows a welcome guide (content from js/guide-content.js) every time a user
+// signs in — not when a page load merely restores an already-active session.
+// Triggered from js/auth-widget.js only on the SIGNED_IN auth event.
 (function() {
-    const SEEN_KEY = 'nexitool-guide-seen';
-
     function showGuideModal() {
         if (document.getElementById('guideModalOverlay')) return;
         const cfg = window.GUIDE_CONTENT;
@@ -31,7 +29,6 @@
 
         function close() {
             overlay.remove();
-            localStorage.setItem(SEEN_KEY, '1');
         }
         document.getElementById('guideModalClose').addEventListener('click', close);
         document.getElementById('guideModalDone').addEventListener('click', close);
@@ -39,7 +36,6 @@
     }
 
     window.maybeShowGuide = function() {
-        if (localStorage.getItem(SEEN_KEY) === '1') return;
         showGuideModal();
     };
 })();

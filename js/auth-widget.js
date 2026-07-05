@@ -137,6 +137,18 @@
         const profileBtn = document.getElementById('profileBtn');
         const dropdown = document.getElementById('profileDropdown');
 
+        function positionDropdown() {
+            // Anchor the dropdown's right edge to the header's right edge
+            // (not just the profile button's), so it never looks like it's
+            // hugging the middle of the header when other icons sit after it.
+            const headerActions = document.querySelector('.header-actions');
+            const anchorRect = (headerActions || profileBtn).getBoundingClientRect();
+            const btnRect = profileBtn.getBoundingClientRect();
+            dropdown.style.position = 'fixed';
+            dropdown.style.top = (btnRect.bottom + 10) + 'px';
+            dropdown.style.right = (window.innerWidth - anchorRect.right) + 'px';
+        }
+
         function closeDropdown() {
             dropdown.hidden = true;
             profileBtn.setAttribute('aria-expanded', 'false');
@@ -150,6 +162,7 @@
         profileBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (dropdown.hidden) {
+                positionDropdown();
                 dropdown.hidden = false;
                 profileBtn.setAttribute('aria-expanded', 'true');
                 setTimeout(() => document.addEventListener('click', onOutsideClick), 0);
@@ -375,7 +388,7 @@
         if (!error && data) setBalance(data.credit_balance);
     }
 
-    async function refresh() {
+    async function refresh(authEvent) {
         const container = document.getElementById('authWidget');
         if (!container) return;
 
@@ -385,7 +398,9 @@
             localStorage.setItem('userType', 'free');
             renderLoggedIn(container);
             await fetchInitialBalance();
-            if (window.maybeShowGuide) window.maybeShowGuide();
+            // Only show the guide on an actual sign-in action, not when a
+            // page load simply restores an already-active session.
+            if (authEvent === 'SIGNED_IN' && window.maybeShowGuide) window.maybeShowGuide();
         } else {
             currentEmail = '';
             localStorage.setItem('userType', 'anonymous');
@@ -403,7 +418,7 @@
         refresh();
         if (!subscribed) {
             subscribed = true;
-            window.supabaseClient.auth.onAuthStateChange(() => refresh());
+            window.supabaseClient.auth.onAuthStateChange((event) => refresh(event));
         }
     };
 })();
