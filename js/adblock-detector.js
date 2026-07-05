@@ -15,29 +15,20 @@
         return false;
     }
 
-    // Detect ad blocker using strict method only
+    // Detect ad blocker - only if element is actually REMOVED by blocker
     async function detectAdBlocker() {
         return new Promise(resolve => {
-            let detected = false;
-
-            // Only detect if element is REMOVED (most reliable sign of ad blocker)
-            // NOT if hidden by CSS - that gives false positives
-            const baitElement = document.createElement('div');
-            baitElement.setAttribute('id', 'ad-test-element-12345');
-            baitElement.setAttribute('style', 'width: 1px; height: 1px; position: absolute; left: -9999px;');
-            document.body.appendChild(baitElement);
+            const elem = document.createElement('div');
+            // Make it LOOK like a real ad so ad blocker targets it
+            elem.id = 'google_ads_div';
+            elem.className = 'ad adsbygoogle';
+            elem.style.cssText = 'width:1px; height:1px; position:absolute; left:-9999px;';
+            document.body.appendChild(elem);
 
             setTimeout(() => {
-                // Check if ad blocker REMOVED the element entirely
-                // (not just hidden it - that's too aggressive)
-                if (!document.body.contains(baitElement)) {
-                    detected = true;
-                } else {
-                    try {
-                        document.body.removeChild(baitElement);
-                    } catch (e) {}
-                }
-
+                // Ad blocker REMOVES elements, not just hides them
+                const detected = !document.body.contains(elem);
+                try { document.body.removeChild(elem); } catch (e) {}
                 resolve(detected);
             }, 100);
         });
@@ -159,21 +150,33 @@
     window.initAdBlockDetector = async function() {
         // Check if user already chose to disable earnings
         if (checkUserPreference()) {
-            // User previously selected "no coins" - respect their choice
+            userDisabledEarning = true;
             earningAllowed = false;
-            if (window.updateCoinUI) window.updateCoinUI(true); // Show red coin
+            if (window.updateCoinUI) window.updateCoinUI(true);
             if (window.stopCoinEarning) window.stopCoinEarning();
-            setupRedCoinListener(); // Allow user to re-enable by clicking coin
+            setupRedCoinListener();
+            console.log('[AdBlock] User previously disabled coins');
             return;
         }
 
-        // DON'T check ad blocker on page load - too many false positives
-        // Instead, assume no ad blocker and let earn-ticker handle detection
-        earningAllowed = true;
-        if (window.updateCoinUI) window.updateCoinUI(false); // Show normal coin
-        setupRedCoinListener();
-        startBackgroundCheck();
-        if (window.startCoinEarning) window.startCoinEarning();
+        // Check for ad blocker on page load
+        const blocked = await detectAdBlocker();
+        console.log('[AdBlock] Detection result:', blocked ? 'BLOCKED' : 'OK');
+
+        if (blocked) {
+            adBlockerDetected = true;
+            earningAllowed = false;
+            showAdBlockerModal();
+            if (window.updateCoinUI) window.updateCoinUI(true);
+            console.log('[AdBlock] Showing ad blocker modal');
+        } else {
+            earningAllowed = true;
+            if (window.updateCoinUI) window.updateCoinUI(false);
+            setupRedCoinListener();
+            startBackgroundCheck();
+            if (window.startCoinEarning) window.startCoinEarning();
+            console.log('[AdBlock] Coins earning started');
+        }
     };
 
     // Export state for other scripts
