@@ -130,7 +130,7 @@
     }
 
     // Background check every 60 seconds (only if earning is active)
-    // Silently disable if ad blocker detected - don't show popup
+    // Show modal if ad blocker detected
     function startBackgroundCheck() {
         setInterval(async () => {
             if (earningAllowed && !userDisabledEarning && !adBlockerDetected) {
@@ -140,7 +140,8 @@
                     earningAllowed = false;
                     if (window.stopCoinEarning) window.stopCoinEarning();
                     if (window.updateCoinUI) window.updateCoinUI(true);
-                    // Silent disable - no popup. User can click red coin to retry
+                    showAdBlockerModal(); // SHOW MODAL when detected in background
+                    console.log('[AdBlock] Ad blocker detected in background - showing modal');
                 }
             }
         }, 60000); // 60 seconds
