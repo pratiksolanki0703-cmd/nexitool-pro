@@ -284,7 +284,26 @@ nav a:hover, nav a.active { color: var(--text-main); }
 }
 
 /* ---------------- Profile menu ---------------- */
-.profile-menu { position: relative; }
+.profile-menu { position: relative; display: flex; align-items: center; gap: 0.55rem; }
+.header-earn-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--card-border);
+    background: var(--bg-secondary);
+    color: var(--brand);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+.header-earn-btn:hover {
+    border-color: var(--brand);
+    background: color-mix(in srgb, var(--brand) 10%, var(--bg-secondary));
+    transform: scale(1.05);
+}
+.header-earn-btn i { width: 18px; height: 18px; }
 .profile-btn { background: none; border: none; cursor: pointer; padding: 0; display: flex; }
 .profile-avatar {
     width: 36px;
@@ -306,7 +325,9 @@ nav a:hover, nav a.active { color: var(--text-main); }
     position: absolute;
     bottom: -2px;
     right: -8px;
-    background: radial-gradient(circle at 30% 30%, #34d399, var(--brand));
+    background: color-mix(in srgb, #f5b301 55%, transparent);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
     color: #fff;
     font-size: 0.65rem;
     font-weight: 700;
@@ -316,7 +337,7 @@ nav a:hover, nav a.active { color: var(--text-main); }
     border: 2px solid var(--bg-main);
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 2px 6px rgba(245, 179, 1, 0.35);
     min-width: 28px;
     display: flex;
     align-items: center;
@@ -420,6 +441,12 @@ nav a:hover, nav a.active { color: var(--text-main); }
 .auth-modal-error { background: rgba(244, 63, 94, 0.12); color: var(--accent-pink); font-size: 0.85rem; padding: 0.6rem 0.8rem; border-radius: var(--radius-sm); margin-bottom: 1rem; }
 .auth-modal-close { position: absolute; top: 0.75rem; right: 0.9rem; background: none; border: none; color: var(--text-muted); font-size: 1.5rem; line-height: 1; cursor: pointer; }
 .auth-modal-close:hover { color: var(--text-main); }
+
+.guide-modal { max-width: 480px; max-height: 85vh; overflow-y: auto; }
+.guide-sections { display: flex; flex-direction: column; gap: 1.1rem; margin-top: 1rem; }
+.guide-section h4 { font-size: 0.95rem; color: var(--brand-tint); margin-bottom: 0.3rem; }
+.guide-section p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; }
+
 #authEmailForm { display: flex; flex-direction: column; gap: 0.7rem; }
 #authEmailForm input {
     background: var(--bg-secondary); border: 1px solid var(--card-border); color: var(--text-main);

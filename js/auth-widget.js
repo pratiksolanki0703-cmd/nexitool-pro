@@ -30,7 +30,7 @@
         const formatted = formatCoins(balance);
         if (pill) pill.textContent = formatted;
         if (badge) badge.textContent = formatted;
-        if (ddBal) ddBal.innerHTML = `<strong>${formatted}</strong> <span style="font-size: 0.85rem;">(${balance} total)</span>`;
+        if (ddBal) ddBal.innerHTML = `🪙 <strong>${formatted}</strong> <span style="font-size: 0.85rem;">(${balance} total)</span>`;
     }
     window.updateCachedBalance = setBalance;
 
@@ -96,6 +96,9 @@
 
         container.innerHTML = `
             <div class="profile-menu">
+                <button id="headerWatchAdBtn" class="header-earn-btn" title="Watch an ad to earn 30 coins">
+                    <i data-lucide="play-circle"></i>
+                </button>
                 <button id="profileBtn" class="profile-btn" title="Account" aria-haspopup="true" aria-expanded="false">
                     <span class="profile-avatar">${initial}</span>
                     <span class="coin-badge" id="coinBadge">${formatted}</span>
@@ -103,7 +106,7 @@
                 <div class="profile-dropdown" id="profileDropdown" hidden>
                     <div class="profile-email" title="${currentEmail}">${currentEmail}</div>
                     <div class="profile-balance" id="profileDropdownBalance">
-                        <strong>${formatted}</strong> <span style="font-size: 0.85rem;">(${cachedBalance} total)</span>
+                        🪙 <strong>${formatted}</strong> <span style="font-size: 0.85rem;">(${cachedBalance} total)</span>
                     </div>
                     <div class="profile-divider"></div>
 
@@ -117,7 +120,7 @@
                     <div class="profile-section-label">Earn coins</div>
                     <div class="profile-earn-section">
                         <button id="watchAdBtn" class="profile-earn-btn" title="Watch a video to earn 30 coins">
-                            <i data-lucide="play-circle"></i> <span>Watch Ad</span>
+                            <i data-lucide="play-circle"></i> <span>Watch Ad — Earn 30 Coins</span>
                         </button>
                         <p class="profile-earn-note">Or earn passively — 5 coins every 30 seconds just by keeping this tab open.</p>
                     </div>
@@ -160,6 +163,7 @@
         });
 
         document.getElementById('watchAdBtn').addEventListener('click', showWatchAdModal);
+        document.getElementById('headerWatchAdBtn').addEventListener('click', showWatchAdModal);
 
         document.getElementById('couponBtn').addEventListener('click', async () => {
             const code = document.getElementById('couponInput').value.trim();
@@ -381,6 +385,7 @@
             localStorage.setItem('userType', 'free');
             renderLoggedIn(container);
             await fetchInitialBalance();
+            if (window.maybeShowGuide) window.maybeShowGuide();
         } else {
             currentEmail = '';
             localStorage.setItem('userType', 'anonymous');
