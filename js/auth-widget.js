@@ -3,6 +3,7 @@
 // click avatar → dropdown with email, coins, coupon, earn section, sign out.
 (function() {
     let cachedBalance = 0;
+    let balanceLoaded = false; // false until the real balance has been fetched at least once
     let currentEmail = '';
     let watchAdShownOnce = false; // Track if user has seen the watch ad modal
 
@@ -23,6 +24,7 @@
 
     function setBalance(balance) {
         cachedBalance = balance;
+        balanceLoaded = true;
         const pill = document.getElementById('coinBalancePill');
         const badge = document.getElementById('coinBadge');
         const ddBal = document.getElementById('profileDropdownBalance');
@@ -92,7 +94,11 @@
 
     function renderLoggedIn(container) {
         const initial = (currentEmail[0] || 'u').toUpperCase();
-        const formatted = formatCoins(cachedBalance);
+        // Show a spinner instead of a misleading "0" while the real balance loads.
+        const badgeContent = balanceLoaded ? formatCoins(cachedBalance) : '<span class="coin-spinner"></span>';
+        const dropdownContent = balanceLoaded
+            ? `<strong>${formatCoins(cachedBalance)}</strong> <span style="font-size: 0.85rem;">(${cachedBalance} total)</span>`
+            : '<span class="coin-spinner"></span>';
 
         container.innerHTML = `
             <div class="profile-menu">
@@ -101,12 +107,12 @@
                 </button>
                 <button id="profileBtn" class="profile-btn" title="Account" aria-haspopup="true" aria-expanded="false">
                     <span class="profile-avatar">${initial}</span>
-                    <span class="coin-badge" id="coinBadge">${formatted}</span>
+                    <span class="coin-badge" id="coinBadge">${badgeContent}</span>
                 </button>
                 <div class="profile-dropdown" id="profileDropdown" hidden>
                     <div class="profile-email" title="${currentEmail}">${currentEmail}</div>
                     <div class="profile-balance" id="profileDropdownBalance">
-                        🪙 <strong>${formatted}</strong> <span style="font-size: 0.85rem;">(${cachedBalance} total)</span>
+                        🪙 ${dropdownContent}
                     </div>
                     <div class="profile-divider"></div>
 
@@ -388,7 +394,14 @@
         if (!error && data) setBalance(data.credit_balance);
     }
 
-    async function refresh(authEvent) {
+    // Supabase's onAuthStateChange can re-fire 'SIGNED_IN' just from a tab
+    // regaining focus (not a real new login), so that event isn't a reliable
+    // signal on its own. Instead we track our own "was already logged in"
+    // marker in localStorage: the guide only shows on the actual transition
+    // from logged-out to logged-in, never on a re-render of an existing session.
+    const ACTIVE_LOGIN_KEY = 'nexitool-active-login';
+
+    async function refresh() {
         const container = document.getElementById('authWidget');
         if (!container) return;
 
@@ -398,12 +411,16 @@
             localStorage.setItem('userType', 'free');
             renderLoggedIn(container);
             await fetchInitialBalance();
-            // Only show the guide on an actual sign-in action, not when a
-            // page load simply restores an already-active session.
-            if (authEvent === 'SIGNED_IN' && window.maybeShowGuide) window.maybeShowGuide();
+
+            const wasLoggedIn = localStorage.getItem(ACTIVE_LOGIN_KEY) === '1';
+            if (!wasLoggedIn) {
+                localStorage.setItem(ACTIVE_LOGIN_KEY, '1');
+                if (window.maybeShowGuide) window.maybeShowGuide();
+            }
         } else {
             currentEmail = '';
             localStorage.setItem('userType', 'anonymous');
+            localStorage.removeItem(ACTIVE_LOGIN_KEY);
             renderLoggedOut(container);
         }
     }
@@ -418,7 +435,7 @@
         refresh();
         if (!subscribed) {
             subscribed = true;
-            window.supabaseClient.auth.onAuthStateChange((event) => refresh(event));
+            window.supabaseClient.auth.onAuthStateChange(() => refresh());
         }
     };
 })();

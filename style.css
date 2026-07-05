@@ -346,6 +346,18 @@ nav a:hover, nav a.active { color: var(--text-main); }
 .profile-btn:hover .coin-badge { transform: scale(1.15); box-shadow: 0 3px 8px rgba(16, 185, 129, 0.4); }
 .coin-badge:active { transform: scale(0.95); }
 
+.coin-spinner {
+    display: inline-block;
+    width: 0.8em;
+    height: 0.8em;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    opacity: 0.85;
+    animation: coin-spin 0.7s linear infinite;
+}
+@keyframes coin-spin { to { transform: rotate(360deg); } }
+
 .profile-dropdown {
     position: absolute;
     top: calc(100% + 0.6rem);

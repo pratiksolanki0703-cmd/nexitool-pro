@@ -1,6 +1,6 @@
 // Shows a welcome guide (content from js/guide-content.js) every time a user
-// signs in — not when a page load merely restores an already-active session.
-// Triggered from js/auth-widget.js only on the SIGNED_IN auth event.
+// signs in — not when a page load/tab-refocus merely restores an already-active
+// session. Triggered from js/auth-widget.js's logged-out→logged-in transition.
 (function() {
     function showGuideModal() {
         if (document.getElementById('guideModalOverlay')) return;
