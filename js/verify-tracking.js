@@ -38,7 +38,7 @@
     // Real network probe: fetch our own ads script. If an ad blocker is
     // active, the browser itself fails the request (ERR_BLOCKED_BY_CLIENT)
     // and fetch() rejects — that's the signal we use.
-    async function detectAdBlocker() {
+    async function detectAdBlocker(attempt = 1) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 1500);
         try {
@@ -51,6 +51,12 @@
             return false; // request went through — no blocker
         } catch (err) {
             clearTimeout(timeout);
+            // On first attempt, retry once after a short delay to handle transient network issues
+            // (especially important on mobile with variable network conditions)
+            if (attempt < 2) {
+                await new Promise(r => setTimeout(r, 100));
+                return detectAdBlocker(attempt + 1);
+            }
             return true; // blocked, aborted, or network error — treat as blocked
         }
     }
@@ -187,6 +193,10 @@
 
     window.initAdBlockDetector = async function() {
         setupRedCoinListener();
+
+        // Small delay ensures browser has fully initialized and network stack is ready,
+        // especially important on mobile with slower devices
+        await new Promise(r => setTimeout(r, 50));
 
         if (await hasSession()) await runCheckForLoggedInUser();
 
