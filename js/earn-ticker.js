@@ -5,7 +5,12 @@
 // Ad blocker check: stops earning if ad blocker detected or user disabled it.
 (function() {
     const TICK_INTERVAL_MS = 30000;
+    // Remembers the last tick attempt across page navigations (each page load
+    // is a fresh JS context) so switching pages resumes the 30s cycle instead
+    // of restarting it from zero every time.
+    const LAST_TICK_KEY = 'nexitool-last-earn-tick';
     let intervalId = null;
+    let timeoutId = null;
 
     async function tick() {
         if (document.visibilityState !== 'visible') return;
@@ -17,6 +22,7 @@
         const { data: { session } } = await window.supabaseClient.auth.getSession();
         if (!session) return;
 
+        localStorage.setItem(LAST_TICK_KEY, String(Date.now()));
         const { data, error } = await window.supabaseClient.rpc('earn_ad_tick');
         if (error) {
             console.error('earn_ad_tick failed', error);
@@ -25,17 +31,29 @@
         if (window.updateCachedBalance) window.updateCachedBalance(data.balance);
     }
 
-    function start() {
+    function scheduleRecurring() {
         if (intervalId) return;
-        const adBlockStatus = window.getAdBlockStatus && window.getAdBlockStatus();
-        if (adBlockStatus && !adBlockStatus.earningAllowed) return;
         intervalId = setInterval(tick, TICK_INTERVAL_MS);
     }
 
+    function start() {
+        if (intervalId || timeoutId) return;
+        const adBlockStatus = window.getAdBlockStatus && window.getAdBlockStatus();
+        if (adBlockStatus && !adBlockStatus.earningAllowed) return;
+
+        const lastTick = parseInt(localStorage.getItem(LAST_TICK_KEY) || '0', 10);
+        const remaining = lastTick ? Math.max(0, TICK_INTERVAL_MS - (Date.now() - lastTick)) : TICK_INTERVAL_MS;
+
+        timeoutId = setTimeout(() => {
+            timeoutId = null;
+            tick();
+            scheduleRecurring();
+        }, remaining);
+    }
+
     function stop() {
-        if (!intervalId) return;
-        clearInterval(intervalId);
-        intervalId = null;
+        if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+        if (intervalId) { clearInterval(intervalId); intervalId = null; }
     }
 
     window.startCoinEarning = start;
