@@ -702,7 +702,7 @@ html.dark .footer-links .icon-btn:hover { background: var(--brand); color: white
 /* ================================================================
    AD BLOCKER DETECTION MODAL
    ================================================================ */
-.adblock-modal {
+.verification-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -714,7 +714,7 @@ html.dark .footer-links .icon-btn:hover { background: var(--brand); color: white
     justify-content: center;
     z-index: 10000;
 }
-.adblock-modal-content {
+.verification-modal-content {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 12px;
@@ -723,24 +723,24 @@ html.dark .footer-links .icon-btn:hover { background: var(--brand); color: white
     text-align: center;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
-.adblock-modal-content h3 {
+.verification-modal-content h3 {
     margin: 0 0 1rem;
     font-size: 1.25rem;
     color: var(--text-main);
     font-weight: 700;
 }
-.adblock-modal-content p {
+.verification-modal-content p {
     margin: 0 0 1.5rem;
     color: var(--text-muted);
     font-size: 0.95rem;
     line-height: 1.6;
 }
-.adblock-modal-buttons {
+.verification-modal-buttons {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
-.adblock-btn {
+.verification-btn {
     padding: 10px 16px;
     border: none;
     border-radius: 8px;
@@ -749,20 +749,20 @@ html.dark .footer-links .icon-btn:hover { background: var(--brand); color: white
     cursor: pointer;
     transition: all 0.2s;
 }
-.adblock-btn-primary {
+.verification-btn-primary {
     background: var(--brand);
     color: white;
 }
-.adblock-btn-primary:hover {
+.verification-btn-primary:hover {
     opacity: 0.9;
     transform: translateY(-1px);
 }
-.adblock-btn-secondary {
+.verification-btn-secondary {
     background: color-mix(in srgb, var(--brand) 15%, transparent);
     color: var(--brand-tint);
     border: 1px solid var(--brand);
 }
-.adblock-btn-secondary:hover {
+.verification-btn-secondary:hover {
     background: color-mix(in srgb, var(--brand) 25%, transparent);
 }
 

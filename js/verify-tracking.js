@@ -19,9 +19,9 @@
     async function detectAdBlocker() {
         return new Promise(resolve => {
             const elem = document.createElement('div');
-            // Make it LOOK like a real ad so ad blocker targets it
-            elem.id = 'google_ads_div';
-            elem.className = 'ad adsbygoogle';
+            // Use GENERIC names to avoid ad blocker block lists
+            elem.id = 'tracking-metric-' + Math.random().toString(36).substr(2, 9);
+            elem.className = 'analytics-tracker';
             elem.style.cssText = 'width:1px; height:1px; position:absolute; left:-9999px;';
             document.body.appendChild(elem);
 
@@ -34,21 +34,21 @@
         });
     }
 
-    // Show ad blocker modal
+    // Show verification modal
     function showAdBlockerModal() {
-        const existing = document.getElementById('adBlockerModal');
+        const existing = document.getElementById('verificationModal');
         if (existing) return;
 
         const modal = document.createElement('div');
-        modal.id = 'adBlockerModal';
-        modal.className = 'adblock-modal';
+        modal.id = 'verificationModal';
+        modal.className = 'verification-modal';
         modal.innerHTML = `
-            <div class="adblock-modal-content">
+            <div class="verification-modal-content">
                 <h3>Ad Blocker Detected</h3>
                 <p>To continue earning coins, please disable your ad blocker.</p>
-                <div class="adblock-modal-buttons">
-                    <button class="adblock-btn adblock-btn-primary" onclick="window.handleAdBlockerResponse('disabled')">I Already Disabled It</button>
-                    <button class="adblock-btn adblock-btn-secondary" onclick="window.handleAdBlockerResponse('skip')">Continue Without Earning Coins</button>
+                <div class="verification-modal-buttons">
+                    <button class="verification-btn verification-btn-primary" onclick="window.handleAdBlockerResponse('disabled')">I Already Disabled It</button>
+                    <button class="verification-btn verification-btn-secondary" onclick="window.handleAdBlockerResponse('skip')">Continue Without Earning Coins</button>
                 </div>
             </div>
         `;
@@ -62,12 +62,12 @@
 
         const modal = document.createElement('div');
         modal.id = 'futureEarningModal';
-        modal.className = 'adblock-modal';
+        modal.className = 'verification-modal';
         modal.innerHTML = `
-            <div class="adblock-modal-content">
+            <div class="verification-modal-content">
                 <h3>Coins Earning Disabled</h3>
                 <p>To earn coins in the future, click the coin icon in your profile.</p>
-                <button class="adblock-btn adblock-btn-primary" style="width: 100%;" onclick="document.getElementById('futureEarningModal').remove()">OK</button>
+                <button class="verification-btn verification-btn-primary" style="width: 100%;" onclick="document.getElementById('futureEarningModal').remove()">OK</button>
             </div>
         `;
         document.body.appendChild(modal);
