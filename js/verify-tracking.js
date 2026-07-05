@@ -115,6 +115,7 @@
             const coinBadge = document.getElementById('coinBadge');
             if (!(e.target === coinBadge || coinBadge?.contains(e.target))) return;
             if (!userDisabledEarning && earningAllowed) return; // already earning, nothing to do
+            if (!(await hasSession())) return; // coinBadge only renders when logged in, but be safe
 
             const stillBlocked = await detectAdBlocker();
             if (stillBlocked) {
@@ -129,8 +130,10 @@
     }
 
     // Every 60s: re-check. Stop earning immediately if blocked, then notify.
+    let backgroundIntervalId = null;
     function startBackgroundCheck() {
-        setInterval(async () => {
+        if (backgroundIntervalId) return;
+        backgroundIntervalId = setInterval(async () => {
             if (!earningAllowed || userDisabledEarning || adBlockerDetected) return;
             const blocked = await detectAdBlocker();
             if (blocked) {
@@ -141,24 +144,58 @@
         }, 60000);
     }
 
-    window.initAdBlockDetector = async function() {
+    function stopBackgroundCheck() {
+        if (backgroundIntervalId) {
+            clearInterval(backgroundIntervalId);
+            backgroundIntervalId = null;
+        }
+    }
+
+    // Nothing here matters for a signed-out visitor — they can't earn coins
+    // at all, so there's nothing to protect and no reason to probe or nag.
+    async function hasSession() {
+        if (!window.supabaseClient) return false;
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        return !!session;
+    }
+
+    async function runCheckForLoggedInUser() {
         if (checkUserPreference()) {
             userDisabledEarning = true;
             stopEarningNow();
-            setupRedCoinListener();
-            return;
-        }
-
-        const blocked = await detectAdBlocker();
-        if (blocked) {
-            adBlockerDetected = true;
-            stopEarningNow();
-            showAdBlockerModal();
         } else {
-            startEarningNow();
+            const blocked = await detectAdBlocker();
+            if (blocked) {
+                adBlockerDetected = true;
+                stopEarningNow();
+                showAdBlockerModal();
+            } else {
+                startEarningNow();
+            }
         }
-        setupRedCoinListener();
         startBackgroundCheck();
+    }
+
+    function resetForLoggedOutUser() {
+        stopBackgroundCheck();
+        earningAllowed = false;
+        adBlockerDetected = false;
+        userDisabledEarning = false;
+        const modal = document.getElementById('verificationModal');
+        if (modal) modal.remove();
+    }
+
+    window.initAdBlockDetector = async function() {
+        setupRedCoinListener();
+
+        if (await hasSession()) await runCheckForLoggedInUser();
+
+        if (window.supabaseClient) {
+            window.supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+                if (session) await runCheckForLoggedInUser();
+                else resetForLoggedOutUser();
+            });
+        }
     };
 
     window.getAdBlockStatus = function() {
