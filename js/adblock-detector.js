@@ -15,42 +15,31 @@
         return false;
     }
 
-    // Detect ad blocker using multiple methods
+    // Detect ad blocker using strict method only
     async function detectAdBlocker() {
         return new Promise(resolve => {
             let detected = false;
 
-            // Method 1: Bait element detection (most reliable when combined)
+            // Only detect if element is REMOVED (most reliable sign of ad blocker)
+            // NOT if hidden by CSS - that gives false positives
             const baitElement = document.createElement('div');
-            baitElement.innerHTML = '&nbsp;';
-            baitElement.setAttribute('class', 'ad advertisement');
-            baitElement.setAttribute('id', 'ad-slot-1');
-            baitElement.setAttribute('style', 'display:none !important; visibility:hidden !important;');
+            baitElement.setAttribute('id', 'ad-test-element-12345');
+            baitElement.setAttribute('style', 'width: 1px; height: 1px; position: absolute; left: -9999px;');
             document.body.appendChild(baitElement);
 
             setTimeout(() => {
-                // Check if element was removed or hidden by ad blocker
-                if (!document.body.contains(baitElement) ||
-                    baitElement.offsetHeight === 0 ||
-                    window.getComputedStyle(baitElement).display === 'none') {
+                // Check if ad blocker REMOVED the element entirely
+                // (not just hidden it - that's too aggressive)
+                if (!document.body.contains(baitElement)) {
                     detected = true;
-                }
-
-                try {
-                    document.body.removeChild(baitElement);
-                } catch (e) {}
-
-                // Method 2: Check for known ad blocker patterns
-                if (!detected && window.adsbygoogle !== undefined) {
-                    // Google Publisher Tag loaded, but let's verify it's real
-                    if (typeof window.adsbygoogle === 'object' && window.adsbygoogle.length === 0) {
-                        // Likely blocked
-                        detected = true;
-                    }
+                } else {
+                    try {
+                        document.body.removeChild(baitElement);
+                    } catch (e) {}
                 }
 
                 resolve(detected);
-            }, 50); // Reduced timeout for faster detection
+            }, 100);
         });
     }
 
@@ -128,56 +117,39 @@
             const coinBadge = document.getElementById('coinBadge');
             if (e.target === coinBadge || coinBadge?.contains(e.target)) {
                 if (userDisabledEarning || !earningAllowed) {
-                    // When user clicks red coin, show them options to re-enable
-                    const reenableModal = document.createElement('div');
-                    reenableModal.id = 'reenableEarningModal';
-                    reenableModal.className = 'adblock-modal';
-                    reenableModal.innerHTML = `
-                        <div class="adblock-modal-content">
-                            <h3>Enable Coin Earning?</h3>
-                            <p>Click below to start earning coins again.</p>
-                            <div class="adblock-modal-buttons">
-                                <button class="adblock-btn adblock-btn-primary" onclick="window.handleReenableEarning()">Re-enable Earning</button>
-                                <button class="adblock-btn adblock-btn-secondary" onclick="document.getElementById('reenableEarningModal').remove()">Cancel</button>
-                            </div>
-                        </div>
-                    `;
-                    document.body.appendChild(reenableModal);
+                    // When user clicks red coin, try to re-enable earning
+                    // First check if ad blocker is really blocking
+                    const stillBlocked = await detectAdBlocker();
+
+                    if (stillBlocked) {
+                        // Actually blocked - show why
+                        showAdBlockerModal();
+                    } else {
+                        // Not blocked - just enable
+                        localStorage.removeItem('nexitool-coin-earning');
+                        userDisabledEarning = false;
+                        adBlockerDetected = false;
+                        earningAllowed = true;
+                        if (window.startCoinEarning) window.startCoinEarning();
+                        if (window.updateCoinUI) window.updateCoinUI(false);
+                    }
                 }
             }
         }, true);
     }
 
-    // Re-enable earning when user clicks red coin
-    window.handleReenableEarning = async function() {
-        const modal = document.getElementById('reenableEarningModal');
-        if (modal) modal.remove();
-
-        // Clear the localStorage preference
-        localStorage.removeItem('nexitool-coin-earning');
-        userDisabledEarning = false;
-
-        // Check if ad blocker is actually disabled now
-        const stillBlocked = await detectAdBlocker();
-        if (stillBlocked) {
-            showAdBlockerModal();
-        } else {
-            earningAllowed = true;
-            if (window.startCoinEarning) window.startCoinEarning();
-            if (window.updateCoinUI) window.updateCoinUI(false);
-        }
-    };
-
     // Background check every 60 seconds (only if earning is active)
+    // Silently disable if ad blocker detected - don't show popup
     function startBackgroundCheck() {
         setInterval(async () => {
-            if (earningAllowed && !userDisabledEarning) {
+            if (earningAllowed && !userDisabledEarning && !adBlockerDetected) {
                 const blocked = await detectAdBlocker();
-                if (blocked && !adBlockerDetected) {
+                if (blocked) {
                     adBlockerDetected = true;
                     earningAllowed = false;
                     if (window.stopCoinEarning) window.stopCoinEarning();
                     if (window.updateCoinUI) window.updateCoinUI(true);
+                    // Silent disable - no popup. User can click red coin to retry
                 }
             }
         }, 60000); // 60 seconds
@@ -195,18 +167,13 @@
             return;
         }
 
-        // Check for ad blocker only if user hasn't opted out
-        const blocked = await detectAdBlocker();
-        if (blocked) {
-            adBlockerDetected = true;
-            showAdBlockerModal();
-        } else {
-            earningAllowed = true;
-            if (window.updateCoinUI) window.updateCoinUI(false); // Show normal coin
-            startBackgroundCheck();
-            setupRedCoinListener();
-            if (window.startCoinEarning) window.startCoinEarning();
-        }
+        // DON'T check ad blocker on page load - too many false positives
+        // Instead, assume no ad blocker and let earn-ticker handle detection
+        earningAllowed = true;
+        if (window.updateCoinUI) window.updateCoinUI(false); // Show normal coin
+        setupRedCoinListener();
+        startBackgroundCheck();
+        if (window.startCoinEarning) window.startCoinEarning();
     };
 
     // Export state for other scripts
