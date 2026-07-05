@@ -1,51 +1,69 @@
-// Ad Blocker Detection System
-// Detects ad blockers and manages coin earning accordingly
+// Coin-earning eligibility check.
+// Detects ad blockers via a REAL network request to our own ads folder —
+// this is what ad blockers actually block (URL pattern matching), unlike
+// fake DOM elements which most modern blockers ignore.
 (function() {
     let adBlockerDetected = false;
     let userDisabledEarning = false;
     let earningAllowed = false;
 
-    // Check if user previously chose to disable earnings (stored in localStorage)
+    // Resolve the ads file path relative to THIS script's own URL, so it
+    // works whether the page is at site root or a nested tool page, and
+    // regardless of custom domain vs github.io subpath.
+    function getAdsProbeUrl() {
+        const scriptEl = document.currentScript || document.querySelector('script[src*="verify-tracking.js"]');
+        const src = scriptEl ? scriptEl.src : (location.origin + '/js/verify-tracking.js');
+        return src.replace(/js\/verify-tracking\.js.*$/, 'ads/display-ads.js') + '?_=' + Date.now();
+    }
+    const ADS_PROBE_URL = getAdsProbeUrl();
+
+    // Immediately halt earning — called first, before any UI/modal work.
+    function stopEarningNow() {
+        earningAllowed = false;
+        if (window.stopCoinEarning) window.stopCoinEarning();
+        if (window.updateCoinUI) window.updateCoinUI(true);
+    }
+
+    function startEarningNow() {
+        earningAllowed = true;
+        adBlockerDetected = false;
+        if (window.updateCoinUI) window.updateCoinUI(false);
+        if (window.startCoinEarning) window.startCoinEarning();
+    }
+
     function checkUserPreference() {
-        const pref = localStorage.getItem('nexitool-coin-earning');
-        if (pref === 'disabled') {
-            userDisabledEarning = true;
-            return true;
-        }
-        return false;
+        return localStorage.getItem('nexitool-coin-earning') === 'disabled';
     }
 
-    // Detect ad blocker - only if element is actually REMOVED by blocker
+    // Real network probe: fetch our own ads script. If an ad blocker is
+    // active, the browser itself fails the request (ERR_BLOCKED_BY_CLIENT)
+    // and fetch() rejects — that's the signal we use.
     async function detectAdBlocker() {
-        return new Promise(resolve => {
-            const elem = document.createElement('div');
-            // Use GENERIC names to avoid ad blocker block lists
-            elem.id = 'tracking-metric-' + Math.random().toString(36).substr(2, 9);
-            elem.className = 'analytics-tracker';
-            elem.style.cssText = 'width:1px; height:1px; position:absolute; left:-9999px;';
-            document.body.appendChild(elem);
-
-            setTimeout(() => {
-                // Ad blocker REMOVES elements, not just hides them
-                const detected = !document.body.contains(elem);
-                try { document.body.removeChild(elem); } catch (e) {}
-                resolve(detected);
-            }, 100);
-        });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 1500);
+        try {
+            await fetch(ADS_PROBE_URL, {
+                method: 'GET',
+                cache: 'no-store',
+                signal: controller.signal
+            });
+            clearTimeout(timeout);
+            return false; // request went through — no blocker
+        } catch (err) {
+            clearTimeout(timeout);
+            return true; // blocked, aborted, or network error — treat as blocked
+        }
     }
 
-    // Show verification modal
     function showAdBlockerModal() {
-        const existing = document.getElementById('verificationModal');
-        if (existing) return;
-
+        if (document.getElementById('verificationModal')) return;
         const modal = document.createElement('div');
         modal.id = 'verificationModal';
         modal.className = 'verification-modal';
         modal.innerHTML = `
             <div class="verification-modal-content">
                 <h3>Ad Blocker Detected</h3>
-                <p>To continue earning coins, please disable your ad blocker.</p>
+                <p>To continue earning coins, please disable your ad blocker for this site.</p>
                 <div class="verification-modal-buttons">
                     <button class="verification-btn verification-btn-primary" onclick="window.handleAdBlockerResponse('disabled')">I Already Disabled It</button>
                     <button class="verification-btn verification-btn-secondary" onclick="window.handleAdBlockerResponse('skip')">Continue Without Earning Coins</button>
@@ -55,17 +73,14 @@
         document.body.appendChild(modal);
     }
 
-    // Show future earning message
     function showFutureEarningMessage() {
-        const existing = document.getElementById('futureEarningModal');
-        if (existing) return;
-
+        if (document.getElementById('futureEarningModal')) return;
         const modal = document.createElement('div');
         modal.id = 'futureEarningModal';
         modal.className = 'verification-modal';
         modal.innerHTML = `
             <div class="verification-modal-content">
-                <h3>Coins Earning Disabled</h3>
+                <h3>Coin Earning Disabled</h3>
                 <p>To earn coins in the future, click the coin icon in your profile.</p>
                 <button class="verification-btn verification-btn-primary" style="width: 100%;" onclick="document.getElementById('futureEarningModal').remove()">OK</button>
             </div>
@@ -73,119 +88,80 @@
         document.body.appendChild(modal);
     }
 
-    // Handle user response to ad blocker modal
     window.handleAdBlockerResponse = async function(response) {
-        const modal = document.getElementById('adBlockerModal');
+        const modal = document.getElementById('verificationModal');
         if (modal) modal.remove();
 
         if (response === 'disabled') {
-            // Recheck if ad blocker is actually disabled
             const stillBlocked = await detectAdBlocker();
             if (stillBlocked) {
-                showAdBlockerModal(); // Show same modal again
+                stopEarningNow();
+                showAdBlockerModal();
             } else {
-                earningAllowed = true;
-                adBlockerDetected = false;
-                localStorage.removeItem('nexitool-coin-earning'); // Clear any "disabled" preference
-                if (window.startCoinEarning) window.startCoinEarning();
-                if (window.updateCoinUI) window.updateCoinUI(false); // false = not disabled
+                localStorage.removeItem('nexitool-coin-earning');
+                userDisabledEarning = false;
+                startEarningNow();
             }
         } else if (response === 'skip') {
+            stopEarningNow();
             userDisabledEarning = true;
-            earningAllowed = false;
-            // Save user preference to localStorage - persist across page loads
             localStorage.setItem('nexitool-coin-earning', 'disabled');
             showFutureEarningMessage();
-            if (window.updateCoinUI) window.updateCoinUI(true); // true = disabled
-            // Stop the coin ticker if it's running
-            if (window.stopCoinEarning) window.stopCoinEarning();
         }
     };
 
-    // Check red coin clicks
     function setupRedCoinListener() {
         document.addEventListener('click', async function(e) {
             const coinBadge = document.getElementById('coinBadge');
-            if (e.target === coinBadge || coinBadge?.contains(e.target)) {
-                if (userDisabledEarning || !earningAllowed) {
-                    // When user clicks red coin, try to re-enable earning
-                    // First check if ad blocker is really blocking
-                    const stillBlocked = await detectAdBlocker();
+            if (!(e.target === coinBadge || coinBadge?.contains(e.target))) return;
+            if (!userDisabledEarning && earningAllowed) return; // already earning, nothing to do
 
-                    if (stillBlocked) {
-                        // Actually blocked - show why
-                        showAdBlockerModal();
-                    } else {
-                        // Not blocked - just enable
-                        localStorage.removeItem('nexitool-coin-earning');
-                        userDisabledEarning = false;
-                        adBlockerDetected = false;
-                        earningAllowed = true;
-                        if (window.startCoinEarning) window.startCoinEarning();
-                        if (window.updateCoinUI) window.updateCoinUI(false);
-                    }
-                }
+            const stillBlocked = await detectAdBlocker();
+            if (stillBlocked) {
+                stopEarningNow();
+                showAdBlockerModal();
+            } else {
+                localStorage.removeItem('nexitool-coin-earning');
+                userDisabledEarning = false;
+                startEarningNow();
             }
         }, true);
     }
 
-    // Background check every 60 seconds (only if earning is active)
-    // Show modal if ad blocker detected
+    // Every 60s: re-check. Stop earning immediately if blocked, then notify.
     function startBackgroundCheck() {
         setInterval(async () => {
-            if (earningAllowed && !userDisabledEarning && !adBlockerDetected) {
-                const blocked = await detectAdBlocker();
-                if (blocked) {
-                    adBlockerDetected = true;
-                    earningAllowed = false;
-                    if (window.stopCoinEarning) window.stopCoinEarning();
-                    if (window.updateCoinUI) window.updateCoinUI(true);
-                    showAdBlockerModal(); // SHOW MODAL when detected in background
-                    console.log('[AdBlock] Ad blocker detected in background - showing modal');
-                }
+            if (!earningAllowed || userDisabledEarning || adBlockerDetected) return;
+            const blocked = await detectAdBlocker();
+            if (blocked) {
+                adBlockerDetected = true;
+                stopEarningNow();
+                showAdBlockerModal();
             }
-        }, 60000); // 60 seconds
+        }, 60000);
     }
 
-    // Initialize on page load
     window.initAdBlockDetector = async function() {
-        // Check if user already chose to disable earnings
         if (checkUserPreference()) {
             userDisabledEarning = true;
-            earningAllowed = false;
-            if (window.updateCoinUI) window.updateCoinUI(true);
-            if (window.stopCoinEarning) window.stopCoinEarning();
+            stopEarningNow();
             setupRedCoinListener();
-            console.log('[AdBlock] User previously disabled coins');
             return;
         }
 
-        // Check for ad blocker on page load
         const blocked = await detectAdBlocker();
-        console.log('[AdBlock] Detection result:', blocked ? 'BLOCKED' : 'OK');
-
         if (blocked) {
             adBlockerDetected = true;
-            earningAllowed = false;
+            stopEarningNow();
             showAdBlockerModal();
-            if (window.updateCoinUI) window.updateCoinUI(true);
-            console.log('[AdBlock] Showing ad blocker modal');
         } else {
-            earningAllowed = true;
-            if (window.updateCoinUI) window.updateCoinUI(false);
-            setupRedCoinListener();
-            startBackgroundCheck();
-            if (window.startCoinEarning) window.startCoinEarning();
-            console.log('[AdBlock] Coins earning started');
+            startEarningNow();
         }
+        setupRedCoinListener();
+        startBackgroundCheck();
     };
 
-    // Export state for other scripts
     window.getAdBlockStatus = function() {
-        return {
-            detected: adBlockerDetected,
-            userDisabled: userDisabledEarning,
-            earningAllowed: earningAllowed
-        };
+        return { detected: adBlockerDetected, userDisabled: userDisabledEarning, earningAllowed };
     };
 })();
