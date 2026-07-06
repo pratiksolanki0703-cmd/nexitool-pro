@@ -62,6 +62,16 @@ const TOOLS = [
         isTrending: false
     },
     {
+        id: 'pdf-watermark',
+        name: 'PDF Watermark Adder',
+        description: 'Stamp a custom text watermark across every page of a PDF right in your browser. Nothing is uploaded.',
+        category: 'PDF',
+        color: 'pdf',
+        icon: 'stamp',
+        path: 'tools/pdf-tools/pdf-watermark.html',
+        isTrending: false
+    },
+    {
         id: 'pdf-compressor',
         name: 'PDF Compressor',
         description: 'Shrink PDF file size in your browser by re-compressing embedded images and stripping extra metadata.',
