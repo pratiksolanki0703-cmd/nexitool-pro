@@ -22,6 +22,11 @@ const isSubfolder = prefix.length > 0;
 let themeToggle;
 let htmlElement = document.documentElement;
 
+// Category filter chips (home page) — empty set means "All"
+let selectedCategories = new Set();
+let categoriesExpanded = false;
+const VISIBLE_CATEGORY_COUNT = 6;
+
 async function loadComponents() {
     const header = document.querySelector('header');
     const footer = document.querySelector('footer');
@@ -252,7 +257,7 @@ function renderHome() {
             const hasMore = catTools.length > 12;
 
             html += `
-                <section class="mb-24 ${sectionClass} color-${cat.color}">
+                <section class="mb-24 ${sectionClass} color-${cat.color}" data-category="${cat.name}">
                     <h2 class="section-title">
                         <span class="section-indicator"></span>
                         ${cat.name} Tools
@@ -459,27 +464,102 @@ function autoInjectRelatedContent() {
     }
 }
 
-// Search Logic
-const searchInput = document.getElementById('toolSearch');
-if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        const cards = document.querySelectorAll('.glass-card');
-        cards.forEach(card => {
-            const titleEl = card.querySelector('.card-title');
-            const descEl = card.querySelector('.card-desc');
-            if (!titleEl) return;
-            
-            const name = titleEl.innerText.toLowerCase();
-            const desc = descEl ? descEl.innerText.toLowerCase() : '';
-            
-            if (name.includes(query) || desc.includes(query)) {
-                card.style.display = 'flex';
+// Category filter chips + search — combined so a category with zero
+// matching search results (or zero selected-category overlap) hides its
+// whole section instead of showing an empty heading.
+function renderCategoryFilters() {
+    const container = document.getElementById('categoryFilters');
+    if (!container || typeof CATEGORIES === 'undefined') return;
+
+    const visibleCats = categoriesExpanded ? CATEGORIES : CATEGORIES.slice(0, VISIBLE_CATEGORY_COUNT);
+    const hasMore = CATEGORIES.length > VISIBLE_CATEGORY_COUNT;
+
+    let html = `<button type="button" class="category-chip all-chip${selectedCategories.size === 0 ? ' active' : ''}" data-cat="">All</button>`;
+
+    html += visibleCats.map(cat => {
+        const isActive = selectedCategories.has(cat.name);
+        return `
+            <button type="button" class="category-chip color-${cat.color}${isActive ? ' active' : ''}" data-cat="${cat.name}">
+                <span>${cat.name}</span>
+                ${isActive ? '<i data-lucide="x"></i>' : ''}
+            </button>
+        `;
+    }).join('');
+
+    if (hasMore) {
+        html += `<button type="button" class="category-chip see-all-chip" id="seeAllCats">${categoriesExpanded ? 'Show Less' : 'See All'}</button>`;
+    }
+
+    container.innerHTML = html;
+    if (window.lucide) lucide.createIcons();
+
+    container.querySelectorAll('.category-chip[data-cat]').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const catName = chip.dataset.cat;
+            if (catName === '') {
+                selectedCategories.clear();
+            } else if (selectedCategories.has(catName)) {
+                selectedCategories.delete(catName);
             } else {
-                card.style.display = 'none';
+                selectedCategories.add(catName);
             }
+            renderCategoryFilters();
+            updateCardVisibility();
         });
     });
+
+    const seeAllBtn = document.getElementById('seeAllCats');
+    if (seeAllBtn) {
+        seeAllBtn.addEventListener('click', () => {
+            categoriesExpanded = !categoriesExpanded;
+            renderCategoryFilters();
+        });
+    }
+}
+
+function updateCardVisibility() {
+    const toolSections = document.getElementById('toolSections');
+    if (!toolSections) return;
+
+    const searchInput = document.getElementById('toolSearch');
+    const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+    toolSections.querySelectorAll(':scope > section[data-category]').forEach(section => {
+        const categoryMatches = selectedCategories.size === 0 || selectedCategories.has(section.dataset.category);
+
+        if (!categoryMatches) {
+            section.style.display = 'none';
+            return;
+        }
+
+        let anyVisible = false;
+        section.querySelectorAll('.glass-card').forEach(card => {
+            const titleEl = card.querySelector('.card-title');
+            if (!titleEl) return;
+            const descEl = card.querySelector('.card-desc');
+            const name = titleEl.innerText.toLowerCase();
+            const desc = descEl ? descEl.innerText.toLowerCase() : '';
+            const textMatches = !query || name.includes(query) || desc.includes(query);
+            card.style.display = textMatches ? 'flex' : 'none';
+            if (textMatches) anyVisible = true;
+        });
+
+        section.style.display = anyVisible ? '' : 'none';
+    });
+
+    // Keep rainbow separators from doubling up between hidden sections
+    toolSections.querySelectorAll(':scope > hr.rainbow-separator').forEach(hr => {
+        const prev = hr.previousElementSibling;
+        const next = hr.nextElementSibling;
+        const prevVisible = prev && prev.style.display !== 'none';
+        const nextVisible = next && next.style.display !== 'none';
+        hr.style.display = (prevVisible && nextVisible) ? '' : 'none';
+    });
+}
+
+const searchInput = document.getElementById('toolSearch');
+if (searchInput) {
+    searchInput.addEventListener('input', updateCardVisibility);
 }
 
 // FAQ Accordion Logic
@@ -514,32 +594,14 @@ document.addEventListener('DOMContentLoaded', () => {
     renderHome();
     initFAQ();
 
-    // Handle Category Filter on Home Page
+    // A "View All" link from a category section arrives here as ?cat=Name —
+    // pre-select that category chip instead of a separate filter path.
     const urlParams = new URLSearchParams(window.location.search);
     const catFilter = urlParams.get('cat');
-    if (catFilter && document.getElementById('toolSections')) {
-        const sections = document.querySelectorAll('#toolSections section');
-        sections.forEach(sec => {
-            const title = sec.querySelector('.section-title').innerText.replace(' Tools', '').trim();
-            if (title !== catFilter) {
-                sec.style.display = 'none';
-            } else {
-                // Show all tools in this section
-                const cards = sec.querySelectorAll('.glass-card');
-                cards.forEach(card => card.style.display = 'flex');
-                // Hide the "View All" link
-                const moreLink = sec.querySelector('.more-link');
-                if (moreLink) moreLink.style.display = 'none';
-                
-                // Add a "Back to All Categories" link
-                const header = sec.querySelector('.section-header');
-                const backLink = document.createElement('a');
-backLink.href = 'index.html';
-                backLink.className = 'more-link';
-                backLink.innerHTML = '<i data-lucide="arrow-left" style="width:16px; height:16px;"></i> Back to All';
-                header.appendChild(backLink);
-                if (window.lucide) lucide.createIcons();
-            }
-        });
+    if (catFilter && typeof CATEGORIES !== 'undefined' && CATEGORIES.some(c => c.name === catFilter)) {
+        selectedCategories.add(catFilter);
     }
+
+    renderCategoryFilters();
+    updateCardVisibility();
 });
