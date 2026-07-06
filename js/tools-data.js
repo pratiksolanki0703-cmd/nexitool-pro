@@ -92,6 +92,16 @@ const TOOLS = [
         isTrending: false
     },
     {
+        id: 'pdf-compress-to-size',
+        name: 'PDF Compress to Target Size',
+        description: 'Shrink a PDF as close as possible to a file size you choose, right in your browser. Nothing is uploaded.',
+        category: 'PDF',
+        color: 'pdf',
+        icon: 'target',
+        path: 'tools/pdf-tools/pdf-compress-to-size.html',
+        isTrending: false
+    },
+    {
         id: 'pdf-to-images',
         name: 'PDF to Images Converter',
         description: 'Export every page of a PDF as a PNG or JPG image right in your browser. Nothing is uploaded.',

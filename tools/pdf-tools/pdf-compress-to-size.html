@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>(function(){try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.add("light");}catch(e){}})();</script>
+    <title>PDF Compress to Target Size Online Free: Hit an Exact Size | Nexitool</title>
+    <meta name="description" content="PDF Compress to Target Size tool shrinks a PDF down to a file size you choose, in seconds. 100% browser-based, no upload required, completely free. Perfect for meeting upload size limits.">
+    <link rel="canonical" href="https://nexitool.pro/tools/pdf-tools/pdf-compress-to-size.html">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nexitool.pro/tools/pdf-tools/pdf-compress-to-size.html">
+    <meta property="og:title" content="PDF Compress to Target Size Online Free: Hit an Exact Size | Nexitool">
+    <meta property="og:description" content="Shrink a PDF down to a file size you choose, in seconds. 100% browser-based, no upload required, completely free.">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="PDF Compress to Target Size Online Free: Hit an Exact Size | Nexitool">
+    <meta property="twitter:description" content="Shrink a PDF down to a file size you choose, in seconds. 100% browser-based, no upload required, completely free.">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://nexitool.pro/tools/pdf-tools/pdf-compress-to-size.html#webpage",
+      "url": "https://nexitool.pro/tools/pdf-tools/pdf-compress-to-size.html",
+      "name": "PDF Compress to Target Size Online Free: Hit an Exact Size | Nexitool",
+      "description": "Shrinks a PDF as close as possible to a target file size, entirely inside your browser.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "PDF Compress to Target Size",
+      "url": "https://nexitool.pro/tools/pdf-tools/pdf-compress-to-size.html",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Any",
+      "description": "Browser-based tool that re-renders a PDF's pages and searches for the JPEG quality that gets closest to a chosen target file size.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "No signup required",
+        "Mobile friendly",
+        "Bulk processing — target the same size across a whole batch",
+        "Automatic quality search to approach your target size",
+        "Runs entirely on-device, nothing uploaded"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How does this hit a specific file size?", "acceptedAnswer": { "@type": "Answer", "text": "Each page is re-rendered as an image and re-compressed at different JPEG quality levels until the resulting PDF gets as close as possible to your target size, without going over when possible." } },
+        { "@type": "Question", "name": "Will the text still be selectable after compressing?", "acceptedAnswer": { "@type": "Answer", "text": "No — to hit an exact target size, every page is converted into a compressed image. The output looks the same but the text is no longer selectable or searchable." } },
+        { "@type": "Question", "name": "What if my target size is too small to reach?", "acceptedAnswer": { "@type": "Answer", "text": "The tool always returns the smallest size it can reach at readable quality, and tells you the final size achieved even if it's slightly above your target." } },
+        { "@type": "Question", "name": "Does my file get uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No — every page is rendered and re-compressed directly in your browser. Your file never leaves your device." } },
+        { "@type": "Question", "name": "Can I compress several PDFs to the same target at once?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — load a batch, set one target size, and it's applied to every file." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexitool.pro/" },
+        { "@type": "ListItem", "position": 2, "name": "PDF Compress to Target Size", "item": "https://nexitool.pro/tools/pdf-tools/pdf-compress-to-size.html" }
+      ]
+    }
+  ]
+}
+    </script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js';
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--accent); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent); } 50% { text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent); } }
+        .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); width: 150px; margin: 20px auto; }
+
+        .compressor-grid { display: none; width: 100%; grid-template-columns: 320px 1fr; gap: 30px; text-align: left; margin-top: 30px; align-items: start; }
+
+        .compression-controls { background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--card-border); position: sticky; top: 20px; z-index: 10; }
+
+        .expectation-note { font-size: 12.5px; line-height: 1.5; opacity: 0.75; background: color-mix(in srgb, var(--accent) 6%, transparent); border: 1px dashed var(--accent); border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+
+        .opt-label { font-size: 12.5px; font-weight: 700; opacity: 0.8; margin-bottom: 4px; display: block; }
+        .opt-select, .opt-field { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-primary); color: inherit; font-size: 14px; margin-bottom: 14px; }
+        .target-row { display: flex; gap: 8px; }
+        .target-row input { flex: 1.4; }
+        .target-row select { flex: 1; }
+
+        .bulk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .bulk-card { background: white; border: 1px solid var(--card-border); border-radius: 15px; padding: 15px; position: relative; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .pdf-icon-preview { width: 100%; height: 100px; border-radius: 10px; background: #f3f4f6; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
+        .file-name-row { font-size: 12px; font-weight: 700; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .card-loader { position: absolute; inset: 0; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; border-radius: 15px; z-index: 5; flex-direction: column; }
+        .spinner { width: 25px; height: 25px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .stat-badge { font-size: 11px; margin-bottom: 10px; background: #eef2ff; padding: 8px; border-radius: 8px; font-weight: 700; color: #333; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; font-size: 14px; }
+        .btn-green { background: #28a745; color: white; }
+        .btn-dark { background: #111827; color: white; }
+
+        .section-divider { border-top: 1px solid color-mix(in srgb, var(--accent) 15%, transparent); padding: 20px 0; margin-top: 20px; }
+        .info-flex-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; text-align: left; }
+        .info-column { flex: 1; min-width: 250px; }
+        .info-column h3 { color: var(--accent); margin-bottom: 15px; }
+
+        .ad-slot-small { width: 100%; max-width: 728px; min-height: 60px; margin: 30px auto; }
+        .ad-slot-large { width: 100%; max-width: 728px; min-height: 90px; margin: 30px auto; }
+
+        .cmp-table { width: 100%; max-width: 700px; margin: 0 auto; border-collapse: collapse; font-size: 15px; border: 1px solid var(--card-border); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .cmp-table th { text-align: left; padding: 12px 14px; background: var(--accent); color: white; font-weight: 700; }
+        .cmp-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--card-border); opacity: 0.85; }
+        .cmp-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+        .cmp-table tbody tr:last-child td { border-bottom: none; }
+        .cmp-table td:first-child { font-weight: 700; opacity: 1; }
+
+        @media (max-width: 900px) { .compressor-grid { grid-template-columns: 1fr; } .compression-controls { position: relative; top: 0; } }
+    </style>
+</head>
+<body class="color-pdf">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon">
+                <i data-lucide="target" style="width: 64px; height: 64px;"></i>
+            </div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">
+                Free Online <span class="shining-title">PDF Compress to Target Size</span> — hit the size you need
+            </h1>
+            <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px; max-width: 640px; margin-left: auto; margin-right: auto;">
+                Set a target file size and this tool searches for a compression level that gets as close to it as possible — right in your browser.
+            </p>
+            <p class="expectation-note" style="max-width: 480px; margin: 15px auto 0; text-align: left;">
+                <i data-lucide="target" style="width:14px;height:14px;vertical-align:-2px;"></i> <strong>No login required</strong> — this tool is 100% free to use without an account. Even our premium tools are 100% free, never any real-money payment — you just earn free coins by logging in (passively or by watching ads). <a href="../../coin.html" style="color: var(--accent); font-weight:700;">See how coins work</a>.
+            </p>
+            <div class="shining-line"></div>
+        </div>
+
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="upload-text">
+                <h3>Select PDF Files</h3>
+                <p>Drag & drop PDF files here (Bulk Supported)</p>
+            </div>
+            <input type="file" id="fileInput" accept="application/pdf" multiple style="display: none;">
+        </div>
+
+        <div class="ad-slot-small" id="display-ads"></div>
+
+        <div class="compressor-grid" id="compressorGrid">
+            <div class="compression-controls">
+                <p class="expectation-note">
+                    <i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:-2px;"></i> This works by turning each page into a compressed image, so hitting a small target means text stops being selectable/searchable.
+                </p>
+
+                <label class="opt-label" for="targetInput">Target size</label>
+                <div class="target-row">
+                    <input type="number" id="targetInput" class="opt-field" value="500" min="10">
+                    <select id="targetUnit" class="opt-select">
+                        <option value="KB" selected>KB</option>
+                        <option value="MB">MB</option>
+                    </select>
+                </div>
+
+                <button id="compressAllBtn" class="action-btn" style="background: var(--accent); color: white;">🎯 Compress All to Target</button>
+                <button id="downloadAllBtn" class="action-btn btn-green" style="margin-top: 10px;">📥 Download All (Individual)</button>
+                <button id="downloadZipBtn" class="action-btn btn-dark" style="margin-top: 10px;">📦 Download as ZIP</button>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--card-border); padding-top: 15px;">
+                    <button class="action-btn" style="background:#f3f4f6; color:#444;" onclick="document.getElementById('fileInput').click()">➕ Add More PDFs</button>
+                    <p style="text-align: center; margin-top: 15px; font-size: 13px; opacity: 0.6; cursor: pointer;" onclick="location.reload()">🔄 Restart Session</p>
+                </div>
+            </div>
+
+            <div class="bulk-list" id="bulkList"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--brand-primary); font-weight: 700;">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Back to Home
+            </a>
+        </div>
+
+        <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+            <div><div style="color: var(--primary-cyan, #00d4ff); margin-bottom: 10px;"><i data-lucide="layers" style="width:32px;height:32px;"></i></div><h3>Whole Batches</h3><p style="opacity: 0.8; font-size: 14px;">Target the same size across every file in one pass.</p></div>
+            <div><div style="color: var(--accent-pink, #ec4899); margin-bottom: 10px;"><i data-lucide="crosshair" style="width:32px;height:32px;"></i></div><h3>Automatic Quality Search</h3><p style="opacity: 0.8; font-size: 14px;">Quality is searched automatically to approach your target.</p></div>
+            <div><div style="color: var(--primary-neon, #00ff88); margin-bottom: 10px;"><i data-lucide="shield-check" style="width:32px;height:32px;"></i></div><h3>Nothing Uploaded</h3><p style="opacity: 0.8; font-size: 14px;">Pages are rendered and re-compressed in your browser.</p></div>
+            <div><div style="color: var(--accent-orange, #f97316); margin-bottom: 10px;"><i data-lucide="download-cloud" style="width:32px;height:32px;"></i></div><h3>One-Click ZIP</h3><p style="opacity: 0.8; font-size: 14px;">Pull every compressed file down together.</p></div>
+        </div>
+
+        <div class="section-divider" style="text-align: left;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How hitting a target size actually works</h2>
+            <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
+                <p style="margin-bottom: 15px;">
+                    Every page is rendered onto a canvas, then re-encoded as a JPEG image at a quality level chosen by a search — trying progressively lower or higher quality until the rebuilt PDF lands as close as possible to your target size. If your target can't realistically be reached, the closest achievable size is returned instead of a broken or unreadable file.
+                </p>
+                <p>
+                    Because every page becomes an image, this is best for sharing or uploading where an exact size limit matters more than being able to select or search the text afterward.
+                </p>
+            </div>
+
+            <div class="ad-slot-large" id="in-article-ads"></div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How it works</h2>
+            <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>Drop in one PDF or a batch</li>
+                <li>Enter your target size in KB or MB</li>
+                <li>The tool searches for the closest quality automatically</li>
+                <li>Download one at a time, or everything as a ZIP</li>
+            </ul>
+        </div>
+
+        <div class="section-divider">
+            <div class="info-flex-container">
+                <div class="info-column">
+                    <h3>When this is worth doing</h3>
+                    <p><strong>Upload size limits:</strong> forms, portals, and email attachments that reject files over a set size.<br>
+                    <strong>Consistent batch sizing:</strong> get a whole folder of PDFs under the same cap.<br>
+                    <strong>Bandwidth-conscious sharing:</strong> keep files small for slow connections.<br>
+                    <strong>Storage limits:</strong> fit more files into a fixed quota.</p>
+                </div>
+                <div class="info-column">
+                    <h3>Set expectations right</h3>
+                    <p><strong>Text becomes an image:</strong> selecting/searching text won't work afterward.<br>
+                    <strong>Very small targets may not be reachable:</strong> the tool returns its closest result instead of failing silently.<br>
+                    <strong>Batches are fine:</strong> queue several PDFs with one shared target.<br>
+                    <strong>Nothing leaves your device:</strong> processing is 100% local.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider" style="padding-top: 15px; margin-top: 15px;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Desktop PDF Software vs This Tool</h2>
+            <div style="overflow-x: auto;">
+            <table class="cmp-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Desktop PDF Software</th>
+                        <th>Nexitool Compress to Target Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Setup</td>
+                        <td>Install and configure first</td>
+                        <td>None — opens directly in your browser</td>
+                    </tr>
+                    <tr>
+                        <td>Cost</td>
+                        <td>Often paid or trial-limited</td>
+                        <td>Always free</td>
+                    </tr>
+                    <tr>
+                        <td>Exact target size</td>
+                        <td>Rare, usually just a quality slider</td>
+                        <td>Yes — enter the size, quality is searched for you</td>
+                    </tr>
+                    <tr>
+                        <td>Upload required</td>
+                        <td>Sometimes, with online converters</td>
+                        <td>Never — 100% local</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+        <section class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            <div class="faq-container">
+            <div class="faq-item">
+                <button class="faq-question">How does this hit a specific file size? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Each page is re-rendered as an image and re-compressed at different JPEG quality levels until the resulting PDF gets as close as possible to your target size, without going over when possible.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Will the text still be selectable after compressing? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">No — to hit an exact target size, every page is converted into a compressed image. The output looks the same but the text is no longer selectable or searchable.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">What if my target size is too small to reach? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">The tool always returns the smallest size it can reach at readable quality, and tells you the final size achieved even if it's slightly above your target.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Does my file get uploaded anywhere? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">No — every page is rendered and re-compressed directly in your browser. Your file never leaves your device.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I compress several PDFs to the same target at once? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — load a batch, set one target size, and it's applied to every file.</div>
+            </div>
+            </div>
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="../../js/tools-data.js"></script>
+    <script src="../../js/blogs-data.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/header-animation.js"></script>
+    <script src="../../js/ads-manager.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/announcement-config.js"></script>
+    <script src="../../js/announcement-banner.js"></script>
+    <script src="../../js/guide-content.js"></script>
+    <script src="../../js/user-guide.js"></script>
+    <script src="../../js/auth-widget.js"></script>
+    <script src="../../js/earn-ticker.js"></script>
+    <script src="../../js/verify-tracking.js" defer></script>
+    <script src="../../js/rewarded-ads.js" defer></script>
+    <script src="../../ads/display-ads.js" defer></script>
+    <script src="../../ads/in-article-ads.js" defer></script>
+    <script>
+        window.addEventListener('load', () => {
+            if (window.initAdBlockDetector) window.initAdBlockDetector();
+        });
+    </script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const bulkList = document.getElementById('bulkList');
+        const targetInput = document.getElementById('targetInput');
+        const targetUnit = document.getElementById('targetUnit');
+
+        let fileQueue = [];
+
+        fileInput.onchange = (e) => {
+            const files = Array.from(e.target.files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+            if (files.length > 0) {
+                document.getElementById('dropZone').style.display = 'none';
+                document.getElementById('compressorGrid').style.display = 'grid';
+
+                files.forEach((file, index) => {
+                    const id = Date.now() + index;
+                    fileQueue.push({ id, original: file, resultBlob: null });
+                    addCardUI(file, id);
+                });
+            }
+        };
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 KB';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function addCardUI(file, id) {
+            const card = document.createElement('div');
+            card.className = 'bulk-card';
+            card.id = `card-${id}`;
+            card.innerHTML = `
+                <div class="card-loader" id="loader-${id}"><div class="spinner"></div></div>
+                <div class="pdf-icon-preview"><i data-lucide="file-text" style="width: 40px; height: 40px;"></i></div>
+                <div class="file-name-row" title="${file.name}">${file.name}</div>
+                <div class="stat-badge">
+                    <div class="stat-row">
+                        <span>Original:</span>
+                        <span>${formatBytes(file.size)}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Status:</span>
+                        <span id="status-${id}">Waiting...</span>
+                    </div>
+                </div>
+                <button class="action-btn btn-green" onclick="downloadOne(${id})" style="padding:8px; font-size:12px;" disabled>Download</button>
+            `;
+            bulkList.appendChild(card);
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function renderPagesToCanvases(file, scale) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const pages = [];
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                const page = await pdf.getPage(pageNum);
+                const pointSize = page.getViewport({ scale: 1 });
+                const viewport = page.getViewport({ scale });
+                const canvas = document.createElement('canvas');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                const ctx = canvas.getContext('2d');
+                await page.render({ canvasContext: ctx, viewport }).promise;
+                pages.push({ canvas, widthPts: pointSize.width, heightPts: pointSize.height });
+            }
+            return pages;
+        }
+
+        async function buildPdfAtQuality(pages, quality) {
+            const pdfDoc = await PDFLib.PDFDocument.create();
+            for (const p of pages) {
+                const jpegDataUrl = p.canvas.toDataURL('image/jpeg', quality);
+                const jpegBytes = await (await fetch(jpegDataUrl)).arrayBuffer();
+                const jpgImage = await pdfDoc.embedJpg(jpegBytes);
+                const page = pdfDoc.addPage([p.widthPts, p.heightPts]);
+                page.drawImage(jpgImage, { x: 0, y: 0, width: p.widthPts, height: p.heightPts });
+            }
+            return pdfDoc.save();
+        }
+
+        async function compressToTarget(file, targetBytes, statusEl) {
+            const pages = await renderPagesToCanvases(file, 1.5);
+
+            let low = 0.05, high = 0.95;
+            let best = null;
+            let bestDiff = Infinity;
+
+            for (let i = 0; i < 6; i++) {
+                const mid = (low + high) / 2;
+                statusEl.innerText = `Trying quality ${(mid * 100).toFixed(0)}%...`;
+                const bytes = await buildPdfAtQuality(pages, mid);
+
+                const diff = Math.abs(bytes.length - targetBytes);
+                if (diff < bestDiff) {
+                    bestDiff = diff;
+                    best = bytes;
+                }
+
+                if (bytes.length > targetBytes) {
+                    high = mid;
+                } else {
+                    low = mid;
+                }
+            }
+
+            return best;
+        }
+
+        async function processBatch() {
+            const rawTarget = parseFloat(targetInput.value) || 500;
+            const targetBytes = targetUnit.value === 'MB' ? rawTarget * 1024 * 1024 : rawTarget * 1024;
+
+            for (let item of fileQueue) {
+                const loader = document.getElementById(`loader-${item.id}`);
+                if (loader) loader.style.display = 'flex';
+                const statusEl = document.getElementById(`status-${item.id}`);
+
+                try {
+                    const bytes = await compressToTarget(item.original, targetBytes, statusEl);
+                    item.resultBlob = new Blob([bytes], { type: 'application/pdf' });
+                    statusEl.innerText = `${formatBytes(bytes.length)} ✓`;
+                    statusEl.style.color = '#059669';
+                    const card = document.getElementById(`card-${item.id}`);
+                    card.querySelector('button.btn-green').disabled = false;
+                } catch (err) {
+                    console.error('Compress to target size failed', err);
+                    statusEl.innerText = 'Error';
+                    statusEl.style.color = '#ef4444';
+                }
+
+                if (loader) loader.style.display = 'none';
+            }
+        }
+
+        document.getElementById('compressAllBtn').onclick = () => {
+            processBatch();
+        };
+
+        function downloadOne(id) {
+            const item = fileQueue.find(f => f.id === id);
+            if (item?.resultBlob) {
+                const a = document.createElement('a');
+                a.download = `compressed-${item.original.name}`;
+                a.href = URL.createObjectURL(item.resultBlob);
+                a.click();
+            }
+        }
+
+        document.getElementById('downloadAllBtn').onclick = () => {
+            fileQueue.forEach(item => downloadOne(item.id));
+        };
+
+        document.getElementById('downloadZipBtn').onclick = async () => {
+            const zip = new JSZip();
+            let any = false;
+            fileQueue.forEach(item => {
+                if (item.resultBlob) { zip.file(`compressed-${item.original.name}`, item.resultBlob); any = true; }
+            });
+            if (!any) return;
+            const content = await zip.generateAsync({ type: "blob" });
+            const a = document.createElement('a');
+            a.download = "nexitool-pdf-compressed-batch.zip";
+            a.href = URL.createObjectURL(content);
+            a.click();
+        };
+    </script>
+</body>
+</html>
