@@ -42,6 +42,16 @@ const TOOLS = [
         isTrending: true
     },
     {
+        id: 'pdf-rotate',
+        name: 'PDF Rotate',
+        description: 'Fix sideways or upside-down PDF pages right in your browser. Rotate by 90, 180, or 270 degrees.',
+        category: 'PDF',
+        color: 'pdf',
+        icon: 'rotate-cw',
+        path: 'tools/pdf-tools/pdf-rotate.html',
+        isTrending: false
+    },
+    {
         id: 'pdf-compressor',
         name: 'PDF Compressor',
         description: 'Shrink PDF file size in your browser by re-compressing embedded images and stripping extra metadata.',
