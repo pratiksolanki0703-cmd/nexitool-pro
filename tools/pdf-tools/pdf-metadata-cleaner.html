@@ -69,6 +69,10 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js';
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--accent); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
@@ -84,9 +88,11 @@
         .action-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; font-size: 14px; }
         .btn-green { background: #28a745; color: white; }
         .btn-dark { background: #111827; color: white; }
+        @keyframes button-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 40%, transparent); } 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 0%, transparent); } }
+        .action-btn.pulse { animation: button-pulse 2s infinite; }
 
         .bulk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-        .bulk-card { background: white; border: 1px solid var(--card-border); border-radius: 15px; padding: 15px; position: relative; text-align: left; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .bulk-card { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 15px; padding: 15px; position: relative; text-align: left; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
         .file-name-row { font-size: 12px; font-weight: 700; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
 
         .card-loader { position: absolute; inset: 0; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; border-radius: 15px; z-index: 5; flex-direction: column; }
@@ -328,6 +334,7 @@
             if (files.length > 0) {
                 document.getElementById('dropZone').style.display = 'none';
                 document.getElementById('compressorGrid').style.display = 'grid';
+                document.getElementById('cleanAllBtn').classList.add('pulse');
 
                 files.forEach((file, index) => {
                     const id = Date.now() + index;
@@ -395,6 +402,7 @@
         }
 
         async function processBatch() {
+            document.getElementById('cleanAllBtn').classList.remove('pulse');
             for (let item of fileQueue) {
                 const loader = document.getElementById(`loader-${item.id}`);
                 if (loader) loader.style.display = 'flex';
