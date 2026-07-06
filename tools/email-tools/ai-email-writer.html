@@ -40,7 +40,7 @@
         "Accepts input in any language",
         "Fixed output-language selector — get the result in the language you need",
         "No server-side data storage — we only pass your request to the AI and its response back to you",
-        "Draft and result saved locally in your own browser for a better experience",
+        "Local history of your past generated emails, saved only in your own browser",
         "No real-money payment — powered by free coins"
       ]
     },
@@ -65,7 +65,7 @@
         {
           "@type": "Question",
           "name": "Is my email content stored anywhere?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Not on our servers — we don't store any data on our end, we simply pass your request to the AI and its response back to you. Your latest draft and result are saved locally in your own browser only, for a better experience across reloads." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Not on our servers — we don't store any data on our end, we simply pass your request to the AI and its response back to you. A history of your past generated emails is kept only in your own browser's local storage, so you can revisit one later; you can clear it anytime." }
         }
       ]
     },
@@ -115,6 +115,17 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .cost-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); padding: 4px 10px; border-radius: 20px; margin-top: 8px; }
+
+        .history-section { max-width: 720px; margin: 1.5rem auto 0; }
+        .history-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--card-border); background: var(--bg-secondary); color: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
+        .history-list { border: 1px solid var(--card-border); border-top: none; border-radius: 0 0 10px 10px; max-height: 320px; overflow-y: auto; }
+        .history-item { padding: 10px 16px; border-top: 1px solid var(--card-border); cursor: pointer; transition: 0.15s; }
+        .history-item:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+        .history-item-top { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+        .history-item-lang { color: var(--accent); opacity: 0.85; }
+        .history-item-preview { font-size: 12.5px; opacity: 0.7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .history-empty { padding: 16px; font-size: 13px; opacity: 0.6; text-align: center; }
+        .history-clear-btn { width: 100%; padding: 10px; margin-top: 8px; border: 1px solid var(--card-border); border-radius: 8px; background: transparent; color: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; opacity: 0.7; }
 
         .ad-slot-small { width: 100%; max-width: 728px; min-height: 60px; margin: 30px auto; }
         .ad-slot-large { width: 100%; max-width: 728px; min-height: 90px; margin: 30px auto; }
@@ -210,6 +221,15 @@
             </div>
         </div>
 
+        <!-- History panel: past generated emails, kept only in this browser's local storage -->
+        <div class="history-section">
+            <button class="history-toggle" id="historyToggle">
+                <span>🕘 History (<span id="historyCount">0</span>)</span>
+                <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+            </button>
+            <div class="history-list" id="historyList" style="display:none;"></div>
+        </div>
+
         <!-- Ad slot: standard display ad below the tool panel, matches the PDF-tool ad format -->
         <div class="ad-slot-small" id="display-ads"></div>
 
@@ -222,8 +242,8 @@
         <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
             <div><div style="color: var(--primary-cyan, #00d4ff); margin-bottom: 10px;"><i data-lucide="languages" style="width:32px;height:32px;"></i></div><h3>Any Input Language</h3><p style="opacity: 0.8; font-size: 14px;">Type your idea or draft in whatever language you think in.</p></div>
             <div><div style="color: var(--accent-pink, #ec4899); margin-bottom: 10px;"><i data-lucide="pen-line" style="width:32px;height:32px;"></i></div><h3>Fixed Output Language</h3><p style="opacity: 0.8; font-size: 14px;">Pick exactly which language the finished email comes back in.</p></div>
-            <div><div style="color: var(--primary-neon, #00ff88); margin-bottom: 10px;"><i data-lucide="shield-check" style="width:32px;height:32px;"></i></div><h3>Nothing Stored</h3><p style="opacity: 0.8; font-size: 14px;">Your input is used only to generate the reply, never saved.</p></div>
-            <div><div style="color: var(--accent-orange, #f97316); margin-bottom: 10px;"><i data-lucide="coins" style="width:32px;height:32px;"></i></div><h3>Coins, Not Cash</h3><p style="opacity: 0.8; font-size: 14px;">Free coins from login and ads — never a real-money charge.</p></div>
+            <div><div style="color: var(--primary-neon, #00ff88); margin-bottom: 10px;"><i data-lucide="shield-check" style="width:32px;height:32px;"></i></div><h3>Nothing Stored On Us</h3><p style="opacity: 0.8; font-size: 14px;">Your input is used only to generate the reply, never saved on our servers.</p></div>
+            <div><div style="color: var(--accent-orange, #f97316); margin-bottom: 10px;"><i data-lucide="history" style="width:32px;height:32px;"></i></div><h3>Local History</h3><p style="opacity: 0.8; font-size: 14px;">Revisit past emails anytime — saved only in your own browser.</p></div>
         </div>
 
         <div class="section-divider" style="text-align: left;">
@@ -233,7 +253,7 @@
                     Choose "Write from scratch" and describe the recipient, the reason for the email, and the single point that matters most — the AI drafts a complete, well-structured email from that context. Choose "Rewrite a draft" instead to paste something rough or unpolished and get it cleaned up while keeping your original meaning intact.
                 </p>
                 <p>
-                    Either way, the AI reads your input regardless of language and always writes the final email in the output language you select — useful for writing comfortably in your first language while sending the result in another.
+                    Either way, the AI reads your input regardless of language and always writes the final email in the output language you select — useful for writing comfortably in your first language while sending the result in another. Every email you generate is added to your local history so you can find it again later.
                 </p>
             </div>
 
@@ -264,7 +284,7 @@
                     <h3>Set expectations right</h3>
                     <p><strong>Costs coins:</strong> 8 coins per email, all earnable for free.<br>
                     <strong>Login required:</strong> needed to track your coin balance.<br>
-                    <strong>Not stored on our servers:</strong> we just pass requests to the AI and back — your draft is only kept locally in your own browser.<br>
+                    <strong>Not stored on our servers:</strong> we just pass requests to the AI and back — only your local history lives in your own browser.<br>
                     <strong>Review before sending:</strong> always double-check names and facts.</p>
                 </div>
             </div>
@@ -298,9 +318,9 @@
                         <td>A few free coins, no real money ever</td>
                     </tr>
                     <tr>
-                        <td>Consistency</td>
-                        <td>Varies with mood and time pressure</td>
-                        <td>Consistently professional tone</td>
+                        <td>Finding an old draft</td>
+                        <td>Digging through Sent folders</td>
+                        <td>One click in your local history</td>
                     </tr>
                 </tbody>
             </table>
@@ -324,7 +344,7 @@
             </div>
             <div class="faq-item">
                 <button class="faq-question">Is my email content stored anywhere? <i data-lucide="chevron-down" class="faq-icon"></i></button>
-                <div class="faq-answer">Not on our servers — we don't store any data on our end, we simply pass your request to the AI and its response back to you. Your latest draft and result are saved locally in your own browser only, for a better experience across reloads.</div>
+                <div class="faq-answer">Not on our servers — we don't store any data on our end, we simply pass your request to the AI and its response back to you. A history of your past generated emails is kept only in your own browser's local storage, so you can revisit one later; you can clear it anytime.</div>
             </div>
             </div>
         </section>
@@ -361,9 +381,10 @@
         const TOOL_ID = 'ai-email-writer';
         const TOOL_COST = 8;
         const FUNCTION_URL = 'https://wznrwewwwaqhxlhvfqol.supabase.co/functions/v1/ai-tool';
-        // We never store your input/output on our servers — this key only saves
-        // it in your own browser's local storage, purely so it survives a reload.
-        const STORAGE_KEY = 'nexitool_ai_email_writer_state';
+        // History of past results only — never a request/response cache, and it
+        // never leaves this browser. See privacy-policy.html.
+        const HISTORY_KEY = 'nexitool_ai_email_writer_history';
+        const MAX_HISTORY = 20;
 
         const modeScratchBtn = document.getElementById('modeScratchBtn');
         const modeDraftBtn = document.getElementById('modeDraftBtn');
@@ -377,7 +398,6 @@
             modeDraftBtn.classList.remove('active');
             scratchFields.style.display = 'block';
             draftFields.style.display = 'none';
-            saveState();
         };
         modeDraftBtn.onclick = () => {
             mode = 'draft';
@@ -385,14 +405,12 @@
             modeScratchBtn.classList.remove('active');
             scratchFields.style.display = 'none';
             draftFields.style.display = 'block';
-            saveState();
         };
 
         const outputLangSelect = document.getElementById('ewOutputLang');
         const customLangWrap = document.getElementById('ewCustomLangWrap');
         outputLangSelect.onchange = () => {
             customLangWrap.style.display = outputLangSelect.value === 'custom' ? 'block' : 'none';
-            saveState();
         };
 
         const generateBtn = document.getElementById('ewGenerateBtn');
@@ -400,42 +418,6 @@
         const spinnerEl = document.getElementById('ewSpinner');
         const outputWrap = document.getElementById('ewOutputWrap');
         const outputEl = document.getElementById('ewOutput');
-
-        // Local-storage persistence — purely on-device, for a better reload
-        // experience. Nothing here ever leaves your browser; see privacy-policy.html.
-        const fieldIds = ['ewRecipient', 'ewPurpose', 'ewEmphasis', 'ewDraft', 'ewCustomLang'];
-
-        function saveState() {
-            try {
-                const state = { mode, outputLang: outputLangSelect.value, output: outputEl.textContent };
-                fieldIds.forEach(id => { state[id] = document.getElementById(id).value; });
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            } catch (e) { /* local storage unavailable — safe to ignore */ }
-        }
-
-        function loadState() {
-            let state;
-            try { state = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch (e) { return; }
-            if (!state) return;
-
-            fieldIds.forEach(id => {
-                if (state[id]) document.getElementById(id).value = state[id];
-            });
-            if (state.outputLang) {
-                outputLangSelect.value = state.outputLang;
-                customLangWrap.style.display = state.outputLang === 'custom' ? 'block' : 'none';
-            }
-            if (state.mode === 'draft') {
-                modeDraftBtn.click();
-            }
-            if (state.output) {
-                outputEl.textContent = state.output;
-                outputWrap.style.display = 'block';
-            }
-        }
-
-        fieldIds.forEach(id => document.getElementById(id).addEventListener('input', saveState));
-        loadState();
 
         function buildInput() {
             if (mode === 'scratch') {
@@ -458,6 +440,66 @@
             return outputLangSelect.value;
         }
 
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function loadHistory() {
+            try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch (e) { return []; }
+        }
+
+        function addToHistory(entry) {
+            const list = loadHistory();
+            list.unshift(entry);
+            if (list.length > MAX_HISTORY) list.length = MAX_HISTORY;
+            try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); } catch (e) { /* storage unavailable — safe to ignore */ }
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = loadHistory();
+            document.getElementById('historyCount').textContent = list.length;
+            const container = document.getElementById('historyList');
+
+            if (!list.length) {
+                container.innerHTML = '<p class="history-empty">No past emails yet — generate one and it\'ll show up here.</p>';
+                return;
+            }
+
+            container.innerHTML = list.map((item, idx) =>
+                `<div class="history-item" data-idx="${idx}">
+                    <div class="history-item-top">
+                        <span>${escapeHtml(item.label)}</span>
+                        <span class="history-item-lang">${escapeHtml(item.outputLang)}</span>
+                    </div>
+                    <div class="history-item-preview">${escapeHtml(item.output)}</div>
+                </div>`
+            ).join('') + '<button class="history-clear-btn" id="historyClearBtn">Clear History</button>';
+
+            container.querySelectorAll('.history-item').forEach(el => {
+                el.onclick = () => {
+                    const item = list[parseInt(el.dataset.idx, 10)];
+                    outputEl.textContent = item.output;
+                    outputWrap.style.display = 'block';
+                    outputWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+            });
+            document.getElementById('historyClearBtn').onclick = (e) => {
+                e.stopPropagation();
+                localStorage.removeItem(HISTORY_KEY);
+                renderHistory();
+            };
+        }
+
+        document.getElementById('historyToggle').onclick = () => {
+            const list = document.getElementById('historyList');
+            list.style.display = list.style.display === 'block' ? 'none' : 'block';
+        };
+
+        renderHistory();
+
         generateBtn.onclick = async () => {
             errorEl.style.display = 'none';
             const input = buildInput();
@@ -476,13 +518,14 @@
 
             try {
                 const { data: { session } } = await window.supabaseClient.auth.getSession();
+                const outputLang = resolveOutputLanguage();
                 const res = await fetch(FUNCTION_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${session.access_token}`
                     },
-                    body: JSON.stringify({ tool_id: TOOL_ID, input, output_language: resolveOutputLanguage() })
+                    body: JSON.stringify({ tool_id: TOOL_ID, input, output_language: outputLang })
                 });
                 const result = await res.json();
 
@@ -498,7 +541,11 @@
 
                 outputEl.textContent = result.output;
                 outputWrap.style.display = 'block';
-                saveState();
+
+                const label = mode === 'scratch'
+                    ? (document.getElementById('ewPurpose').value.trim().slice(0, 60) || 'Email')
+                    : 'Rewritten draft';
+                addToHistory({ label, outputLang, output: result.output });
             } catch (err) {
                 console.error('AI Email Writer request failed', err);
                 errorEl.textContent = 'Network error — please try again.';
