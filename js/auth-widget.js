@@ -111,6 +111,7 @@
                 </ul>
                 <p class="auth-modal-sub" style="font-weight: 700;">Totally free — no real-money payment, ever.</p>
                 <button id="premiumGateLoginBtn" class="auth-submit-btn" style="width: 100%; margin-top: 1rem;">Login &amp; Get 20 Coins Free</button>
+                <p style="font-size: 0.75rem; opacity: 0.6; text-align: center; margin-top: 0.75rem;">We wanted to let you try this without logging in too, but had to skip that to prevent abuse. Sorry about that!</p>
             </div>
         `;
         document.body.appendChild(overlay);
@@ -124,14 +125,59 @@
         overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
     }
 
-    // Call before running a premium/server-side AI tool action. Returns true if the
-    // user is already logged in (safe to proceed); otherwise shows the login-gate
-    // modal and returns false.
-    window.requirePremiumAccess = async function() {
+    function showInsufficientCoinsModal(cost, balance) {
+        const overlay = document.createElement('div');
+        overlay.id = 'insufficientCoinsModalOverlay';
+        overlay.className = 'auth-modal-overlay';
+        overlay.innerHTML = `
+            <div class="auth-modal">
+                <button class="auth-modal-close" id="insufficientCoinsClose">&times;</button>
+                <div style="text-align: center;">
+                    <i data-lucide="coins" style="width: 48px; height: 48px; color: var(--brand); margin-bottom: 1rem;"></i>
+                    <h3>Not Enough Coins Yet</h3>
+                    <p class="auth-modal-sub">This tool needs <strong>${cost} coins</strong>, and you currently have <strong>${balance}</strong>.</p>
+                </div>
+                <ul style="margin: 1rem 0; padding-left: 1.25rem; font-size: 0.9rem; line-height: 1.8;">
+                    <li>Wait a bit — you earn <strong>5 coins</strong> automatically about every 30 seconds while signed in</li>
+                    <li>Or watch a short video ad right now to earn <strong>30 coins</strong> instantly</li>
+                </ul>
+                <p class="auth-modal-sub" style="font-weight: 700;">You never pay real money — ever.</p>
+                <button id="insufficientCoinsWatchBtn" class="auth-submit-btn" style="width: 100%; margin-top: 1rem;">Watch Ad &amp; Earn 30 Coins</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        if (window.lucide) lucide.createIcons();
+
+        document.getElementById('insufficientCoinsClose').addEventListener('click', () => overlay.remove());
+        document.getElementById('insufficientCoinsWatchBtn').addEventListener('click', () => {
+            overlay.remove();
+            showWatchAdModal();
+        });
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    }
+
+    // Call before running a premium/server-side AI tool action. Pass the tool's
+    // coin cost to also enforce the balance check. Returns true if it's safe to
+    // proceed; otherwise shows the right modal (login gate or low-balance) and
+    // returns false.
+    window.requirePremiumAccess = async function(cost) {
         const { data: { session } } = await window.supabaseClient.auth.getSession();
-        if (session) return true;
-        showPremiumGateModal();
-        return false;
+        if (!session) {
+            showPremiumGateModal();
+            return false;
+        }
+        if (typeof cost === 'number') {
+            const { data, error } = await window.supabaseClient
+                .from('profiles')
+                .select('credit_balance')
+                .single();
+            const balance = !error && data ? data.credit_balance : cachedBalance;
+            if (balance < cost) {
+                showInsufficientCoinsModal(cost, balance);
+                return false;
+            }
+        }
+        return true;
     };
 
     function renderLoggedIn(container) {
