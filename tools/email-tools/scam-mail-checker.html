@@ -39,6 +39,8 @@
         "Clear verdict label (Safe / Suspicious / Likely Scam / Confirmed Scam)",
         "Specific, referenced red flags explained",
         "Popular-language selector plus custom-language option",
+        "No server-side data storage — we only pass your request to the AI and its response back to you",
+        "Pasted email and result saved locally in your own browser for a better experience",
         "No real-money payment — powered by free coins"
       ]
     },
@@ -63,7 +65,7 @@
         {
           "@type": "Question",
           "name": "Is the email content I paste in stored anywhere?",
-          "acceptedAnswer": { "@type": "Answer", "text": "No — your input is sent only to generate the analysis and is not stored on our servers." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Not on our servers — we don't store any data on our end, we simply pass your request to the AI and its response back to you. The pasted email and result are saved locally in your own browser only, for a better experience across reloads." }
         }
       ]
     },
@@ -239,7 +241,7 @@
                     <h3>Set expectations right</h3>
                     <p><strong>Costs coins:</strong> 5 coins per check, all earnable for free.<br>
                     <strong>Login required:</strong> needed to track your coin balance.<br>
-                    <strong>Not stored:</strong> the pasted email isn't saved after analysis.<br>
+                    <strong>Not stored on our servers:</strong> we just pass requests to the AI and back — the pasted email is only kept locally in your own browser.<br>
                     <strong>Not a guarantee:</strong> use it as a strong signal, not the final word.</p>
                 </div>
             </div>
@@ -299,7 +301,7 @@
             </div>
             <div class="faq-item">
                 <button class="faq-question">Is the email content I paste in stored anywhere? <i data-lucide="chevron-down" class="faq-icon"></i></button>
-                <div class="faq-answer">No — your input is sent only to generate the analysis and is not stored on our servers.</div>
+                <div class="faq-answer">Not on our servers — we don't store any data on our end, we simply pass your request to the AI and its response back to you. The pasted email and result are saved locally in your own browser only, for a better experience across reloads.</div>
             </div>
             </div>
         </section>
@@ -336,6 +338,9 @@
         const TOOL_ID = 'scam-mail-checker';
         const TOOL_COST = 5;
         const FUNCTION_URL = 'https://wznrwewwwaqhxlhvfqol.supabase.co/functions/v1/ai-tool';
+        // We never store your input/output on our servers — this key only saves
+        // it in your own browser's local storage, purely so it survives a reload.
+        const STORAGE_KEY = 'nexitool_scam_mail_checker_state';
 
         // Popular-language slider — index maps to a language name.
         const POPULAR_LANGUAGES = ['English', 'Hindi', 'Spanish', 'French', 'German', 'Portuguese', 'Russian', 'Arabic', 'Japanese'];
@@ -344,6 +349,7 @@
         const langSliderLabel = document.getElementById('langSliderLabel');
         langSlider.oninput = () => {
             langSliderLabel.textContent = POPULAR_LANGUAGES[parseInt(langSlider.value, 10)];
+            saveState();
         };
 
         const customToggle = document.getElementById('scCustomLangToggle');
@@ -352,6 +358,7 @@
             const useCustom = customToggle.value === 'custom';
             customLangWrap.style.display = useCustom ? 'block' : 'none';
             langSlider.disabled = useCustom;
+            saveState();
         };
 
         function resolveResultLanguage() {
@@ -366,10 +373,52 @@
         const spinnerEl = document.getElementById('scSpinner');
         const outputWrap = document.getElementById('scOutputWrap');
         const outputEl = document.getElementById('scOutput');
+        const emailTextEl = document.getElementById('scEmailText');
+        const customLangEl = document.getElementById('scCustomLang');
+
+        // Local-storage persistence — purely on-device, for a better reload
+        // experience. Nothing here ever leaves your browser; see privacy-policy.html.
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    emailText: emailTextEl.value,
+                    langSlider: langSlider.value,
+                    customToggle: customToggle.value,
+                    customLang: customLangEl.value,
+                    output: outputEl.textContent
+                }));
+            } catch (e) { /* local storage unavailable — safe to ignore */ }
+        }
+
+        function loadState() {
+            let state;
+            try { state = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch (e) { return; }
+            if (!state) return;
+
+            if (state.emailText) emailTextEl.value = state.emailText;
+            if (state.langSlider) {
+                langSlider.value = state.langSlider;
+                langSliderLabel.textContent = POPULAR_LANGUAGES[parseInt(state.langSlider, 10)];
+            }
+            if (state.customLang) customLangEl.value = state.customLang;
+            if (state.customToggle === 'custom') {
+                customToggle.value = 'custom';
+                customLangWrap.style.display = 'block';
+                langSlider.disabled = true;
+            }
+            if (state.output) {
+                outputEl.textContent = state.output;
+                outputWrap.style.display = 'block';
+            }
+        }
+
+        emailTextEl.addEventListener('input', saveState);
+        customLangEl.addEventListener('input', saveState);
+        loadState();
 
         checkBtn.onclick = async () => {
             errorEl.style.display = 'none';
-            const emailText = document.getElementById('scEmailText').value.trim();
+            const emailText = emailTextEl.value.trim();
             if (!emailText) {
                 errorEl.textContent = 'Please paste the email content first.';
                 errorEl.style.display = 'block';
@@ -407,6 +456,7 @@
 
                 outputEl.textContent = result.output;
                 outputWrap.style.display = 'block';
+                saveState();
             } catch (err) {
                 console.error('Scam Mail Checker request failed', err);
                 errorEl.textContent = 'Network error — please try again.';

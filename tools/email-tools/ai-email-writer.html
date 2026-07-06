@@ -39,6 +39,8 @@
         "Rewrite and polish a rough draft",
         "Accepts input in any language",
         "Fixed output-language selector — get the result in the language you need",
+        "No server-side data storage — we only pass your request to the AI and its response back to you",
+        "Draft and result saved locally in your own browser for a better experience",
         "No real-money payment — powered by free coins"
       ]
     },
@@ -63,7 +65,7 @@
         {
           "@type": "Question",
           "name": "Is my email content stored anywhere?",
-          "acceptedAnswer": { "@type": "Answer", "text": "No — your input is sent only to generate the response and is not stored on our servers." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Not on our servers — we don't store any data on our end, we simply pass your request to the AI and its response back to you. Your latest draft and result are saved locally in your own browser only, for a better experience across reloads." }
         }
       ]
     },
@@ -262,7 +264,7 @@
                     <h3>Set expectations right</h3>
                     <p><strong>Costs coins:</strong> 8 coins per email, all earnable for free.<br>
                     <strong>Login required:</strong> needed to track your coin balance.<br>
-                    <strong>Not stored:</strong> your input isn't saved after generating.<br>
+                    <strong>Not stored on our servers:</strong> we just pass requests to the AI and back — your draft is only kept locally in your own browser.<br>
                     <strong>Review before sending:</strong> always double-check names and facts.</p>
                 </div>
             </div>
@@ -322,7 +324,7 @@
             </div>
             <div class="faq-item">
                 <button class="faq-question">Is my email content stored anywhere? <i data-lucide="chevron-down" class="faq-icon"></i></button>
-                <div class="faq-answer">No — your input is sent only to generate the response and is not stored on our servers.</div>
+                <div class="faq-answer">Not on our servers — we don't store any data on our end, we simply pass your request to the AI and its response back to you. Your latest draft and result are saved locally in your own browser only, for a better experience across reloads.</div>
             </div>
             </div>
         </section>
@@ -359,6 +361,9 @@
         const TOOL_ID = 'ai-email-writer';
         const TOOL_COST = 8;
         const FUNCTION_URL = 'https://wznrwewwwaqhxlhvfqol.supabase.co/functions/v1/ai-tool';
+        // We never store your input/output on our servers — this key only saves
+        // it in your own browser's local storage, purely so it survives a reload.
+        const STORAGE_KEY = 'nexitool_ai_email_writer_state';
 
         const modeScratchBtn = document.getElementById('modeScratchBtn');
         const modeDraftBtn = document.getElementById('modeDraftBtn');
@@ -372,6 +377,7 @@
             modeDraftBtn.classList.remove('active');
             scratchFields.style.display = 'block';
             draftFields.style.display = 'none';
+            saveState();
         };
         modeDraftBtn.onclick = () => {
             mode = 'draft';
@@ -379,12 +385,14 @@
             modeScratchBtn.classList.remove('active');
             scratchFields.style.display = 'none';
             draftFields.style.display = 'block';
+            saveState();
         };
 
         const outputLangSelect = document.getElementById('ewOutputLang');
         const customLangWrap = document.getElementById('ewCustomLangWrap');
         outputLangSelect.onchange = () => {
             customLangWrap.style.display = outputLangSelect.value === 'custom' ? 'block' : 'none';
+            saveState();
         };
 
         const generateBtn = document.getElementById('ewGenerateBtn');
@@ -392,6 +400,42 @@
         const spinnerEl = document.getElementById('ewSpinner');
         const outputWrap = document.getElementById('ewOutputWrap');
         const outputEl = document.getElementById('ewOutput');
+
+        // Local-storage persistence — purely on-device, for a better reload
+        // experience. Nothing here ever leaves your browser; see privacy-policy.html.
+        const fieldIds = ['ewRecipient', 'ewPurpose', 'ewEmphasis', 'ewDraft', 'ewCustomLang'];
+
+        function saveState() {
+            try {
+                const state = { mode, outputLang: outputLangSelect.value, output: outputEl.textContent };
+                fieldIds.forEach(id => { state[id] = document.getElementById(id).value; });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (e) { /* local storage unavailable — safe to ignore */ }
+        }
+
+        function loadState() {
+            let state;
+            try { state = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch (e) { return; }
+            if (!state) return;
+
+            fieldIds.forEach(id => {
+                if (state[id]) document.getElementById(id).value = state[id];
+            });
+            if (state.outputLang) {
+                outputLangSelect.value = state.outputLang;
+                customLangWrap.style.display = state.outputLang === 'custom' ? 'block' : 'none';
+            }
+            if (state.mode === 'draft') {
+                modeDraftBtn.click();
+            }
+            if (state.output) {
+                outputEl.textContent = state.output;
+                outputWrap.style.display = 'block';
+            }
+        }
+
+        fieldIds.forEach(id => document.getElementById(id).addEventListener('input', saveState));
+        loadState();
 
         function buildInput() {
             if (mode === 'scratch') {
@@ -454,6 +498,7 @@
 
                 outputEl.textContent = result.output;
                 outputWrap.style.display = 'block';
+                saveState();
             } catch (err) {
                 console.error('AI Email Writer request failed', err);
                 errorEl.textContent = 'Network error — please try again.';

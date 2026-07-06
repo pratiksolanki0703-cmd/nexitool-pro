@@ -65,11 +65,12 @@
                 <div class="static-section-icon"><i data-lucide="server"></i></div>
                 <div class="static-section-body">
                     <h2>AI-powered tools</h2>
-                    <p>Some tools (for example, our email-writing and analysis tools) run on our servers instead of purely in your browser, because they use AI. For these tools:</p>
+                    <p>Some tools (for example, our email-writing and analysis tools) run on our servers instead of purely in your browser, because they use AI. For these tools, we don't store any data on our end — we simply pass your request to the AI and pass its response back to you. In detail:</p>
                     <ul>
-                        <li>We do not store the text you submit. It is used only to generate your result and is not retained on our servers afterward.</li>
+                        <li>We do not store the text you submit on our servers. It is used only to generate your result and is not retained afterward — our backend is just a pass-through between you and the AI.</li>
                         <li>Your input is sent to our backend, which forwards it to the third-party AI API (Google Gemini) that powers that specific tool, solely to generate your result.</li>
                         <li>We do not use your input to train any model, and we do not share it beyond what's needed to produce the tool's output.</li>
+                        <li>For a better experience, your input and the AI's response for these tools are saved locally in your own browser (local storage) so they're still there if you reload the page — this data stays on your device and is never uploaded to us.</li>
                     </ul>
                 </div>
             </div>
