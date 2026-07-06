@@ -72,6 +72,16 @@ const TOOLS = [
         isTrending: false
     },
     {
+        id: 'pdf-metadata-cleaner',
+        name: 'PDF Metadata Viewer & Cleaner',
+        description: 'View and strip hidden Title, Author, and Producer info from a PDF right in your browser. Nothing is uploaded.',
+        category: 'PDF',
+        color: 'pdf',
+        icon: 'file-search',
+        path: 'tools/pdf-tools/pdf-metadata-cleaner.html',
+        isTrending: false
+    },
+    {
         id: 'pdf-compressor',
         name: 'PDF Compressor',
         description: 'Shrink PDF file size in your browser by re-compressing embedded images and stripping extra metadata.',
