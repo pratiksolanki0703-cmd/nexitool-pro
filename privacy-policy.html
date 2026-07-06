@@ -52,7 +52,7 @@
                 <div class="static-section-icon"><i data-lucide="user-circle"></i></div>
                 <div class="static-section-body">
                     <h2>Account information (optional)</h2>
-                    <p>Creating an account is optional and is only needed if you want to use the coin-based system to access upcoming server-side tools. If you create an account, we (via our backend provider, Supabase) store:</p>
+                    <p>Creating an account is optional and is only needed if you want to use the coin-based system to access server-side AI tools. If you create an account, we (via our backend provider, Supabase) store:</p>
                     <ul>
                         <li>Your email address (used for sign-in).</li>
                         <li>Your coin balance and a ledger of coin-earning/spending activity.</li>
@@ -64,8 +64,13 @@
             <div class="static-section">
                 <div class="static-section-icon"><i data-lucide="server"></i></div>
                 <div class="static-section-body">
-                    <h2>Server-side tools</h2>
-                    <p>Some upcoming tools run on our servers rather than in your browser (for example, AI-powered utilities). When you use a server-side tool, the input you submit is sent to our backend and, where applicable, to the third-party AI provider powering that specific tool, solely to generate your result. We do not use this input to train models or share it beyond what's needed to deliver the tool's output.</p>
+                    <h2>AI-powered tools</h2>
+                    <p>Some tools (for example, our email-writing and analysis tools) run on our servers instead of purely in your browser, because they use AI. For these tools:</p>
+                    <ul>
+                        <li>We do not store the text you submit. It is used only to generate your result and is not retained on our servers afterward.</li>
+                        <li>Your input is sent to our backend, which forwards it to the third-party AI API (Google Gemini) that powers that specific tool, solely to generate your result.</li>
+                        <li>We do not use your input to train any model, and we do not share it beyond what's needed to produce the tool's output.</li>
+                    </ul>
                 </div>
             </div>
 

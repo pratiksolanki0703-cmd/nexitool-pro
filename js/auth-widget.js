@@ -92,6 +92,48 @@
         overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
     }
 
+    function showPremiumGateModal() {
+        const overlay = document.createElement('div');
+        overlay.id = 'premiumGateModalOverlay';
+        overlay.className = 'auth-modal-overlay';
+        overlay.innerHTML = `
+            <div class="auth-modal">
+                <button class="auth-modal-close" id="premiumGateClose">&times;</button>
+                <div style="text-align: center;">
+                    <i data-lucide="sparkles" style="width: 48px; height: 48px; color: var(--brand); margin-bottom: 1rem;"></i>
+                    <h3>This Is a Premium AI Tool</h3>
+                    <p class="auth-modal-sub">You don't pay a single penny for it — you earn coins instead. Just login and:</p>
+                </div>
+                <ul style="margin: 1rem 0; padding-left: 1.25rem; font-size: 0.9rem; line-height: 1.8;">
+                    <li>Get <strong>20 coins instantly</strong> the moment you login</li>
+                    <li>Earn <strong>5 coins</strong> passively about every 30 seconds while signed in</li>
+                    <li>Earn <strong>30 coins</strong> anytime by watching a short rewarded video ad</li>
+                </ul>
+                <p class="auth-modal-sub" style="font-weight: 700;">Totally free — no real-money payment, ever.</p>
+                <button id="premiumGateLoginBtn" class="auth-submit-btn" style="width: 100%; margin-top: 1rem;">Login &amp; Get 20 Coins Free</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        if (window.lucide) lucide.createIcons();
+
+        document.getElementById('premiumGateClose').addEventListener('click', () => overlay.remove());
+        document.getElementById('premiumGateLoginBtn').addEventListener('click', () => {
+            overlay.remove();
+            openAuthModal();
+        });
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    }
+
+    // Call before running a premium/server-side AI tool action. Returns true if the
+    // user is already logged in (safe to proceed); otherwise shows the login-gate
+    // modal and returns false.
+    window.requirePremiumAccess = async function() {
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (session) return true;
+        showPremiumGateModal();
+        return false;
+    };
+
     function renderLoggedIn(container) {
         const initial = (currentEmail[0] || 'u').toUpperCase();
         // Show a spinner instead of a misleading "0" while the real balance loads.
