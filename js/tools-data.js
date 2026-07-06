@@ -32,6 +32,16 @@ const TOOLS = [
         isTrending: false
     },
     {
+        id: 'pdf-password-adder',
+        name: 'PDF Password Adder',
+        description: 'Lock a PDF with a password right in your browser using standard 128-bit encryption. Nothing is uploaded.',
+        category: 'PDF',
+        color: 'pdf',
+        icon: 'lock',
+        path: 'tools/pdf-tools/pdf-password-adder.html',
+        isTrending: true
+    },
+    {
         id: 'pdf-compressor',
         name: 'PDF Compressor',
         description: 'Shrink PDF file size in your browser by re-compressing embedded images and stripping extra metadata.',
