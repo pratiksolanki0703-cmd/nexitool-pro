@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>(function(){try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.add("light");}catch(e){}})();</script>
+    <title>PDF Flatten Tool Online Free: Lock Form Fields | Nexitool</title>
+    <meta name="description" content="PDF Flatten tool lets you lock fillable form fields into permanent page content in seconds. 100% browser-based, no upload required, completely free. Perfect for finalizing filled forms.">
+    <link rel="canonical" href="https://nexitool.pro/tools/pdf-tools/pdf-flatten.html">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nexitool.pro/tools/pdf-tools/pdf-flatten.html">
+    <meta property="og:title" content="PDF Flatten Tool Online Free: Lock Form Fields | Nexitool">
+    <meta property="og:description" content="Lock fillable PDF form fields into permanent page content in seconds. 100% browser-based, no upload required, completely free.">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="PDF Flatten Tool Online Free: Lock Form Fields | Nexitool">
+    <meta property="twitter:description" content="Lock fillable PDF form fields into permanent page content in seconds. 100% browser-based, no upload required, completely free.">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://nexitool.pro/tools/pdf-tools/pdf-flatten.html#webpage",
+      "url": "https://nexitool.pro/tools/pdf-tools/pdf-flatten.html",
+      "name": "PDF Flatten Tool Online Free: Lock Form Fields | Nexitool",
+      "description": "Locks fillable PDF form fields into permanent, non-editable page content, entirely inside your browser.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "PDF Flatten Tool",
+      "url": "https://nexitool.pro/tools/pdf-tools/pdf-flatten.html",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Any",
+      "description": "Browser-based tool that flattens fillable PDF form fields (text boxes, checkboxes, radio buttons) into permanent page content.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "No signup required",
+        "Mobile friendly",
+        "Bulk processing — flatten a batch of PDFs at once",
+        "Flattens text fields, checkboxes, and radio buttons",
+        "Runs entirely on-device, nothing uploaded"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "What does \"flatten\" mean for a PDF?", "acceptedAnswer": { "@type": "Answer", "text": "It converts fillable form fields into fixed page content, so the values can no longer be edited or cleared by whoever opens the file next." } },
+        { "@type": "Question", "name": "What if my PDF has no form fields?", "acceptedAnswer": { "@type": "Answer", "text": "That file is skipped with a note — flattening only applies to PDFs that contain fillable form fields." } },
+        { "@type": "Question", "name": "Does my file get uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No — the entire process runs in your browser's JavaScript engine. Your file never leaves your device." } },
+        { "@type": "Question", "name": "Can I flatten several PDFs at once?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — load a batch and flatten all of them in one click. Download individually or as a ZIP." } },
+        { "@type": "Question", "name": "Can I undo flattening afterward?", "acceptedAnswer": { "@type": "Answer", "text": "No, flattening is permanent in the output file — keep your original if you might need to edit the form fields again." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexitool.pro/" },
+        { "@type": "ListItem", "position": 2, "name": "PDF Flatten Tool", "item": "https://nexitool.pro/tools/pdf-tools/pdf-flatten.html" }
+      ]
+    }
+  ]
+}
+    </script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--accent); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent); } 50% { text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent); } }
+        .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); width: 150px; margin: 20px auto; }
+
+        .compressor-grid { display: none; width: 100%; grid-template-columns: 320px 1fr; gap: 30px; text-align: left; margin-top: 30px; align-items: start; }
+
+        .compression-controls { background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--card-border); position: sticky; top: 20px; z-index: 10; }
+
+        .expectation-note { font-size: 12.5px; line-height: 1.5; opacity: 0.75; background: color-mix(in srgb, var(--accent) 6%, transparent); border: 1px dashed var(--accent); border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+
+        .bulk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .bulk-card { background: white; border: 1px solid var(--card-border); border-radius: 15px; padding: 15px; position: relative; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .pdf-icon-preview { width: 100%; height: 100px; border-radius: 10px; background: #f3f4f6; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
+        .file-name-row { font-size: 12px; font-weight: 700; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .card-loader { position: absolute; inset: 0; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; border-radius: 15px; z-index: 5; flex-direction: column; }
+        .spinner { width: 25px; height: 25px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .stat-badge { font-size: 11px; margin-bottom: 10px; background: #eef2ff; padding: 8px; border-radius: 8px; font-weight: 700; color: #333; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; font-size: 14px; }
+        .btn-green { background: #28a745; color: white; }
+        .btn-dark { background: #111827; color: white; }
+
+        .section-divider { border-top: 1px solid color-mix(in srgb, var(--accent) 15%, transparent); padding: 20px 0; margin-top: 20px; }
+        .info-flex-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; text-align: left; }
+        .info-column { flex: 1; min-width: 250px; }
+        .info-column h3 { color: var(--accent); margin-bottom: 15px; }
+
+        .ad-slot-small { width: 100%; max-width: 728px; min-height: 60px; margin: 30px auto; }
+        .ad-slot-large { width: 100%; max-width: 728px; min-height: 90px; margin: 30px auto; }
+
+        .cmp-table { width: 100%; max-width: 700px; margin: 0 auto; border-collapse: collapse; font-size: 15px; border: 1px solid var(--card-border); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .cmp-table th { text-align: left; padding: 12px 14px; background: var(--accent); color: white; font-weight: 700; }
+        .cmp-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--card-border); opacity: 0.85; }
+        .cmp-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+        .cmp-table tbody tr:last-child td { border-bottom: none; }
+        .cmp-table td:first-child { font-weight: 700; opacity: 1; }
+
+        @media (max-width: 900px) { .compressor-grid { grid-template-columns: 1fr; } .compression-controls { position: relative; top: 0; } }
+    </style>
+</head>
+<body class="color-pdf">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon">
+                <i data-lucide="layers-2" style="width: 64px; height: 64px;"></i>
+            </div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">
+                Free Online <span class="shining-title">PDF Flatten Tool</span> — lock form fields for good
+            </h1>
+            <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px; max-width: 640px; margin-left: auto; margin-right: auto;">
+                This free PDF flatten tool turns fillable form fields into permanent page content, right in your browser — no signup, no upload.
+            </p>
+            <p class="expectation-note" style="max-width: 480px; margin: 15px auto 0; text-align: left;">
+                <i data-lucide="unlock" style="width:14px;height:14px;vertical-align:-2px;"></i> <strong>No login required</strong> — this tool is 100% free to use without an account. Even our premium tools are 100% free, never any real-money payment — you just earn free coins by logging in (passively or by watching ads). <a href="../../coin.html" style="color: var(--accent); font-weight:700;">See how coins work</a>.
+            </p>
+            <div class="shining-line"></div>
+        </div>
+
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="upload-text">
+                <h3>Select PDF Files</h3>
+                <p>Drag & drop PDF files here (Bulk Supported)</p>
+            </div>
+            <input type="file" id="fileInput" accept="application/pdf" multiple style="display: none;">
+        </div>
+
+        <div class="ad-slot-small" id="display-ads"></div>
+
+        <div class="compressor-grid" id="compressorGrid">
+            <div class="compression-controls">
+                <p class="expectation-note">
+                    <i data-lucide="info" style="width:14px;height:14px;vertical-align:-2px;"></i> Flattening applies to every file in this batch. Files without form fields are skipped automatically.
+                </p>
+
+                <button id="flattenAllBtn" class="action-btn" style="background: var(--accent); color: white;">🔒 Flatten All Files</button>
+                <button id="downloadAllBtn" class="action-btn btn-green" style="margin-top: 10px;">📥 Download All (Individual)</button>
+                <button id="downloadZipBtn" class="action-btn btn-dark" style="margin-top: 10px;">📦 Download as ZIP</button>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--card-border); padding-top: 15px;">
+                    <button class="action-btn" style="background:#f3f4f6; color:#444;" onclick="document.getElementById('fileInput').click()">➕ Add More PDFs</button>
+                    <p style="text-align: center; margin-top: 15px; font-size: 13px; opacity: 0.6; cursor: pointer;" onclick="location.reload()">🔄 Restart Session</p>
+                </div>
+            </div>
+
+            <div class="bulk-list" id="bulkList"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--brand-primary); font-weight: 700;">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Back to Home
+            </a>
+        </div>
+
+        <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+            <div><div style="color: var(--primary-cyan, #00d4ff); margin-bottom: 10px;"><i data-lucide="layers" style="width:32px;height:32px;"></i></div><h3>Whole Batches</h3><p style="opacity: 0.8; font-size: 14px;">Flatten several PDFs in a single pass.</p></div>
+            <div><div style="color: var(--accent-pink, #ec4899); margin-bottom: 10px;"><i data-lucide="lock" style="width:32px;height:32px;"></i></div><h3>Permanent Values</h3><p style="opacity: 0.8; font-size: 14px;">Filled-in fields become fixed page content that can't be edited.</p></div>
+            <div><div style="color: var(--primary-neon, #00ff88); margin-bottom: 10px;"><i data-lucide="shield-check" style="width:32px;height:32px;"></i></div><h3>Nothing Uploaded</h3><p style="opacity: 0.8; font-size: 14px;">The whole process happens in this browser tab.</p></div>
+            <div><div style="color: var(--accent-orange, #f97316); margin-bottom: 10px;"><i data-lucide="download-cloud" style="width:32px;height:32px;"></i></div><h3>One-Click ZIP</h3><p style="opacity: 0.8; font-size: 14px;">Pull every flattened file down together.</p></div>
+        </div>
+
+        <div class="section-divider" style="text-align: left;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How PDF flattening actually works</h2>
+            <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
+                <p style="margin-bottom: 15px;">
+                    A fillable PDF form stores its text boxes, checkboxes, and radio buttons as interactive field objects layered over the page. This tool takes the current value of every field, draws it permanently into the page content, and removes the interactive field layer — so the result looks identical but can no longer be edited.
+                </p>
+                <p>
+                    Files with no form fields at all are detected and skipped, since there's nothing to flatten.
+                </p>
+            </div>
+
+            <div class="ad-slot-large" id="in-article-ads"></div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How it works</h2>
+            <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>Drop in one filled PDF form or a batch</li>
+                <li>Click Flatten to lock in every field's value</li>
+                <li>Every file is processed right in your browser</li>
+                <li>Download one at a time, or everything as a ZIP</li>
+            </ul>
+        </div>
+
+        <div class="section-divider">
+            <div class="info-flex-container">
+                <div class="info-column">
+                    <h3>When this is worth doing</h3>
+                    <p><strong>Finalizing filled forms:</strong> lock in values before sending a completed application.<br>
+                    <strong>Preventing accidental edits:</strong> stop a form's values from being changed later.<br>
+                    <strong>Archiving records:</strong> keep a permanent, non-editable copy of a submission.<br>
+                    <strong>Batch finalizing:</strong> apply the same lock to a whole folder of filled forms.</p>
+                </div>
+                <div class="info-column">
+                    <h3>Set expectations right</h3>
+                    <p><strong>Only affects form fields:</strong> regular page content is untouched.<br>
+                    <strong>Batches are fine:</strong> queue several PDFs and flatten them all together.<br>
+                    <strong>Nothing leaves your device:</strong> processing is 100% local.<br>
+                    <strong>Not reversible:</strong> keep your original if you need editable fields again.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider" style="padding-top: 15px; margin-top: 15px;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Desktop PDF Editor vs This Tool</h2>
+            <div style="overflow-x: auto;">
+            <table class="cmp-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Desktop PDF Editor</th>
+                        <th>Nexitool PDF Flatten Tool</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Setup</td>
+                        <td>Install and configure first</td>
+                        <td>None — opens directly in your browser</td>
+                    </tr>
+                    <tr>
+                        <td>Cost</td>
+                        <td>Often paid or trial-limited</td>
+                        <td>Always free</td>
+                    </tr>
+                    <tr>
+                        <td>Batch support</td>
+                        <td>Varies by software</td>
+                        <td>Yes, apply to a whole batch</td>
+                    </tr>
+                    <tr>
+                        <td>Upload required</td>
+                        <td>Sometimes, with online converters</td>
+                        <td>Never — 100% local</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+        <section class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            <div class="faq-container">
+            <div class="faq-item">
+                <button class="faq-question">What does "flatten" mean for a PDF? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">It converts fillable form fields into fixed page content, so the values can no longer be edited or cleared by whoever opens the file next.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">What if my PDF has no form fields? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">That file is skipped with a note — flattening only applies to PDFs that contain fillable form fields.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Does my file get uploaded anywhere? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">No — the entire process runs in your browser's JavaScript engine. Your file never leaves your device.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I flatten several PDFs at once? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — load a batch and flatten all of them in one click. Download individually or as a ZIP.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I undo flattening afterward? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">No, flattening is permanent in the output file — keep your original if you might need to edit the form fields again.</div>
+            </div>
+            </div>
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="../../js/tools-data.js"></script>
+    <script src="../../js/blogs-data.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/header-animation.js"></script>
+    <script src="../../js/ads-manager.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/announcement-config.js"></script>
+    <script src="../../js/announcement-banner.js"></script>
+    <script src="../../js/guide-content.js"></script>
+    <script src="../../js/user-guide.js"></script>
+    <script src="../../js/auth-widget.js"></script>
+    <script src="../../js/earn-ticker.js"></script>
+    <script src="../../js/verify-tracking.js" defer></script>
+    <script src="../../js/rewarded-ads.js" defer></script>
+    <script src="../../ads/display-ads.js" defer></script>
+    <script src="../../ads/in-article-ads.js" defer></script>
+    <script>
+        window.addEventListener('load', () => {
+            if (window.initAdBlockDetector) window.initAdBlockDetector();
+        });
+    </script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const bulkList = document.getElementById('bulkList');
+
+        let fileQueue = [];
+
+        fileInput.onchange = (e) => {
+            const files = Array.from(e.target.files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+            if (files.length > 0) {
+                document.getElementById('dropZone').style.display = 'none';
+                document.getElementById('compressorGrid').style.display = 'grid';
+
+                files.forEach((file, index) => {
+                    const id = Date.now() + index;
+                    fileQueue.push({ id, original: file, flattened: null });
+                    addCardUI(file, id);
+                });
+            }
+        };
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 KB';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function addCardUI(file, id) {
+            const card = document.createElement('div');
+            card.className = 'bulk-card';
+            card.id = `card-${id}`;
+            card.innerHTML = `
+                <div class="card-loader" id="loader-${id}"><div class="spinner"></div></div>
+                <div class="pdf-icon-preview"><i data-lucide="file-text" style="width: 40px; height: 40px;"></i></div>
+                <div class="file-name-row" title="${file.name}">${file.name}</div>
+                <div class="stat-badge">
+                    <div class="stat-row">
+                        <span>Size:</span>
+                        <span>${formatBytes(file.size)}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Status:</span>
+                        <span id="status-${id}">Waiting to flatten...</span>
+                    </div>
+                </div>
+                <button class="action-btn btn-green" onclick="downloadOne(${id})" style="padding:8px; font-size:12px;" disabled>Download</button>
+            `;
+            bulkList.appendChild(card);
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function flattenPdf(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, { ignoreEncryption: true, updateMetadata: false });
+            const form = pdfDoc.getForm();
+            const fields = form.getFields();
+            if (fields.length === 0) {
+                throw new Error('No form fields found');
+            }
+            form.flatten();
+            const bytes = await pdfDoc.save({ useObjectStreams: true });
+            return new Blob([bytes], { type: 'application/pdf' });
+        }
+
+        async function processBatch() {
+            for (let item of fileQueue) {
+                const loader = document.getElementById(`loader-${item.id}`);
+                if (loader) loader.style.display = 'flex';
+                const statusEl = document.getElementById(`status-${item.id}`);
+
+                try {
+                    const blob = await flattenPdf(item.original);
+                    item.flattened = blob;
+                    statusEl.innerText = 'Flattened ✓';
+                    statusEl.style.color = '#059669';
+                    const card = document.getElementById(`card-${item.id}`);
+                    card.querySelector('button.btn-green').disabled = false;
+                } catch (err) {
+                    console.error('PDF flatten failed', err);
+                    statusEl.innerText = err.message === 'No form fields found' ? 'No form fields' : 'Error';
+                    statusEl.style.color = '#ef4444';
+                }
+
+                if (loader) loader.style.display = 'none';
+            }
+        }
+
+        document.getElementById('flattenAllBtn').onclick = () => processBatch();
+
+        function downloadOne(id) {
+            const item = fileQueue.find(f => f.id === id);
+            if (item?.flattened) {
+                const a = document.createElement('a');
+                a.download = `flattened-${item.original.name}`;
+                a.href = URL.createObjectURL(item.flattened);
+                a.click();
+            }
+        }
+
+        document.getElementById('downloadAllBtn').onclick = () => {
+            fileQueue.forEach(item => downloadOne(item.id));
+        };
+
+        document.getElementById('downloadZipBtn').onclick = async () => {
+            const zip = new JSZip();
+            let any = false;
+            fileQueue.forEach(item => {
+                if (item.flattened) { zip.file(`flattened-${item.original.name}`, item.flattened); any = true; }
+            });
+            if (!any) return;
+            const content = await zip.generateAsync({ type: "blob" });
+            const a = document.createElement('a');
+            a.download = "nexitool-pdf-flattened-batch.zip";
+            a.href = URL.createObjectURL(content);
+            a.click();
+        };
+    </script>
+</body>
+</html>

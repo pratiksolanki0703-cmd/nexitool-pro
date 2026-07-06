@@ -82,6 +82,16 @@ const TOOLS = [
         isTrending: false
     },
     {
+        id: 'pdf-flatten',
+        name: 'PDF Flatten Tool',
+        description: 'Lock fillable PDF form fields into permanent page content right in your browser. Nothing is uploaded.',
+        category: 'PDF',
+        color: 'pdf',
+        icon: 'layers-2',
+        path: 'tools/pdf-tools/pdf-flatten.html',
+        isTrending: false
+    },
+    {
         id: 'pdf-compressor',
         name: 'PDF Compressor',
         description: 'Shrink PDF file size in your browser by re-compressing embedded images and stripping extra metadata.',
