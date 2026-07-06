@@ -44,7 +44,12 @@ async function loadComponents() {
         // Only show skeleton if it takes more than 100ms
         const skeletonTimeout = setTimeout(() => {
             if (!header.innerHTML) {
-                header.innerHTML = '<div class="container skeleton" style="height: 64px;"></div>';
+                header.innerHTML = '<div class="container header-skeleton">' +
+                    '<div class="skeleton skeleton-logo"></div>' +
+                    '<div class="skeleton skeleton-pill"></div>' +
+                    '<div class="skeleton skeleton-pill"></div>' +
+                    '<div class="skeleton skeleton-pill"></div>' +
+                    '</div>';
             }
         }, 100);
 
@@ -83,7 +88,11 @@ async function loadComponents() {
     if (footer) {
         const skeletonTimeout = setTimeout(() => {
             if (!footer.innerHTML) {
-                footer.innerHTML = '<div class="container skeleton" style="height: 100px;"></div>';
+                footer.innerHTML = '<div class="container footer-skeleton">' +
+                    '<div class="skeleton skeleton-col"></div>' +
+                    '<div class="skeleton skeleton-col"></div>' +
+                    '<div class="skeleton skeleton-col"></div>' +
+                    '</div>';
             }
         }, 100);
 
@@ -136,11 +145,50 @@ function initTheme() {
 
 function initThemeToggle() {
     if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const isLight = htmlElement.classList.toggle('light');
-            const newTheme = isLight ? 'light' : 'dark';
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
+        themeToggle.addEventListener('animationend', () => {
+            themeToggle.classList.remove('theme-toggle-pop');
+        });
+        themeToggle.addEventListener('click', (e) => {
+            const applyTheme = () => {
+                const isLight = htmlElement.classList.toggle('light');
+                const newTheme = isLight ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            };
+
+            themeToggle.classList.remove('theme-toggle-pop');
+            void themeToggle.offsetWidth; // restart the animation if clicked rapidly
+            themeToggle.classList.add('theme-toggle-pop');
+
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!document.startViewTransition || prefersReducedMotion) {
+                applyTheme();
+                return;
+            }
+
+            const x = e.clientX;
+            const y = e.clientY;
+            const endRadius = Math.hypot(
+                Math.max(x, window.innerWidth - x),
+                Math.max(y, window.innerHeight - y)
+            );
+
+            const transition = document.startViewTransition(() => applyTheme());
+            transition.ready.then(() => {
+                document.documentElement.animate(
+                    {
+                        clipPath: [
+                            `circle(0px at ${x}px ${y}px)`,
+                            `circle(${endRadius}px at ${x}px ${y}px)`
+                        ]
+                    },
+                    {
+                        duration: 450,
+                        easing: 'ease-in-out',
+                        pseudoElement: '::view-transition-new(root)'
+                    }
+                );
+            });
         });
     }
 }
