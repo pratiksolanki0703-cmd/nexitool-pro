@@ -130,10 +130,31 @@ const TOOLS = [
         icon: 'file-archive',
         path: 'tools/pdf-tools/pdf-compressor.html',
         isTrending: true
+    },
+    {
+        id: 'ai-email-writer',
+        name: 'AI Email Writer',
+        description: 'Write or polish a complete email from context or a rough draft, in the output language you choose.',
+        category: 'Email',
+        color: 'email',
+        icon: 'mail-plus',
+        path: 'tools/email-tools/ai-email-writer.html',
+        isTrending: true
+    },
+    {
+        id: 'scam-mail-checker',
+        name: 'Scam Mail Checker',
+        description: 'Get an AI risk score and a plain-language breakdown of red flags in a suspicious email.',
+        category: 'Email',
+        color: 'email',
+        icon: 'shield-alert',
+        path: 'tools/email-tools/scam-mail-checker.html',
+        isTrending: false
     }
 ];
 
 const CATEGORIES = [
     { name: 'Image', color: 'image' },
-    { name: 'PDF', color: 'pdf' }
+    { name: 'PDF', color: 'pdf' },
+    { name: 'Email', color: 'email' }
 ];

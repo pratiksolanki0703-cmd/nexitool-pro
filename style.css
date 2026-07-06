@@ -779,6 +779,7 @@ html.dark .footer-links .icon-btn:hover { background: var(--brand); color: white
 .color-seo      { --accent: var(--brand); }
 .color-audio    { --accent: var(--brand); }
 .color-youtube  { --accent: var(--accent-pink); }
+.color-email    { --accent: var(--accent-orange); }
 
 /* ================================================================
    TOOL-PAGE CONTENT BLOCKS
