@@ -92,6 +92,16 @@ const TOOLS = [
         isTrending: false
     },
     {
+        id: 'pdf-password-remover',
+        name: 'PDF Password Remover',
+        description: 'Unlock a password-protected PDF right in your browser once you know the password. Nothing is uploaded.',
+        category: 'PDF',
+        color: 'pdf',
+        icon: 'unlock',
+        path: 'tools/pdf-tools/pdf-password-remover.html',
+        isTrending: false
+    },
+    {
         id: 'pdf-compressor',
         name: 'PDF Compressor',
         description: 'Shrink PDF file size in your browser by re-compressing embedded images and stripping extra metadata.',
