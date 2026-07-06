@@ -124,73 +124,88 @@ async function loadComponents() {
 
 function updateThemeIcon(theme) {
     if (!themeToggle) return;
-    
+
     let icon = themeToggle.querySelector('i') || themeToggle.querySelector('svg');
     if (!icon) return;
-    
+
     const newIcon = document.createElement('i');
     newIcon.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
     icon.parentNode.replaceChild(newIcon, icon);
-    
+
     if (window.lucide) lucide.createIcons();
 }
 
 function initTheme() {
+    // The inline anti-flash script in <head> already applied the .light
+    // class (if saved) before first paint — this is just a safety net for
+    // when localStorage/inline script fails.
     const savedTheme = localStorage.getItem('theme') || 'dark';
-    if (savedTheme === 'light') {
+    if (savedTheme === 'light' && !htmlElement.classList.contains('light')) {
         htmlElement.classList.add('light');
     }
-    updateThemeIcon(savedTheme);
 }
 
 function initThemeToggle() {
-    if (themeToggle) {
-        themeToggle.addEventListener('animationend', () => {
-            themeToggle.classList.remove('theme-toggle-pop');
+    if (!themeToggle) return;
+
+    // Header is re-fetched on every page load, so the icon markup always
+    // starts as the hardcoded default (moon) — sync it to the real theme.
+    updateThemeIcon(htmlElement.classList.contains('light') ? 'light' : 'dark');
+
+    themeToggle.addEventListener('animationend', () => {
+        themeToggle.classList.remove('theme-toggle-pop');
+    });
+    themeToggle.addEventListener('click', () => {
+        const applyTheme = () => {
+            const isLight = htmlElement.classList.toggle('light');
+            const newTheme = isLight ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        };
+
+        themeToggle.classList.remove('theme-toggle-pop');
+        void themeToggle.offsetWidth; // restart the animation if clicked rapidly
+        themeToggle.classList.add('theme-toggle-pop');
+
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (prefersReducedMotion) {
+            applyTheme();
+            return;
+        }
+
+        // Origin is always the icon's own center, not the click point —
+        // a plain fixed overlay + clip-path animation instead of the View
+        // Transitions API, since that snapshots the entire page (old +
+        // new) into memory, which is unnecessary weight for a color swap.
+        const rect = themeToggle.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const endRadius = Math.hypot(
+            Math.max(x, window.innerWidth - x),
+            Math.max(y, window.innerHeight - y)
+        );
+
+        const goingLight = !htmlElement.classList.contains('light');
+        const overlay = document.createElement('div');
+        overlay.className = 'theme-reveal';
+        overlay.style.background = goingLight ? '#ffffff' : '#0a0b0d';
+        overlay.style.setProperty('--x', `${x}px`);
+        overlay.style.setProperty('--y', `${y}px`);
+        overlay.style.setProperty('--r', `${endRadius}px`);
+        document.body.appendChild(overlay);
+
+        // The overlay finishes expanding exactly when it fully covers the
+        // screen — that's the moment to flip the real theme (invisible,
+        // since the overlay is already the same color) and remove it.
+        overlay.addEventListener('animationend', () => {
+            applyTheme();
+            overlay.remove();
+        }, { once: true });
+
+        requestAnimationFrame(() => {
+            overlay.classList.add('expand');
         });
-        themeToggle.addEventListener('click', (e) => {
-            const applyTheme = () => {
-                const isLight = htmlElement.classList.toggle('light');
-                const newTheme = isLight ? 'light' : 'dark';
-                localStorage.setItem('theme', newTheme);
-                updateThemeIcon(newTheme);
-            };
-
-            themeToggle.classList.remove('theme-toggle-pop');
-            void themeToggle.offsetWidth; // restart the animation if clicked rapidly
-            themeToggle.classList.add('theme-toggle-pop');
-
-            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (!document.startViewTransition || prefersReducedMotion) {
-                applyTheme();
-                return;
-            }
-
-            const x = e.clientX;
-            const y = e.clientY;
-            const endRadius = Math.hypot(
-                Math.max(x, window.innerWidth - x),
-                Math.max(y, window.innerHeight - y)
-            );
-
-            const transition = document.startViewTransition(() => applyTheme());
-            transition.ready.then(() => {
-                document.documentElement.animate(
-                    {
-                        clipPath: [
-                            `circle(0px at ${x}px ${y}px)`,
-                            `circle(${endRadius}px at ${x}px ${y}px)`
-                        ]
-                    },
-                    {
-                        duration: 450,
-                        easing: 'ease-in-out',
-                        pseudoElement: '::view-transition-new(root)'
-                    }
-                );
-            });
-        });
-    }
+    });
 }
 
 // Mobile Menu
