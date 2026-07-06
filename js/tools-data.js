@@ -52,6 +52,16 @@ const TOOLS = [
         isTrending: false
     },
     {
+        id: 'pdf-page-deleter',
+        name: 'PDF Page Deleter',
+        description: 'Remove unwanted pages or page ranges from a PDF right in your browser. Nothing is uploaded.',
+        category: 'PDF',
+        color: 'pdf',
+        icon: 'file-x-2',
+        path: 'tools/pdf-tools/pdf-page-deleter.html',
+        isTrending: false
+    },
+    {
         id: 'pdf-compressor',
         name: 'PDF Compressor',
         description: 'Shrink PDF file size in your browser by re-compressing embedded images and stripping extra metadata.',
