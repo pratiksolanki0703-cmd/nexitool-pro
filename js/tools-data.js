@@ -92,6 +92,16 @@ const TOOLS = [
         isTrending: false
     },
     {
+        id: 'pdf-to-images',
+        name: 'PDF to Images Converter',
+        description: 'Export every page of a PDF as a PNG or JPG image right in your browser. Nothing is uploaded.',
+        category: 'PDF',
+        color: 'pdf',
+        icon: 'image',
+        path: 'tools/pdf-tools/pdf-to-images.html',
+        isTrending: false
+    },
+    {
         id: 'pdf-password-remover',
         name: 'PDF Password Remover',
         description: 'Unlock a password-protected PDF right in your browser once you know the password. Nothing is uploaded.',
