@@ -444,18 +444,6 @@
                 console.error('Thumbnail render failed', err);
             }
         }
-                        <span>${formatBytes(file.size)}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span>Status:</span>
-                        <span id="status-${id}">Waiting for watermark...</span>
-                    </div>
-                </div>
-                <button class="action-btn btn-green" onclick="downloadOne(${id})" style="padding:8px; font-size:12px;" disabled>Download</button>
-            `;
-            bulkList.appendChild(card);
-            if (window.lucide) lucide.createIcons();
-        }
 
         async function stampWatermark(file, text, opacity, fontSize) {
             const arrayBuffer = await file.arrayBuffer();
