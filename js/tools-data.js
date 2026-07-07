@@ -197,6 +197,16 @@ const TOOLS = [
         path: 'tools/email-tools/cold-email-generator.html',
         isTrending: false,
         isPremium: true
+    },
+    {
+        id: 'temp-mail',
+        name: 'Temp Mail With Password',
+        description: 'Generate a free disposable email address instantly with a password-protected, live-refreshing inbox. No login needed.',
+        category: 'Email',
+        color: 'email',
+        icon: 'mail',
+        path: 'tools/email-tools/temp-mail.html',
+        isTrending: false
     }
 ];
 
