@@ -447,6 +447,10 @@ nav a:hover, nav a.active { color: var(--text-main); }
 }
 .profile-coupon-btn:hover { background: var(--brand-tint); }
 .profile-coupon-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.profile-coupon-msg { font-size: 0.78rem; margin-top: 0.4rem; min-height: 0; }
+.profile-coupon-msg:empty { margin-top: 0; }
+.profile-coupon-msg.ok { color: var(--brand-tint); }
+.profile-coupon-msg.error { color: var(--accent-pink); }
 
 .profile-earn-section { margin: 0; }
 .profile-earn-btn {

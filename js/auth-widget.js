@@ -216,6 +216,7 @@
                         <input type="text" id="couponInput" placeholder="Enter code" class="profile-coupon-input">
                         <button id="couponBtn" class="profile-coupon-btn">Redeem</button>
                     </div>
+                    <div id="couponMsg" class="profile-coupon-msg"></div>
 
                     <div class="profile-divider"></div>
                     <div class="profile-section-label">Earn coins</div>
@@ -279,10 +280,26 @@
         document.getElementById('watchAdBtn').addEventListener('click', showWatchAdModal);
         document.getElementById('headerWatchAdBtn').addEventListener('click', showWatchAdModal);
 
+        const couponReasonText = {
+            user_blocked: 'Your account is blocked.',
+            daily_limit_reached: "You've hit today's limit of 2 coupons.",
+            not_found: "That code doesn't exist.",
+            not_eligible: "This code isn't valid for your account.",
+            expired_or_inactive: 'This code has expired or is no longer active.',
+            exhausted: 'This code has already been fully redeemed.',
+            already_redeemed: "You've already redeemed this code."
+        };
+
+        function setCouponMsg(text, isOk) {
+            const el = document.getElementById('couponMsg');
+            el.textContent = text;
+            el.className = 'profile-coupon-msg' + (isOk ? ' ok' : ' error');
+        }
+
         document.getElementById('couponBtn').addEventListener('click', async () => {
             const code = document.getElementById('couponInput').value.trim();
             if (!code) {
-                alert('Please enter a coupon code');
+                setCouponMsg('Please enter a coupon code', false);
                 return;
             }
             document.getElementById('couponBtn').disabled = true;
@@ -292,14 +309,14 @@
                 const { data, error } = await window.supabaseClient.rpc('redeem_coupon', { p_code: code });
                 if (error) throw error;
                 if (data.success) {
-                    alert(`Success! You earned ${data.granted} coins.`);
+                    setCouponMsg(`Success! You earned ${data.granted} coins.`, true);
                     document.getElementById('couponInput').value = '';
                     setBalance(data.balance);
                 } else {
-                    alert(`Coupon error: ${data.reason || 'Unknown error'}`);
+                    setCouponMsg(couponReasonText[data.reason] || `Coupon error: ${data.reason || 'Unknown error'}`, false);
                 }
             } catch (e) {
-                alert(`Error: ${e.message}`);
+                setCouponMsg(`Error: ${e.message}`, false);
             }
 
             document.getElementById('couponBtn').disabled = false;
