@@ -150,6 +150,46 @@ const TOOLS = [
         icon: 'shield-alert',
         path: 'tools/email-tools/scam-mail-checker.html',
         isTrending: false
+    },
+    {
+        id: 'mail-tone-changer',
+        name: 'Mail Tone Changer',
+        description: 'Rewrite any email in a formal, friendly, assertive, apologetic, or persuasive tone using AI.',
+        category: 'Email',
+        color: 'email',
+        icon: 'wand-2',
+        path: 'tools/email-tools/mail-tone-changer.html',
+        isTrending: false
+    },
+    {
+        id: 'subject-line-generator',
+        name: 'Subject Line Generator & Grader',
+        description: 'Generate 5 ranked subject lines from an email body, or grade an existing one and get better options.',
+        category: 'Email',
+        color: 'email',
+        icon: 'type',
+        path: 'tools/email-tools/subject-line-generator.html',
+        isTrending: false
+    },
+    {
+        id: 'auto-reply-generator',
+        name: 'Auto-Reply Generator',
+        description: 'Draft a natural reply to an incoming email using thread context and your own instructions.',
+        category: 'Email',
+        color: 'email',
+        icon: 'reply',
+        path: 'tools/email-tools/auto-reply-generator.html',
+        isTrending: false
+    },
+    {
+        id: 'cold-email-generator',
+        name: 'Cold Email & Follow-up Generator',
+        description: 'Write a concise cold outreach email plus an optional 2-email follow-up sequence with AI.',
+        category: 'Email',
+        color: 'email',
+        icon: 'send',
+        path: 'tools/email-tools/cold-email-generator.html',
+        isTrending: false
     }
 ];
 
