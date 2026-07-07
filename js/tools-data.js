@@ -8,7 +8,8 @@
 // Fields: id (matches the file name, no extension), name, description, category
 // (must match a CATEGORIES entry), color (must match a .color-{color} class in
 // style.css), icon (lucide icon name), path (relative from site root), isTrending
-// (true shows a 🔥 Trending badge on the card).
+// (true shows a 🔥 Trending badge on the card), isPremium (optional, true shows a
+// 🪙 badge marking the tool as coin-cost).
 
 const TOOLS = [
     {
@@ -139,7 +140,8 @@ const TOOLS = [
         color: 'email',
         icon: 'mail-plus',
         path: 'tools/email-tools/ai-email-writer.html',
-        isTrending: true
+        isTrending: true,
+        isPremium: true
     },
     {
         id: 'scam-mail-checker',
@@ -149,7 +151,8 @@ const TOOLS = [
         color: 'email',
         icon: 'shield-alert',
         path: 'tools/email-tools/scam-mail-checker.html',
-        isTrending: false
+        isTrending: false,
+        isPremium: true
     },
     {
         id: 'mail-tone-changer',
@@ -159,7 +162,8 @@ const TOOLS = [
         color: 'email',
         icon: 'wand-2',
         path: 'tools/email-tools/mail-tone-changer.html',
-        isTrending: false
+        isTrending: false,
+        isPremium: true
     },
     {
         id: 'subject-line-generator',
@@ -169,7 +173,8 @@ const TOOLS = [
         color: 'email',
         icon: 'type',
         path: 'tools/email-tools/subject-line-generator.html',
-        isTrending: false
+        isTrending: false,
+        isPremium: true
     },
     {
         id: 'auto-reply-generator',
@@ -179,7 +184,8 @@ const TOOLS = [
         color: 'email',
         icon: 'reply',
         path: 'tools/email-tools/auto-reply-generator.html',
-        isTrending: false
+        isTrending: false,
+        isPremium: true
     },
     {
         id: 'cold-email-generator',
@@ -189,7 +195,8 @@ const TOOLS = [
         color: 'email',
         icon: 'send',
         path: 'tools/email-tools/cold-email-generator.html',
-        isTrending: false
+        isTrending: false,
+        isPremium: true
     }
 ];
 

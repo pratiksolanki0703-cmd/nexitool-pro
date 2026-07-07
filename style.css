@@ -672,6 +672,11 @@ html.dark .section-divider {
     filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--accent-orange) 45%, transparent));
 }
 
+.premium-badge {
+    position: absolute; top: -10px; left: 14px; font-size: 1.05rem; line-height: 1;
+    filter: drop-shadow(0 2px 4px color-mix(in srgb, gold 45%, transparent));
+}
+
 .card-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-main); letter-spacing: -0.01em; transition: color 0.2s; }
 .card-desc { color: var(--text-muted); font-size: 0.9rem; flex-grow: 1; line-height: 1.6; }
 .card-footer { margin-top: 1.1rem; display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 600; color: var(--accent, var(--brand)); }
