@@ -441,7 +441,53 @@ relying on it; it is not the mechanism used for coin-earning ad detection (that'
 `js/verify-tracking.js`, described in 5.1) — this file is about actually *displaying*
 AdSense ad units for site revenue, a separate concern from the coin economy.
 
-## 12. Validation checklist before committing
+## 12. Admin panel (separate private repo)
+
+There is a small admin panel for managing the coin economy — it lives in a
+**separate private GitHub repo** (`pratiksolanki0703-cmd/admin`), not in this
+repo, and is never deployed anywhere. It's downloaded and run locally only
+(see that repo's own `README.md` for setup). It is built entirely on top of
+RPC functions added by `supabase/migrations/20260707000000_admin_panel.sql`
+in this repo — if you need to change what the admin panel can do, the
+database functions are here; the panel's HTML/JS is in the other repo.
+
+### Schema additions from that migration
+
+- `profiles.is_admin` (boolean) — the sole gate for every admin RPC. Only
+  ever set automatically for one designated email address inside
+  `handle_new_user()` — there is no UI path to promote another account.
+- `profiles.is_blocked` (boolean) — checked inside `earn_ad_tick`,
+  `earn_video_ad`, `spend_credit`, and `redeem_coupon`. A blocked user simply
+  stops earning/spending (existing frontend error-handling already surfaces
+  the resulting `reason` fields gracefully — no frontend changes were needed
+  for this).
+- `coupons.restricted_to_user_id` (nullable) — if set, only that one user can
+  redeem the coupon. Every coupon (personal or public) is still capped at
+  `max_redemptions = 1` (a hard DB constraint now, not just a default) and
+  `credit_value <= 1000` (also a hard DB constraint) — these limits cannot be
+  bypassed even by direct SQL insert without first dropping the constraint.
+- `redeem_coupon()` also now enforces a **per-user daily cap of 2 coupon
+  redemptions** (calendar day, UTC), counted from `coupon_redemptions`.
+
+### Admin-only RPCs (all gated by `is_current_admin()`, all `security definer`)
+
+`admin_search_user`, `admin_list_users`, `admin_top_spenders`, `admin_stats`,
+`admin_set_blocked`, `admin_generate_coupon`, `admin_list_coupons`. Every one
+of these re-checks `is_current_admin()` internally and raises an exception if
+the caller isn't flagged — never trust the panel's UI alone to gate access.
+
+**Deliberately not implemented**: there is no RPC to directly change a user's
+`credit_balance`. The site owner made this call explicitly — the only
+sanctioned way coins enter an account (besides normal earning) is a coupon
+redemption. If a balance ever needs a manual correction, it's done by hand
+via SQL in the Supabase Dashboard, not through the admin panel.
+
+A notification/bell-icon feature was discussed and explicitly **not built** —
+the existing `announcement-banner.js` system already covers broadcast
+messages, and personal messages to a specific user are handled over email
+instead, outside of this codebase.
+
+## 13. Validation checklist before committing
 
 - No Devanagari/Hinglish text anywhere in code, comments, or SEO copy — grep with
   `grep -nP "[\x{0900}-\x{097F}]"` across changed files.
