@@ -270,7 +270,7 @@ function renderHome() {
                                         <i data-lucide="${tool.icon}"></i>
                                     </div>
                                     ${tool.isTrending && !isTrending ? '<span class="trending-badge" title="Trending">🔥</span>' : ''}
-                                    ${tool.isPremium ? '<span class="premium-badge" title="Premium tool — costs coins">🪙</span>' : ''}
+                                    ${tool.isPremium ? `<span class="premium-badge${tool.isTrending && !isTrending ? ' with-trending' : ''}" title="Premium tool — costs coins">🪙</span>` : ''}
                                 </div>
                                 <div class="card-body">
                                     <h3 class="card-title">${tool.name}</h3>

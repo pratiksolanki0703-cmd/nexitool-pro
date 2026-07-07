@@ -673,9 +673,11 @@ html.dark .section-divider {
 }
 
 .premium-badge {
-    position: absolute; top: -10px; left: 14px; font-size: 1.05rem; line-height: 1;
+    position: absolute; top: -10px; right: 14px; font-size: 1.3rem; line-height: 1;
+    opacity: 0.6;
     filter: drop-shadow(0 2px 4px color-mix(in srgb, gold 45%, transparent));
 }
+.premium-badge.with-trending { right: 40px; }
 
 .card-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-main); letter-spacing: -0.01em; transition: color 0.2s; }
 .card-desc { color: var(--text-muted); font-size: 0.9rem; flex-grow: 1; line-height: 1.6; }

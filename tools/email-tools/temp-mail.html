@@ -143,6 +143,21 @@
         .info-flex-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; text-align: left; }
         .info-column { flex: 1; min-width: 250px; }
         .info-column h3 { color: var(--accent); margin-bottom: 15px; }
+
+        .cmp-table { width: 100%; max-width: 700px; margin: 0 auto; border-collapse: collapse; font-size: 15px; border: 1px solid var(--card-border); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .cmp-table th { text-align: left; padding: 12px 14px; background: var(--accent); color: white; font-weight: 700; }
+        .cmp-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--card-border); opacity: 0.85; }
+        .cmp-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+        .cmp-table tbody tr:last-child td { border-bottom: none; }
+        .cmp-table td:first-child { font-weight: 700; opacity: 1; }
+
+        .tm-value-wrap { display: flex; align-items: baseline; gap: 8px; overflow: hidden; flex: 1; min-width: 0; }
+        .tm-copy-feedback { font-size: 11px; font-weight: 700; color: var(--accent); opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
+        .tm-copy-feedback.show { opacity: 1; }
+
+        .tm-inline-refresh { background: none; border: 1px solid var(--card-border); border-radius: 6px; padding: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--accent); }
+        .tm-inline-refresh:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+        .tm-inline-refresh.spinning i { animation: spin 0.6s linear; }
     </style>
 </head>
 <body class="color-email">
@@ -169,14 +184,20 @@
             <div class="tm-side">
                 <label class="tm-label">Your Temporary Email</label>
                 <div class="tm-display-box">
-                    <span id="tmAddr">Generating...</span>
-                    <i data-lucide="copy" onclick="copyValue('tmAddr')" title="Copy address"></i>
+                    <span class="tm-value-wrap">
+                        <span id="tmAddr">Generating...</span>
+                        <span class="tm-copy-feedback" id="tmAddrCopied">Copied!</span>
+                    </span>
+                    <i data-lucide="copy" onclick="copyValue('tmAddr','tmAddrCopied')" title="Copy address"></i>
                 </div>
 
                 <label class="tm-label">Access Password</label>
                 <div class="tm-display-box tm-pass">
-                    <span id="tmPass">Generating...</span>
-                    <i data-lucide="key" onclick="copyValue('tmPass')" title="Copy password"></i>
+                    <span class="tm-value-wrap">
+                        <span id="tmPass">Generating...</span>
+                        <span class="tm-copy-feedback" id="tmPassCopied">Copied!</span>
+                    </span>
+                    <i data-lucide="key" onclick="copyValue('tmPass','tmPassCopied')" title="Copy password"></i>
                 </div>
 
                 <button class="tm-btn" id="tmRefreshBtn"><i data-lucide="refresh-cw" style="width:16px;height:16px;"></i> Refresh Inbox</button>
@@ -192,7 +213,10 @@
                 <div id="tmListView">
                     <div class="tm-list-header">
                         <span class="tm-list-title"><span class="live-dot"></span> Live Inbox</span>
-                        <span class="tm-unread-badge" id="tmUnreadCount"></span>
+                        <span style="display:flex;align-items:center;gap:8px;">
+                            <span class="tm-unread-badge" id="tmUnreadCount"></span>
+                            <button class="tm-inline-refresh" id="tmInlineRefreshBtn" title="Refresh inbox"><i data-lucide="refresh-cw" style="width:14px;height:14px;"></i></button>
+                        </span>
                     </div>
                     <div id="tmItems"><div class="tm-empty">Waiting for messages...</div></div>
                 </div>
@@ -214,7 +238,7 @@
             <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How this temp mail tool works</h2>
             <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
                 <p style="margin-bottom: 15px;">
-                    The moment you open this page, a random disposable email address is generated for you along with a private password — no signup, no login, nothing to fill in. Use the address anywhere a verification email is needed: social media signups, testing forms, or any place you'd rather not use your personal inbox.
+                    The moment you open this page, this fake email generator creates a random disposable email address for you along with a private password — no signup, no login, nothing to fill in. Use it as a one-time email anywhere a verification message is needed: social media signups, testing forms, or any place you'd rather not use your personal inbox.
                 </p>
                 <p>
                     The inbox refreshes automatically every 10 seconds, or you can hit "Refresh Inbox" for an instant manual check. Click any message to read it in a safely sandboxed viewer that preserves the email's original formatting while blocking any embedded scripts — legitimate links, including verification links, remain clickable.
@@ -251,6 +275,56 @@
                     <b>04.</b> Watch the inbox — it refreshes on its own every 10 seconds.<br>
                     <b>05.</b> Click a message to read it, including any verification links.
                 </div>
+            </div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px; text-align: center;">Temp Mail vs. Your Regular Email</h2>
+            <p style="font-size: 16px; opacity: 0.8; max-width: 700px; margin: 0 auto 20px; text-align: center;">
+                A disposable inbox like this one is not meant to replace your personal or work email — it's built for the moments you don't want to expose that email at all.
+            </p>
+            <div style="overflow-x: auto;">
+            <table class="cmp-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Temp Mail With Password</th>
+                        <th>Your Regular Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Signup Required</td>
+                        <td>None — ready instantly</td>
+                        <td>Yes, one-time account setup</td>
+                    </tr>
+                    <tr>
+                        <td>Privacy</td>
+                        <td>Keeps your real identity and inbox hidden</td>
+                        <td>Tied to your real identity</td>
+                    </tr>
+                    <tr>
+                        <td>Spam Exposure</td>
+                        <td>Absorbs spam, discard anytime</td>
+                        <td>Spam clutters your main inbox</td>
+                    </tr>
+                    <tr>
+                        <td>Longevity</td>
+                        <td>Meant to be short-lived and disposable</td>
+                        <td>Permanent, long-term address</td>
+                    </tr>
+                    <tr>
+                        <td>Access Control</td>
+                        <td>Password-protected in your browser</td>
+                        <td>Password + account recovery systems</td>
+                    </tr>
+                    <tr>
+                        <td>Best For</td>
+                        <td>OTPs, one-time signups, testing</td>
+                        <td>Banking, work, long-term contacts</td>
+                    </tr>
+                </tbody>
+            </table>
             </div>
         </div>
 
@@ -479,14 +553,25 @@
             pollTimer = setInterval(() => fetchMessages(false), POLL_INTERVAL_MS);
         }
 
-        function copyValue(id) {
+        function copyValue(id, feedbackId) {
             const text = document.getElementById(id).textContent;
             if (!text || text === 'Generating...') return;
             navigator.clipboard.writeText(text);
+            if (feedbackId) {
+                const fb = document.getElementById(feedbackId);
+                fb.classList.add('show');
+                clearTimeout(fb._hideTimer);
+                fb._hideTimer = setTimeout(() => fb.classList.remove('show'), 1200);
+            }
         }
         window.copyValue = copyValue;
 
         document.getElementById('tmRefreshBtn').onclick = () => fetchMessages(false);
+        const inlineRefreshBtn = document.getElementById('tmInlineRefreshBtn');
+        inlineRefreshBtn.onclick = () => {
+            inlineRefreshBtn.classList.add('spinning');
+            Promise.resolve(fetchMessages(false)).finally(() => setTimeout(() => inlineRefreshBtn.classList.remove('spinning'), 600));
+        };
         document.getElementById('tmNewAddrBtn').onclick = () => {
             showList();
             createAccount().catch(err => {
