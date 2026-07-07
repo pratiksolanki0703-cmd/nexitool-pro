@@ -92,7 +92,17 @@
             </div>
 
             <label><input type="checkbox" id="isTrending" style="width:auto; display:inline-block; margin-right:6px;"> Mark as Trending</label>
-            <label style="margin-top: 12px;"><input type="checkbox" id="isPremium" style="width:auto; display:inline-block; margin-right:6px;"> Premium Tool (requires login + token deduction)</label>
+            <label style="margin-top: 12px;"><input type="checkbox" id="isPremium" style="width:auto; display:inline-block; margin-right:6px;" onchange="toggleModelVariants()"> Premium Tool (requires login + token deduction)</label>
+        </fieldset>
+    </div>
+
+    <!-- STEP 1b: Premium Models -->
+    <div class="step" id="modelVariantsStep" style="display: none;">
+        <div class="step-title" data-step="1b">AI Models & Token Cost</div>
+        <fieldset>
+            <legend>One row per AI model this tool can use. Each gets its own token cost and its own row in the Supabase "models" table — pick this when one tool page lets the user choose between multiple models (e.g. Stable Diffusion vs Gemini), each priced differently.</legend>
+            <div id="modelVariantsList"></div>
+            <button type="button" class="btn-add" onclick="addModelVariant()">+ Add AI Model</button>
         </fieldset>
     </div>
 
@@ -192,6 +202,12 @@
             <textarea id="outputEntry" class="code" style="min-height: 120px;" readonly></textarea>
             <button class="btn-copy" onclick="copyText('outputEntry')">📋 Copy</button>
         </div>
+
+        <div class="output-block" id="outputSqlBlock" style="display: none;">
+            <h3>Paste into a new Supabase migration (registers the token cost per model):</h3>
+            <textarea id="outputSql" class="code" style="min-height: 120px;" readonly></textarea>
+            <button class="btn-copy" onclick="copyText('outputSql')">📋 Copy</button>
+        </div>
     </div>
 
 <script>
@@ -212,6 +228,52 @@ addFeatureIcon('layers', 'Batch Processing');
 addFeatureIcon('minimize-2', 'Compression');
 addFeatureIcon('download-cloud', 'Quick Download');
 addFeatureIcon('shield-check', 'Privacy Safe');
+
+function toggleModelVariants() {
+    const on = document.getElementById('isPremium').checked;
+    document.getElementById('modelVariantsStep').style.display = on ? 'block' : 'none';
+    if (on && document.getElementById('modelVariantsList').children.length === 0) {
+        addModelVariant();
+    }
+}
+
+function addModelVariant(label = '', idSuffix = '', cost = '', type = 'text', modelName = '', systemPrompt = '') {
+    const wrap = document.createElement('div');
+    wrap.className = 'pair model-variant';
+    wrap.innerHTML = `
+        <div class="row">
+            <div>
+                <label>Model Label (shown to user)</label>
+                <input class="mv-label" value="${escapeAttr(label)}" placeholder="Stable Diffusion XL">
+            </div>
+            <div>
+                <label>Model ID Suffix (lowercase, no spaces)</label>
+                <input class="mv-suffix" value="${escapeAttr(idSuffix)}" placeholder="sd">
+            </div>
+        </div>
+        <div class="row">
+            <div>
+                <label>Cost (coins)</label>
+                <input class="mv-cost" type="number" min="1" value="${escapeAttr(String(cost))}" placeholder="5">
+            </div>
+            <div>
+                <label>Type</label>
+                <select class="mv-type">
+                    <option value="text" ${type === 'text' ? 'selected' : ''}>text</option>
+                    <option value="image" ${type === 'image' ? 'selected' : ''}>image</option>
+                    <option value="video" ${type === 'video' ? 'selected' : ''}>video</option>
+                    <option value="voice" ${type === 'voice' ? 'selected' : ''}>voice</option>
+                </select>
+            </div>
+        </div>
+        <label>Backend Model Name (provider's own model id/string)</label>
+        <input class="mv-model-name" value="${escapeAttr(modelName)}" placeholder="gemini-2.5-flash-lite">
+        <label>System Prompt (leave blank for non-text models)</label>
+        <textarea class="mv-system-prompt" style="min-height: 60px;" placeholder="You are ...">${escapeHtml(systemPrompt)}</textarea>
+        <button type="button" class="btn-add" style="color:#fca5a5; margin-top: 10px;" onclick="this.parentElement.remove()">✕ Remove Model</button>
+    `;
+    document.getElementById('modelVariantsList').appendChild(wrap);
+}
 
 function addAd(type = '', placement = '', lazyLoad = false) {
     const wrap = document.createElement('div');
@@ -543,7 +605,21 @@ ${tableHtml}
         }
     }
 
-    // Premium login check code
+    // Premium models (token cost per AI model this tool can call)
+    const premiumModels = isPremium ? Array.from(document.querySelectorAll('#modelVariantsList .model-variant')).map(el => ({
+        label: el.querySelector('.mv-label').value.trim(),
+        suffix: el.querySelector('.mv-suffix').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, ''),
+        cost: parseInt(el.querySelector('.mv-cost').value, 10) || 0,
+        type: el.querySelector('.mv-type').value,
+        modelName: el.querySelector('.mv-model-name').value.trim(),
+        systemPrompt: el.querySelector('.mv-system-prompt').value.trim()
+    })).filter(m => m.label && m.suffix && m.cost > 0) : [];
+
+    const premiumModelsWithId = premiumModels.map(m => ({ ...m, modelId: `${id}-${m.suffix}` }));
+
+    // Premium wiring: login check + per-model token cost + a single reusable
+    // window.premiumRun() helper the tool code below calls instead of hand-rolling
+    // requirePremiumAccess/fetch/deductLocalBalance for every model.
     const loginCheckCode = isPremium ? `        <!-- Premium Tool: Login Check -->
         <div id="premiumLoginCheck" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
             <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 2rem; max-width: 400px; text-align: center;">
@@ -553,7 +629,15 @@ ${tableHtml}
                 <button onclick="if(window.openAuthModal) window.openAuthModal()" style="background: var(--brand); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">Sign In</button>
             </div>
         </div>
-
+${premiumModelsWithId.length > 1 ? `
+        <!-- Premium Tool: Model Picker (each model has its own token cost) -->
+        <div id="premiumModelPicker" style="display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 16px;">
+${premiumModelsWithId.map((m, i) => `            <label style="display:flex; align-items:center; gap:6px; padding:8px 14px; border:1px solid var(--card-border); border-radius:8px; cursor:pointer; font-size:14px;">
+                <input type="radio" name="premiumModelChoice" value="${escapeAttr(m.modelId)}" data-cost="${m.cost}" style="width:auto;" ${i === 0 ? 'checked' : ''} onchange="window.selectedPremiumModelId='${escapeAttr(m.modelId)}'">
+                ${escapeHtml(m.label)} — ${m.cost} 🪙
+            </label>`).join('\n')}
+        </div>
+` : ''}
         <script>
         (function() {
             async function checkLoginBeforeUse() {
@@ -565,10 +649,69 @@ ${tableHtml}
                 return true;
             }
             window.checkPremiumLogin = checkLoginBeforeUse;
+
+            // One row per AI model this tool offers, each with its own token cost.
+            // Keep in sync with the "models" table rows generated alongside this file.
+            const NEXI_PREMIUM_MODELS = ${JSON.stringify(premiumModelsWithId.map(m => ({ id: m.modelId, label: m.label, cost: m.cost })), null, 0)};
+            window.selectedPremiumModelId = NEXI_PREMIUM_MODELS[0] ? NEXI_PREMIUM_MODELS[0].id : null;
+
+            const TOOL_FUNCTION_URL = 'https://wznrwewwwaqhxlhvfqol.supabase.co/functions/v1/ai-tool';
+
+            // Local token-cutting logic, reused across every model this tool offers.
+            // Call as: const result = await window.premiumRun({ input, output_language }, modelId);
+            // modelId is optional — defaults to the currently selected model (or the
+            // only model, if there's just one). Returns the parsed API response on a
+            // completed request, or null if the request never happened (not logged in,
+            // or the user declined the insufficient-balance prompt).
+            window.premiumRun = async function(payload, modelId) {
+                const model = NEXI_PREMIUM_MODELS.find(m => m.id === (modelId || window.selectedPremiumModelId)) || NEXI_PREMIUM_MODELS[0];
+                if (!model) return null;
+
+                if (!(await checkLoginBeforeUse())) return null;
+
+                const canProceed = await window.requirePremiumAccess(model.cost);
+                if (!canProceed) return null;
+
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                const res = await fetch(TOOL_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': \`Bearer \${session.access_token}\`
+                    },
+                    body: JSON.stringify({ tool_id: model.id, ...payload })
+                });
+                const result = await res.json();
+
+                if (!result.success) {
+                    if (result.reason === 'insufficient_balance') {
+                        window.requirePremiumAccess(model.cost);
+                    }
+                    return result;
+                }
+
+                if (window.deductLocalBalance) window.deductLocalBalance(model.cost);
+                return result;
+            };
         })();
         <\/script>
 
 ` : '';
+
+    // SQL rows to register each model's cost server-side (Supabase "models" table).
+    // The frontend's premiumRun() above only pre-checks cost for UX — this row is
+    // what the ai-tool Edge Function actually charges against.
+    const outputSql = premiumModelsWithId.length > 0 ? `insert into public.models (id, name, type, cost, model_name, system_prompt, is_active)
+values
+${premiumModelsWithId.map(m => `(
+    '${m.modelId}',
+    '${m.label.replace(/'/g, "''")}',
+    '${m.type}',
+    ${m.cost},
+    '${m.modelName.replace(/'/g, "''")}',
+    '${m.systemPrompt.replace(/'/g, "''")}',
+    true
+)`).join(',\n')};` : '';
 
     const url = `https://nexitool.pro/tools/${categoryFolder}/${id}.html`;
 
@@ -690,11 +833,13 @@ ${getAdsForPlacement('after-faq')}        <div id="relatedTools"></div>
         color: '${colorSlug}',
         icon: '${icon}',
         path: 'tools/${categoryFolder}/${id}.html',
-        isTrending: ${isTrending}
+        isTrending: ${isTrending}${isPremium ? ',\n        isPremium: true' : ''}
     },`;
 
     document.getElementById('outputHtml').value = html;
     document.getElementById('outputEntry').value = entry;
+    document.getElementById('outputSqlBlock').style.display = outputSql ? 'block' : 'none';
+    document.getElementById('outputSql').value = outputSql;
 }
 
 function buildComparisonTable(rowsText) {
