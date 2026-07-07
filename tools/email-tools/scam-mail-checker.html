@@ -108,6 +108,8 @@
 
         .sc-error { color: #ef4444; font-size: 13px; margin-top: 10px; display: none; }
         .sc-spinner { width: 22px; height: 22px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 12px auto; display: none; }
+
+        .spinner-status-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin: -6px 0 8px; min-height: 16px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .cost-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); padding: 4px 10px; border-radius: 20px; margin-top: 8px; }
@@ -191,6 +193,7 @@
             <button id="scCheckBtn" class="action-btn">Check This Email</button>
             <p class="sc-error" id="scError"></p>
             <div class="sc-spinner" id="scSpinner"></div>
+            <p class="spinner-status-text" id="scSpinnerText"></p>
 
             <div class="sc-output-wrap" id="scOutputWrap">
                 <label class="sc-label">Analysis result</label>
@@ -379,6 +382,21 @@
         const checkBtn = document.getElementById('scCheckBtn');
         const errorEl = document.getElementById('scError');
         const spinnerEl = document.getElementById('scSpinner');
+        const spinnerTextEl = document.getElementById('scSpinnerText');
+        const PROCESSING_MESSAGES = ["Scanning for scammer patterns...", "Analyzing sender behavior...", "Cross-checking red flags...", "Calculating risk score..."];
+        let processingTimer = null;
+        function startProcessingText() {
+            let i = 0;
+            spinnerTextEl.textContent = PROCESSING_MESSAGES[0];
+            processingTimer = setInterval(() => {
+                i = (i + 1) % PROCESSING_MESSAGES.length;
+                spinnerTextEl.textContent = PROCESSING_MESSAGES[i];
+            }, 1400);
+        }
+        function stopProcessingText() {
+            clearInterval(processingTimer);
+            spinnerTextEl.textContent = '';
+        }
         const outputWrap = document.getElementById('scOutputWrap');
         const outputEl = document.getElementById('scOutput');
         const emailTextEl = document.getElementById('scEmailText');
@@ -457,6 +475,7 @@
 
             checkBtn.disabled = true;
             spinnerEl.style.display = 'block';
+            startProcessingText();
             outputWrap.style.display = 'none';
 
             try {
@@ -488,6 +507,7 @@
                 const senderLine = (emailText.match(/^from:\s*(.+)$/im) || [])[1];
                 const label = (senderLine ? `From: ${senderLine.trim()}` : emailText.slice(0, 60)).slice(0, 60);
                 addToHistory({ label, outputLang, output: result.output });
+                if (window.deductLocalBalance) window.deductLocalBalance(TOOL_COST);
             } catch (err) {
                 console.error('Scam Mail Checker request failed', err);
                 errorEl.textContent = 'Network error — please try again.';
@@ -495,6 +515,7 @@
             } finally {
                 checkBtn.disabled = false;
                 spinnerEl.style.display = 'none';
+                stopProcessingText();
             }
         };
     </script>

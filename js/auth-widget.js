@@ -36,6 +36,13 @@
     }
     window.updateCachedBalance = setBalance;
 
+    // Call right after a tool successfully spends coins server-side, so the
+    // header badge reflects the new balance immediately instead of waiting
+    // for the next fetch (e.g. next requirePremiumAccess call or page load).
+    window.deductLocalBalance = function(cost) {
+        setBalance(Math.max(0, cachedBalance - cost));
+    };
+
     function updateCoinUI(disabled) {
         const badge = document.getElementById('coinBadge');
         if (!badge) return;

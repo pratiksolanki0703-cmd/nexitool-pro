@@ -107,6 +107,8 @@
 
         .mt-error { color: #ef4444; font-size: 13px; margin-top: 10px; display: none; }
         .mt-spinner { width: 22px; height: 22px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 12px auto; display: none; }
+
+        .spinner-status-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin: -6px 0 8px; min-height: 16px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .cost-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); padding: 4px 10px; border-radius: 20px; margin-top: 8px; }
@@ -188,6 +190,7 @@
             <button id="mtRewriteBtn" class="action-btn">Change the Tone</button>
             <p class="mt-error" id="mtError"></p>
             <div class="mt-spinner" id="mtSpinner"></div>
+            <p class="spinner-status-text" id="mtSpinnerText"></p>
 
             <div class="mt-output-wrap" id="mtOutputWrap">
                 <label class="mt-label">Rewritten email</label>
@@ -377,6 +380,21 @@
         const rewriteBtn = document.getElementById('mtRewriteBtn');
         const errorEl = document.getElementById('mtError');
         const spinnerEl = document.getElementById('mtSpinner');
+        const spinnerTextEl = document.getElementById('mtSpinnerText');
+        const PROCESSING_MESSAGES = ["Reading your email...", "Adjusting the tone...", "Polishing phrasing...", "Finalizing rewrite..."];
+        let processingTimer = null;
+        function startProcessingText() {
+            let i = 0;
+            spinnerTextEl.textContent = PROCESSING_MESSAGES[0];
+            processingTimer = setInterval(() => {
+                i = (i + 1) % PROCESSING_MESSAGES.length;
+                spinnerTextEl.textContent = PROCESSING_MESSAGES[i];
+            }, 1400);
+        }
+        function stopProcessingText() {
+            clearInterval(processingTimer);
+            spinnerTextEl.textContent = '';
+        }
         const outputWrap = document.getElementById('mtOutputWrap');
         const outputEl = document.getElementById('mtOutput');
         const emailTextEl = document.getElementById('mtEmailText');
@@ -455,6 +473,7 @@
 
             rewriteBtn.disabled = true;
             spinnerEl.style.display = 'block';
+            startProcessingText();
             outputWrap.style.display = 'none';
 
             try {
@@ -487,6 +506,7 @@
                 outputEl.textContent = result.output;
                 outputWrap.style.display = 'block';
                 addToHistory({ label: emailText.slice(0, 60), tone, output: result.output });
+                if (window.deductLocalBalance) window.deductLocalBalance(TOOL_COST);
             } catch (err) {
                 console.error('Mail Tone Changer request failed', err);
                 errorEl.textContent = 'Network error — please try again.';
@@ -494,6 +514,7 @@
             } finally {
                 rewriteBtn.disabled = false;
                 spinnerEl.style.display = 'none';
+                stopProcessingText();
             }
         };
 

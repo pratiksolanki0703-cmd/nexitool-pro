@@ -109,6 +109,7 @@
 
         .sl-error { color: #ef4444; font-size: 13px; margin-top: 10px; display: none; }
         .sl-spinner { width: 22px; height: 22px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 12px auto; display: none; }
+        .spinner-status-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin: -6px 0 8px; min-height: 16px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .cost-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); padding: 4px 10px; border-radius: 20px; margin-top: 8px; }
@@ -183,6 +184,7 @@
             <button id="slRunBtn" class="action-btn">Generate Subject Lines</button>
             <p class="sl-error" id="slError"></p>
             <div class="sl-spinner" id="slSpinner"></div>
+            <p class="spinner-status-text" id="slSpinnerText"></p>
 
             <div class="sl-output-wrap" id="slOutputWrap">
                 <label class="sl-label">Result</label>
@@ -382,6 +384,25 @@
 
         const errorEl = document.getElementById('slError');
         const spinnerEl = document.getElementById('slSpinner');
+        const spinnerTextEl = document.getElementById('slSpinnerText');
+        const PROCESSING_MESSAGES = {
+            generate: ["Reading your email body...", "Brainstorming subject lines...", "Ranking the best options..."],
+            grade: ["Reading your subject line...", "Scoring open-rate potential...", "Preparing suggestions..."]
+        };
+        let processingTimer = null;
+        function startProcessingText() {
+            const msgs = PROCESSING_MESSAGES[mode] || PROCESSING_MESSAGES.generate;
+            let i = 0;
+            spinnerTextEl.textContent = msgs[0];
+            processingTimer = setInterval(() => {
+                i = (i + 1) % msgs.length;
+                spinnerTextEl.textContent = msgs[i];
+            }, 1400);
+        }
+        function stopProcessingText() {
+            clearInterval(processingTimer);
+            spinnerTextEl.textContent = '';
+        }
         const outputWrap = document.getElementById('slOutputWrap');
         const outputEl = document.getElementById('slOutput');
 
@@ -473,6 +494,7 @@
 
             runBtn.disabled = true;
             spinnerEl.style.display = 'block';
+            startProcessingText();
             outputWrap.style.display = 'none';
 
             try {
@@ -504,6 +526,7 @@
                     ? (document.getElementById('slBody').value.trim().slice(0, 60) || 'Email body')
                     : document.getElementById('slSubject').value.trim().slice(0, 60);
                 addToHistory({ label, mode: mode === 'generate' ? 'Generate' : 'Grade', output: result.output });
+                if (window.deductLocalBalance) window.deductLocalBalance(TOOL_COST);
             } catch (err) {
                 console.error('Subject Line Generator request failed', err);
                 errorEl.textContent = 'Network error — please try again.';
@@ -511,6 +534,7 @@
             } finally {
                 runBtn.disabled = false;
                 spinnerEl.style.display = 'none';
+                stopProcessingText();
             }
         };
 

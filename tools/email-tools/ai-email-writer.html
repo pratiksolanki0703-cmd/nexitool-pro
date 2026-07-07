@@ -112,6 +112,8 @@
 
         .ew-error { color: #ef4444; font-size: 13px; margin-top: 10px; display: none; }
         .ew-spinner { width: 22px; height: 22px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 12px auto; display: none; }
+
+        .spinner-status-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin: -6px 0 8px; min-height: 16px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .cost-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); padding: 4px 10px; border-radius: 20px; margin-top: 8px; }
@@ -213,6 +215,7 @@
             <button id="ewGenerateBtn" class="action-btn">Generate Email</button>
             <p class="ew-error" id="ewError"></p>
             <div class="ew-spinner" id="ewSpinner"></div>
+            <p class="spinner-status-text" id="ewSpinnerText"></p>
 
             <div class="ew-output-wrap" id="ewOutputWrap">
                 <label class="ew-label">Your email</label>
@@ -416,6 +419,21 @@
         const generateBtn = document.getElementById('ewGenerateBtn');
         const errorEl = document.getElementById('ewError');
         const spinnerEl = document.getElementById('ewSpinner');
+        const spinnerTextEl = document.getElementById('ewSpinnerText');
+        const PROCESSING_MESSAGES = ["Understanding your context...", "Drafting your email...", "Refining tone and clarity...", "Finalizing your draft..."];
+        let processingTimer = null;
+        function startProcessingText() {
+            let i = 0;
+            spinnerTextEl.textContent = PROCESSING_MESSAGES[0];
+            processingTimer = setInterval(() => {
+                i = (i + 1) % PROCESSING_MESSAGES.length;
+                spinnerTextEl.textContent = PROCESSING_MESSAGES[i];
+            }, 1400);
+        }
+        function stopProcessingText() {
+            clearInterval(processingTimer);
+            spinnerTextEl.textContent = '';
+        }
         const outputWrap = document.getElementById('ewOutputWrap');
         const outputEl = document.getElementById('ewOutput');
 
@@ -514,6 +532,7 @@
 
             generateBtn.disabled = true;
             spinnerEl.style.display = 'block';
+            startProcessingText();
             outputWrap.style.display = 'none';
 
             try {
@@ -546,6 +565,7 @@
                     ? (document.getElementById('ewPurpose').value.trim().slice(0, 60) || 'Email')
                     : 'Rewritten draft';
                 addToHistory({ label, outputLang, output: result.output });
+                if (window.deductLocalBalance) window.deductLocalBalance(TOOL_COST);
             } catch (err) {
                 console.error('AI Email Writer request failed', err);
                 errorEl.textContent = 'Network error — please try again.';
@@ -553,6 +573,7 @@
             } finally {
                 generateBtn.disabled = false;
                 spinnerEl.style.display = 'none';
+                stopProcessingText();
             }
         };
 

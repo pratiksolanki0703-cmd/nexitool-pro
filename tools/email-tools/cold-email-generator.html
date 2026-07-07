@@ -109,6 +109,8 @@
 
         .ce-error { color: #ef4444; font-size: 13px; margin-top: 10px; display: none; }
         .ce-spinner { width: 22px; height: 22px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 12px auto; display: none; }
+
+        .spinner-status-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin: -6px 0 8px; min-height: 16px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .cost-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); padding: 4px 10px; border-radius: 20px; margin-top: 8px; }
@@ -203,6 +205,7 @@
             <button id="ceGenerateBtn" class="action-btn">Generate Cold Email</button>
             <p class="ce-error" id="ceError"></p>
             <div class="ce-spinner" id="ceSpinner"></div>
+            <p class="spinner-status-text" id="ceSpinnerText"></p>
 
             <div class="ce-output-wrap" id="ceOutputWrap">
                 <label class="ce-label">Result</label>
@@ -392,6 +395,21 @@
         const generateBtn = document.getElementById('ceGenerateBtn');
         const errorEl = document.getElementById('ceError');
         const spinnerEl = document.getElementById('ceSpinner');
+        const spinnerTextEl = document.getElementById('ceSpinnerText');
+        const PROCESSING_MESSAGES = ["Understanding your offer...", "Finding the best angle...", "Drafting your outreach...", "Finalizing sequence..."];
+        let processingTimer = null;
+        function startProcessingText() {
+            let i = 0;
+            spinnerTextEl.textContent = PROCESSING_MESSAGES[0];
+            processingTimer = setInterval(() => {
+                i = (i + 1) % PROCESSING_MESSAGES.length;
+                spinnerTextEl.textContent = PROCESSING_MESSAGES[i];
+            }, 1400);
+        }
+        function stopProcessingText() {
+            clearInterval(processingTimer);
+            spinnerTextEl.textContent = '';
+        }
         const outputWrap = document.getElementById('ceOutputWrap');
         const outputEl = document.getElementById('ceOutput');
 
@@ -471,6 +489,7 @@
 
             generateBtn.disabled = true;
             spinnerEl.style.display = 'block';
+            startProcessingText();
             outputWrap.style.display = 'none';
 
             try {
@@ -504,6 +523,7 @@
                 outputEl.textContent = result.output;
                 outputWrap.style.display = 'block';
                 addToHistory({ label: recipient.slice(0, 60), outputLang, output: result.output });
+                if (window.deductLocalBalance) window.deductLocalBalance(TOOL_COST);
             } catch (err) {
                 console.error('Cold Email Generator request failed', err);
                 errorEl.textContent = 'Network error — please try again.';
@@ -511,6 +531,7 @@
             } finally {
                 generateBtn.disabled = false;
                 spinnerEl.style.display = 'none';
+                stopProcessingText();
             }
         };
 
