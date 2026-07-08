@@ -361,17 +361,20 @@
             if (loader) loader.style.display = 'flex';
 
             const rawTarget = parseFloat(targetInput.value);
-            const targetMB = rawTarget > 0
-                ? (targetUnit.value === 'MB' ? rawTarget : rawTarget / 1024)
-                : Math.max(0.05, item.original.size / (1024 * 1024) * 0.5);
+            const hasTarget = rawTarget > 0;
 
             const options = {
-                maxSizeMB: targetMB,
                 maxWidthOrHeight: 4096,
                 useWebWorker: true,
-                initialQuality: 0.9,
+                initialQuality: 0.8,
                 onProgress: (p) => { if (pctEl) pctEl.innerText = p + '%'; }
             };
+            // Only set maxSizeMB when the user gave an explicit target — this makes
+            // the library run its (slow) iterative size-search only when actually needed.
+            // Without a target, a single-pass quality compression is much faster.
+            if (hasTarget) {
+                options.maxSizeMB = targetUnit.value === 'MB' ? rawTarget : rawTarget / 1024;
+            }
             if (formatSelect.value !== 'original') {
                 options.fileType = formatSelect.value;
             }
@@ -397,9 +400,19 @@
         async function processBatch() {
             compressAllBtn.classList.remove('pulse');
             processCue.style.display = 'none';
-            for (const item of fileQueue) {
-                await compressOne(item);
+
+            // Process a few images at once (instead of one-by-one) so a big batch
+            // finishes faster, without overloading the device with all of them together.
+            const CONCURRENCY = 3;
+            const queue = [...fileQueue];
+            async function worker() {
+                while (queue.length) {
+                    const item = queue.shift();
+                    await compressOne(item);
+                }
             }
+            await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+
             const anyDone = fileQueue.some(f => f.compressed);
             downloadAllBtn.disabled = !anyDone;
             downloadZipBtn.disabled = !anyDone;

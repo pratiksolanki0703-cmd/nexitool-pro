@@ -76,17 +76,23 @@
         @keyframes glow { 0%, 100% { text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent); } 50% { text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent); } }
         .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); width: 150px; margin: 20px auto; }
 
-        .editor-grid { display: none; width: 100%; grid-template-columns: 320px 1fr; gap: 30px; text-align: left; margin-top: 30px; align-items: start; }
-        .editor-controls { background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--card-border); position: sticky; top: 20px; z-index: 10; }
+        .editor-grid { display: none; width: 100%; max-width: 100%; grid-template-columns: 320px minmax(0, 1fr); gap: 30px; text-align: left; margin-top: 30px; align-items: start; }
+        .editor-controls { background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--card-border); position: sticky; top: 20px; z-index: 10; min-width: 0; }
         .expectation-note { font-size: 12.5px; line-height: 1.5; opacity: 0.75; background: color-mix(in srgb, var(--accent) 6%, transparent); border: 1px dashed var(--accent); border-radius: 8px; padding: 10px; margin-bottom: 15px; }
 
         .opt-label { font-size: 12.5px; font-weight: 700; opacity: 0.8; margin-bottom: 4px; display: block; }
         .opt-select, .opt-field { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-primary); color: inherit; font-size: 14px; margin-bottom: 14px; }
         .dim-row { display: flex; gap: 8px; align-items: center; }
-        .dim-row input { flex: 1; }
+        .dim-row input { flex: 1; min-width: 0; }
 
-        .image-stage { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 15px; padding: 20px; text-align: center; min-height: 400px; }
+        /* Wraps the crop canvas + before/after preview. min-width:0 stops this grid
+           column from being forced wider by the image's natural pixel size, which
+           was pushing the whole layout off-screen to the right on mobile. */
+        .stage-column { min-width: 0; }
+
+        .image-stage { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 15px; padding: 20px; text-align: center; min-height: 400px; overflow: hidden; max-width: 100%; }
         .image-stage img { max-width: 100%; display: block; }
+        .image-stage .cropper-container { max-width: 100% !important; }
 
         .compare-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
         .compare-box { text-align: center; }
@@ -111,7 +117,12 @@
         .ad-slot-small { width: 100%; max-width: 728px; min-height: 60px; margin: 30px auto; }
         .ad-slot-large { width: 100%; max-width: 728px; min-height: 90px; margin: 30px auto; }
 
-        @media (max-width: 900px) { .editor-grid { grid-template-columns: 1fr; } .editor-controls { position: relative; top: 0; } }
+        @media (max-width: 900px) {
+            .editor-grid { grid-template-columns: minmax(0, 1fr); }
+            .editor-controls { position: relative; top: 0; }
+            .image-stage { padding: 10px; }
+            .compare-box img { max-width: 45vw; max-height: 180px; }
+        }
     </style>
 </head>
 <body class="color-image">
@@ -186,7 +197,7 @@
                 </div>
             </div>
 
-            <div>
+            <div class="stage-column">
                 <div class="image-stage">
                     <img id="cropImage" src="" style="max-width:100%;">
                 </div>
@@ -350,12 +361,20 @@
                 widthInput.value = cropImage.naturalWidth;
                 heightInput.value = cropImage.naturalHeight;
                 if (cropper) cropper.destroy();
-                cropper = new Cropper(cropImage, {
-                    viewMode: 1,
-                    dragMode: 'move',
-                    aspectRatio: NaN,
-                    autoCropArea: 0.9,
-                    background: false
+                // The grid was just switched from display:none to grid, so the layout
+                // hasn't painted yet — initializing Cropper.js on the same tick makes it
+                // measure a stale (often too-wide) container and overflow the screen on
+                // mobile. Wait one frame so the real, laid-out width is measured instead.
+                requestAnimationFrame(() => {
+                    cropper = new Cropper(cropImage, {
+                        viewMode: 1,
+                        dragMode: 'move',
+                        aspectRatio: NaN,
+                        autoCropArea: 0.9,
+                        background: false,
+                        responsive: true,
+                        checkOrientation: false
+                    });
                 });
                 if (window.lucide) lucide.createIcons();
             };

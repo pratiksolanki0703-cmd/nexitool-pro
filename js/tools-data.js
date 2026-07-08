@@ -63,16 +63,6 @@ const TOOLS = [
         isTrending: false
     },
     {
-        id: 'ai-image-upscaler',
-        name: 'AI Image Upscaler',
-        description: 'Upscale a photo 2x with an on-device AI model. Fixes pixelated and blurry images, nothing is uploaded.',
-        category: 'Image',
-        color: 'image',
-        icon: 'sparkles',
-        path: 'tools/image-tools/ai-image-upscaler.html',
-        isTrending: true
-    },
-    {
         id: 'image-to-ppt',
         name: 'Image to PPT Converter',
         description: 'Turn multiple photos into a downloadable PowerPoint presentation. No OCR, no text extraction.',
