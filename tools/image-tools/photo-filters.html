@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>(function(){try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.add("light");}catch(e){}})();</script>
+    <title>Free Photo Filters Online — Vintage, Sepia, B&W, No Signup | Nexitool</title>
+    <meta name="description" content="Add a vintage filter, sepia effect, grayscale, or brighten a dark photo — free, no signup, right in your browser. Bulk apply one filter across a whole batch of photos.">
+    <link rel="canonical" href="https://nexitool.pro/tools/image-tools/photo-filters.html">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nexitool.pro/tools/image-tools/photo-filters.html">
+    <meta property="og:title" content="Free Photo Filters Online — Vintage, Sepia, B&W, No Signup | Nexitool">
+    <meta property="og:description" content="Add a vintage filter, sepia effect, grayscale, or brighten a dark photo — free, no signup, right in your browser.">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Free Photo Filters Online — Vintage, Sepia, B&W, No Signup | Nexitool">
+    <meta property="twitter:description" content="Add a vintage filter, sepia effect, grayscale, or brighten a dark photo — free, no signup, right in your browser.">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://nexitool.pro/tools/image-tools/photo-filters.html#webpage",
+      "url": "https://nexitool.pro/tools/image-tools/photo-filters.html",
+      "name": "Free Photo Filters Online — Vintage, Sepia, B&W, No Signup | Nexitool",
+      "description": "Apply vintage, sepia, grayscale, and other photo filters entirely in your browser, with bulk support across a whole batch.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Photo Filters",
+      "url": "https://nexitool.pro/tools/image-tools/photo-filters.html",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any",
+      "description": "Browser-based tool that applies color-grading filters like vintage, sepia, grayscale, bright, cool, warm, fade and vivid to photos using the Canvas API.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "8 built-in filter presets",
+        "Bulk apply one filter to a whole batch",
+        "Brighten dark photos",
+        "Sepia and vintage effects",
+        "Runs entirely on-device, nothing uploaded"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Can I add a vintage filter without signing up?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — pick the Fade or Sepia preset for a vintage look, no account or signup required." } },
+        { "@type": "Question", "name": "Can this brighten a dark photo?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — the Bright preset lifts exposure and contrast to recover detail in underexposed photos." } },
+        { "@type": "Question", "name": "Can I download the sepia effect result?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — after applying a filter, use the Download button to save the result directly to your device." } },
+        { "@type": "Question", "name": "Can I apply the same filter to many photos at once?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — bulk mode lets you drop in a whole batch and apply one chosen filter to every photo in a single pass." } },
+        { "@type": "Question", "name": "Do my photos get uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No — every filter is applied locally using your browser's Canvas API. Your photos never leave your device." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexitool.pro/" },
+        { "@type": "ListItem", "position": 2, "name": "Photo Filters", "item": "https://nexitool.pro/tools/image-tools/photo-filters.html" }
+      ]
+    }
+  ]
+}
+    </script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--accent); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent); } 50% { text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent); } }
+        .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); width: 150px; margin: 20px auto; }
+
+        .filter-grid { display: none; width: 100%; grid-template-columns: 320px 1fr; gap: 30px; text-align: left; margin-top: 30px; align-items: start; }
+        .filter-controls { background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--card-border); position: sticky; top: 20px; z-index: 10; }
+        .expectation-note { font-size: 12.5px; line-height: 1.5; opacity: 0.75; background: color-mix(in srgb, var(--accent) 6%, transparent); border: 1px dashed var(--accent); border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+
+        .preset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+        .preset-btn { padding: 10px 6px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-primary); color: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .preset-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .bulk-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+
+        .preview-stage { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 15px; padding: 20px; text-align: center; }
+        .compare-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .compare-box { text-align: center; }
+        .compare-box img { max-width: 260px; max-height: 300px; border-radius: 10px; border: 1px solid var(--card-border); }
+        .compare-label { font-size: 12.5px; font-weight: 700; margin-top: 6px; opacity: 0.8; }
+
+        .bulk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .bulk-card { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 15px; padding: 15px; position: relative; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .card-preview { width: 100%; height: 140px; border-radius: 10px; object-fit: cover; background: color-mix(in srgb, var(--accent) 8%, transparent); margin-bottom: 10px; }
+        .card-loader { position: absolute; inset: 0; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; border-radius: 15px; z-index: 5; }
+        .spinner { width: 25px; height: 25px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; font-size: 14px; }
+        .btn-green { background: #28a745; color: white; }
+        .btn-dark { background: #111827; color: white; }
+        @keyframes button-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 0%, transparent); } }
+        .action-btn.pulse { animation: button-pulse 1.4s infinite; }
+        .process-cue { text-align: center; font-size: 12.5px; font-weight: 700; color: var(--accent); margin-bottom: 8px; animation: cue-bounce 1.4s infinite; }
+        @keyframes cue-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+        .section-divider { border-top: 1px solid color-mix(in srgb, var(--accent) 15%, transparent); padding: 20px 0; margin-top: 20px; }
+        .info-flex-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; text-align: left; }
+        .info-column { flex: 1; min-width: 250px; }
+        .info-column h3 { color: var(--accent); margin-bottom: 15px; }
+
+        .ad-slot-small { width: 100%; max-width: 728px; min-height: 60px; margin: 30px auto; }
+        .ad-slot-large { width: 100%; max-width: 728px; min-height: 90px; margin: 30px auto; }
+
+        @media (max-width: 900px) { .filter-grid { grid-template-columns: 1fr; } .filter-controls { position: relative; top: 0; } }
+    </style>
+</head>
+<body class="color-image">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon">
+                <i data-lucide="palette" style="width: 64px; height: 64px;"></i>
+            </div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">
+                Free <span class="shining-title">Photo Filters</span> — vintage, sepia, B&W & more
+            </h1>
+            <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px; max-width: 640px; margin-left: auto; margin-right: auto;">
+                Add a vintage filter, brighten a dark photo, or apply a sepia effect — free, no signup, right in your browser.
+            </p>
+            <p class="expectation-note" style="max-width: 480px; margin: 15px auto 0; text-align: left;">
+                <i data-lucide="coins" style="width:14px;height:14px;vertical-align:-2px;"></i> <strong>No login required</strong> — this tool is 100% free to use without an account. Even our premium tools are 100% free, never any real-money payment — you just earn free coins by logging in (passively or by watching ads). <a href="../../coin.html" style="color: var(--accent); font-weight:700;">See how coins work</a>.
+            </p>
+            <div class="shining-line"></div>
+        </div>
+
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="upload-text">
+                <h3>Select Image Files</h3>
+                <p>Drag & drop a photo, or a batch (bulk supported)</p>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+        </div>
+
+        <div class="ad-slot-small" id="display-ads"></div>
+
+        <div class="filter-grid" id="filterGrid">
+            <div class="filter-controls">
+                <label class="opt-label" style="font-size: 12.5px; font-weight: 700; opacity: 0.8; margin-bottom: 8px; display: block;">Choose a filter</label>
+                <div class="preset-grid" id="presetGrid"></div>
+
+                <div class="bulk-toggle">
+                    <input type="checkbox" id="bulkToggle">
+                    <label for="bulkToggle">Apply to whole batch</label>
+                </div>
+
+                <p class="process-cue" id="processCue">👇 Click to apply the filter</p>
+                <button id="applyBtn" class="action-btn pulse" style="background: var(--accent); color: white;">🎨 Apply Filter</button>
+                <button id="downloadAllBtn" class="action-btn btn-green" style="margin-top: 10px;" disabled>📥 Download All (Individual)</button>
+                <button id="downloadZipBtn" class="action-btn btn-dark" style="margin-top: 10px;" disabled>📦 Download as ZIP</button>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--card-border); padding-top: 15px;">
+                    <button class="action-btn" style="background:#f3f4f6; color:#444;" onclick="document.getElementById('fileInput').click()">➕ Add More Images</button>
+                    <p style="text-align: center; margin-top: 15px; font-size: 13px; opacity: 0.6; cursor: pointer;" onclick="location.reload()">🔄 Restart Session</p>
+                </div>
+            </div>
+
+            <div>
+                <div class="preview-stage" id="singlePreview">
+                    <div class="compare-row">
+                        <div class="compare-box">
+                            <img id="beforeImg" src="">
+                            <div class="compare-label">Before</div>
+                        </div>
+                        <div class="compare-box">
+                            <img id="afterImg" src="">
+                            <div class="compare-label">After</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bulk-list" id="bulkList" style="display:none; margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--brand-primary); font-weight: 700;">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Back to Home
+            </a>
+        </div>
+
+        <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+            <div><div style="color: var(--primary-cyan, #00d4ff); margin-bottom: 10px;"><i data-lucide="layers" style="width:32px;height:32px;"></i></div><h3>8 Filter Presets</h3><p style="opacity: 0.8; font-size: 14px;">Grayscale, sepia, bright, cool, warm, fade, vivid and more.</p></div>
+            <div><div style="color: var(--accent-pink, #ec4899); margin-bottom: 10px;"><i data-lucide="images" style="width:32px;height:32px;"></i></div><h3>Bulk Apply</h3><p style="opacity: 0.8; font-size: 14px;">Apply one filter to a whole batch of photos in one pass.</p></div>
+            <div><div style="color: var(--primary-neon, #00ff88); margin-bottom: 10px;"><i data-lucide="shield-check" style="width:32px;height:32px;"></i></div><h3>Nothing Uploaded</h3><p style="opacity: 0.8; font-size: 14px;">Filters are applied on-device using the Canvas API.</p></div>
+            <div><div style="color: var(--accent-orange, #f97316); margin-bottom: 10px;"><i data-lucide="download-cloud" style="width:32px;height:32px;"></i></div><h3>Download Ready</h3><p style="opacity: 0.8; font-size: 14px;">Save one result, or every filtered photo as a ZIP.</p></div>
+        </div>
+
+        <div class="section-divider" style="text-align: left;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Vintage filter, sepia effect, and color grading in your browser</h2>
+            <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
+                <p style="margin-bottom: 15px;">
+                    Each preset applies a combination of brightness, contrast, saturation and color adjustments directly on a canvas — no upload, no account. Pick Fade or Sepia for a vintage look, Bright to lift a dark photo, or Grayscale for classic black & white.
+                </p>
+                <p>
+                    Bulk mode applies the same chosen filter across every photo in your batch at once, so you don't have to repeat the process file by file.
+                </p>
+            </div>
+
+            <div class="ad-slot-large" id="in-article-ads"></div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How it works</h2>
+            <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>Drop in one photo, or a whole batch</li>
+                <li>Pick a filter preset</li>
+                <li>Turn on bulk mode if you want one filter applied to every photo</li>
+                <li>Click Apply Filter</li>
+                <li>Compare before/after and download the result</li>
+            </ul>
+        </div>
+
+        <div class="section-divider">
+            <div class="info-flex-container">
+                <div class="info-column">
+                    <h3>The 8 filter presets</h3>
+                    <p><strong>Original:</strong> no change, useful as a reset.<br>
+                    <strong>Grayscale, Sepia, Fade:</strong> classic and vintage looks.<br>
+                    <strong>Bright:</strong> lift exposure on dark or underexposed photos.<br>
+                    <strong>Cool, Warm, Vivid:</strong> shift color temperature and punch.</p>
+                </div>
+                <div class="info-column">
+                    <h3>What makes this one different</h3>
+                    <p><strong>Bulk apply:</strong> one filter across a whole batch instantly.<br>
+                    <strong>Before/after comparison:</strong> see the change side by side.<br>
+                    <strong>Nothing leaves your device:</strong> no upload step at all.<br>
+                    <strong>No signup:</strong> use it directly, no account required.</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            <div class="faq-container">
+            <div class="faq-item">
+                <button class="faq-question">Can I add a vintage filter without signing up? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — pick the Fade or Sepia preset for a vintage look, no account or signup required.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can this brighten a dark photo? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — the Bright preset lifts exposure and contrast to recover detail in underexposed photos.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I download the sepia effect result? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — after applying a filter, use the Download button to save the result directly to your device.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I apply the same filter to many photos at once? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — bulk mode lets you drop in a whole batch and apply one chosen filter to every photo in a single pass.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Do my photos get uploaded anywhere? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">No — every filter is applied locally using your browser's Canvas API. Your photos never leave your device.</div>
+            </div>
+            </div>
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="../../js/tools-data.js"></script>
+    <script src="../../js/blogs-data.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/header-animation.js"></script>
+    <script src="../../js/ads-manager.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/announcement-config.js"></script>
+    <script src="../../js/announcement-banner.js"></script>
+    <script src="../../js/guide-content.js"></script>
+    <script src="../../js/user-guide.js"></script>
+    <script src="../../js/auth-widget.js"></script>
+    <script src="../../js/earn-ticker.js"></script>
+    <script src="../../js/verify-tracking.js" defer></script>
+    <script src="../../js/rewarded-ads.js" defer></script>
+    <script src="../../ads/display-ads.js" defer></script>
+    <script src="../../ads/in-article-ads.js" defer></script>
+    <script>
+        window.addEventListener('load', () => {
+            if (window.initAdBlockDetector) window.initAdBlockDetector();
+        });
+    </script>
+    <script>
+        const FILTERS = [
+            { name: 'Original', css: 'none' },
+            { name: 'Grayscale', css: 'grayscale(1)' },
+            { name: 'Sepia', css: 'sepia(0.8)' },
+            { name: 'Bright', css: 'brightness(1.25) contrast(1.1)' },
+            { name: 'Cool', css: 'hue-rotate(180deg) saturate(1.2)' },
+            { name: 'Warm', css: 'sepia(0.3) saturate(1.4) hue-rotate(-10deg)' },
+            { name: 'Fade', css: 'contrast(0.85) brightness(1.1) saturate(0.75)' },
+            { name: 'Vivid', css: 'saturate(1.6) contrast(1.15)' }
+        ];
+
+        const fileInput = document.getElementById('fileInput');
+        const presetGrid = document.getElementById('presetGrid');
+        const bulkToggle = document.getElementById('bulkToggle');
+        const applyBtn = document.getElementById('applyBtn');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const downloadZipBtn = document.getElementById('downloadZipBtn');
+        const processCue = document.getElementById('processCue');
+        const singlePreview = document.getElementById('singlePreview');
+        const bulkList = document.getElementById('bulkList');
+
+        let selectedFilter = FILTERS[1];
+        let fileQueue = [];
+        let singleResultBlob = null;
+
+        FILTERS.forEach((f, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'preset-btn' + (i === 1 ? ' active' : '');
+            btn.innerText = f.name;
+            btn.onclick = () => {
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedFilter = f;
+            };
+            presetGrid.appendChild(btn);
+        });
+
+        fileInput.onchange = (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            document.getElementById('dropZone').style.display = 'none';
+            document.getElementById('filterGrid').style.display = 'grid';
+
+            fileQueue = files.map((file, index) => ({ id: Date.now() + index, original: file, result: null }));
+
+            if (files.length > 1) {
+                bulkToggle.checked = true;
+            }
+            renderMode();
+        };
+
+        bulkToggle.onchange = renderMode;
+
+        function renderMode() {
+            const isBulk = bulkToggle.checked && fileQueue.length > 0;
+            singlePreview.style.display = isBulk ? 'none' : 'block';
+            bulkList.style.display = isBulk ? 'grid' : 'none';
+
+            if (isBulk) {
+                bulkList.innerHTML = '';
+                fileQueue.forEach(item => addBulkCard(item));
+            } else if (fileQueue.length > 0) {
+                document.getElementById('beforeImg').src = URL.createObjectURL(fileQueue[0].original);
+                document.getElementById('afterImg').src = URL.createObjectURL(fileQueue[0].original);
+            }
+        }
+
+        function addBulkCard(item) {
+            const card = document.createElement('div');
+            card.className = 'bulk-card';
+            card.id = `card-${item.id}`;
+            card.innerHTML = `
+                <div class="card-loader" id="loader-${item.id}"><div class="spinner"></div></div>
+                <img class="card-preview" id="img-${item.id}" src="${URL.createObjectURL(item.original)}">
+                <div style="font-size:12px; font-weight:700; margin-bottom:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${item.original.name}">${item.original.name}</div>
+                <button class="action-btn btn-green" onclick="downloadOne(${item.id})" style="padding:8px; font-size:12px;" disabled>Download</button>
+            `;
+            bulkList.appendChild(card);
+        }
+
+        async function applyFilterToFile(file, cssFilter) {
+            const bitmap = await createImageBitmap(file);
+            const canvas = document.createElement('canvas');
+            canvas.width = bitmap.width;
+            canvas.height = bitmap.height;
+            const ctx = canvas.getContext('2d');
+            ctx.filter = cssFilter;
+            ctx.drawImage(bitmap, 0, 0);
+            return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+        }
+
+        applyBtn.onclick = async () => {
+            applyBtn.classList.remove('pulse');
+            processCue.style.display = 'none';
+            const isBulk = bulkToggle.checked && fileQueue.length > 0;
+
+            if (isBulk) {
+                for (const item of fileQueue) {
+                    const loader = document.getElementById(`loader-${item.id}`);
+                    if (loader) loader.style.display = 'flex';
+                    try {
+                        const blob = await applyFilterToFile(item.original, selectedFilter.css);
+                        item.result = blob;
+                        document.getElementById(`img-${item.id}`).src = URL.createObjectURL(blob);
+                        document.getElementById(`card-${item.id}`).querySelector('button.btn-green').disabled = false;
+                    } catch (err) {
+                        console.error('Filter failed for', item.original.name, err);
+                    }
+                    if (loader) loader.style.display = 'none';
+                }
+                const anyDone = fileQueue.some(f => f.result);
+                downloadAllBtn.disabled = !anyDone;
+                downloadZipBtn.disabled = !anyDone;
+            } else if (fileQueue.length > 0) {
+                try {
+                    const blob = await applyFilterToFile(fileQueue[0].original, selectedFilter.css);
+                    singleResultBlob = blob;
+                    fileQueue[0].result = blob;
+                    document.getElementById('afterImg').src = URL.createObjectURL(blob);
+                    downloadAllBtn.disabled = false;
+                } catch (err) {
+                    console.error('Filter failed', err);
+                }
+            }
+        };
+
+        function downloadOne(id) {
+            const item = fileQueue.find(f => f.id === id);
+            if (item?.result) {
+                const a = document.createElement('a');
+                const baseName = item.original.name.replace(/\.[^.]+$/, '');
+                a.download = `filtered-${baseName}.jpg`;
+                a.href = URL.createObjectURL(item.result);
+                a.click();
+            }
+        }
+
+        downloadAllBtn.onclick = () => {
+            const isBulk = bulkToggle.checked && fileQueue.length > 1;
+            if (isBulk) {
+                fileQueue.forEach(item => downloadOne(item.id));
+            } else if (singleResultBlob) {
+                const a = document.createElement('a');
+                const baseName = fileQueue[0].original.name.replace(/\.[^.]+$/, '');
+                a.download = `filtered-${baseName}.jpg`;
+                a.href = URL.createObjectURL(singleResultBlob);
+                a.click();
+            }
+        };
+
+        downloadZipBtn.onclick = async () => {
+            const zip = new JSZip();
+            let any = false;
+            fileQueue.forEach(item => {
+                if (item.result) {
+                    const baseName = item.original.name.replace(/\.[^.]+$/, '');
+                    zip.file(`filtered-${baseName}.jpg`, item.result);
+                    any = true;
+                }
+            });
+            if (!any) return;
+            const content = await zip.generateAsync({ type: 'blob' });
+            const a = document.createElement('a');
+            a.download = 'nexitool-filtered-photos.zip';
+            a.href = URL.createObjectURL(content);
+            a.click();
+        };
+    </script>
+</body>
+</html>

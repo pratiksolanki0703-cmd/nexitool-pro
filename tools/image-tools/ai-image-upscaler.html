@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>(function(){try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.add("light");}catch(e){}})();</script>
+    <title>Free AI Image Upscaler 2x — Fix Pixelated Photos, No Signup | Nexitool</title>
+    <meta name="description" content="Upscale a photo 2x with AI, fix pixelated images, and enhance blurry photos — free, no signup, no upload. Runs a real AI super-resolution model right in your browser.">
+    <link rel="canonical" href="https://nexitool.pro/tools/image-tools/ai-image-upscaler.html">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nexitool.pro/tools/image-tools/ai-image-upscaler.html">
+    <meta property="og:title" content="Free AI Image Upscaler 2x — Fix Pixelated Photos, No Signup | Nexitool">
+    <meta property="og:description" content="Upscale a photo 2x with AI, fix pixelated images, and enhance blurry photos — free, no signup, no upload.">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Free AI Image Upscaler 2x — Fix Pixelated Photos, No Signup | Nexitool">
+    <meta property="twitter:description" content="Upscale a photo 2x with AI, fix pixelated images, and enhance blurry photos — free, no signup, no upload.">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://nexitool.pro/tools/image-tools/ai-image-upscaler.html#webpage",
+      "url": "https://nexitool.pro/tools/image-tools/ai-image-upscaler.html",
+      "name": "Free AI Image Upscaler 2x — Fix Pixelated Photos, No Signup | Nexitool",
+      "description": "Upscale a photo 2x using an on-device AI super-resolution model, entirely inside your browser.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "AI Image Upscaler",
+      "url": "https://nexitool.pro/tools/image-tools/ai-image-upscaler.html",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any",
+      "description": "Browser-based tool that upscales images 2x using a lightweight Swin2SR AI super-resolution model running fully on-device via Transformers.js — no server, no signup.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "2x AI upscaling",
+        "Fixes pixelated and low-resolution photos",
+        "Enhances blurry photos",
+        "Runs entirely on-device — nothing uploaded",
+        "No signup required"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Can I upscale an image for free without signing up?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — this tool runs entirely in your browser with no account, no watermark, and no payment required." } },
+        { "@type": "Question", "name": "Can this fix a pixelated image?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — the AI model reconstructs detail while doubling the resolution, which noticeably softens pixelation on low-resolution source images." } },
+        { "@type": "Question", "name": "Does this upscale by more than 2x?", "acceptedAnswer": { "@type": "Answer", "text": "This tool doubles resolution (2x) per pass. Running the result through again roughly doubles it a second time, though quality gains diminish on already-soft images." } },
+        { "@type": "Question", "name": "Why does the first upscale take longer?", "acceptedAnswer": { "@type": "Answer", "text": "The first run downloads a small AI model to your browser (a few megabytes) and caches it. Every upscale after that on the same device is faster since the model is already cached." } },
+        { "@type": "Question", "name": "Does my photo get uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No — the AI model runs entirely inside your browser tab using WebAssembly. Your photo is never sent to a server." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexitool.pro/" },
+        { "@type": "ListItem", "position": 2, "name": "AI Image Upscaler", "item": "https://nexitool.pro/tools/image-tools/ai-image-upscaler.html" }
+      ]
+    }
+  ]
+}
+    </script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--accent); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent); } 50% { text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent); } }
+        .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); width: 150px; margin: 20px auto; }
+
+        .upscale-grid { display: none; width: 100%; grid-template-columns: 320px 1fr; gap: 30px; text-align: left; margin-top: 30px; align-items: start; }
+        .upscale-controls { background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--card-border); position: sticky; top: 20px; z-index: 10; }
+        .expectation-note { font-size: 12.5px; line-height: 1.5; opacity: 0.75; background: color-mix(in srgb, var(--accent) 6%, transparent); border: 1px dashed var(--accent); border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+
+        .preview-stage { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 15px; padding: 20px; text-align: center; }
+        .compare-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .compare-box { text-align: center; }
+        .compare-box img, .compare-box canvas { max-width: 280px; max-height: 320px; border-radius: 10px; border: 1px solid var(--card-border); background: #f3f4f6; }
+        .compare-label { font-size: 12.5px; font-weight: 700; margin-top: 6px; opacity: 0.8; }
+
+        .progress-wrap { display: none; margin-bottom: 14px; }
+        .progress-label { font-size: 12.5px; font-weight: 700; margin-bottom: 6px; color: var(--accent); }
+        .progress-track { width: 100%; height: 8px; background: var(--card-border); border-radius: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.2s ease; }
+
+        .stat-badge { font-size: 11px; margin-top: 14px; background: #eef2ff; padding: 8px; border-radius: 8px; font-weight: 700; color: #333; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .stat-row:last-child { margin-bottom: 0; }
+
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; font-size: 14px; }
+        .btn-green { background: #28a745; color: white; }
+        @keyframes button-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 0%, transparent); } }
+        .action-btn.pulse { animation: button-pulse 1.4s infinite; }
+        .action-btn:disabled { opacity: 0.6; cursor: not-allowed; animation: none; }
+        .process-cue { text-align: center; font-size: 12.5px; font-weight: 700; color: var(--accent); margin-bottom: 8px; animation: cue-bounce 1.4s infinite; }
+        @keyframes cue-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+        .section-divider { border-top: 1px solid color-mix(in srgb, var(--accent) 15%, transparent); padding: 20px 0; margin-top: 20px; }
+        .info-flex-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; text-align: left; }
+        .info-column { flex: 1; min-width: 250px; }
+        .info-column h3 { color: var(--accent); margin-bottom: 15px; }
+
+        .ad-slot-small { width: 100%; max-width: 728px; min-height: 60px; margin: 30px auto; }
+        .ad-slot-large { width: 100%; max-width: 728px; min-height: 90px; margin: 30px auto; }
+
+        @media (max-width: 900px) { .upscale-grid { grid-template-columns: 1fr; } .upscale-controls { position: relative; top: 0; } }
+    </style>
+</head>
+<body class="color-image">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon">
+                <i data-lucide="sparkles" style="width: 64px; height: 64px;"></i>
+            </div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">
+                Free <span class="shining-title">AI Image Upscaler</span> — 2x resolution, no signup
+            </h1>
+            <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px; max-width: 640px; margin-left: auto; margin-right: auto;">
+                Fix a pixelated photo, enhance a blurry image, or double your resolution — a real AI model runs right in your browser, nothing is uploaded.
+            </p>
+            <p class="expectation-note" style="max-width: 480px; margin: 15px auto 0; text-align: left;">
+                <i data-lucide="coins" style="width:14px;height:14px;vertical-align:-2px;"></i> <strong>No login required</strong> — this tool is 100% free to use without an account. Even our premium tools are 100% free, never any real-money payment — you just earn free coins by logging in (passively or by watching ads). <a href="../../coin.html" style="color: var(--accent); font-weight:700;">See how coins work</a>.
+            </p>
+            <p class="expectation-note" style="max-width: 480px; margin: 10px auto 0; text-align: left;">
+                <i data-lucide="clock" style="width:14px;height:14px;vertical-align:-2px;"></i> This tool doubles resolution (2x) per image using an AI model. The first run downloads the model (a few MB) — after that, it's cached and faster.
+            </p>
+            <div class="shining-line"></div>
+        </div>
+
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="upload-text">
+                <h3>Select an Image</h3>
+                <p>Drag & drop a JPG, PNG or WebP here</p>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        </div>
+
+        <div class="ad-slot-small" id="display-ads"></div>
+
+        <div class="upscale-grid" id="upscaleGrid">
+            <div class="upscale-controls">
+                <div class="progress-wrap" id="progressWrap">
+                    <div class="progress-label" id="progressLabel">Loading AI model...</div>
+                    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+                </div>
+
+                <p class="process-cue" id="processCue">👇 Click to upscale 2x</p>
+                <button id="upscaleBtn" class="action-btn pulse" style="background: var(--accent); color: white;">✨ Upscale 2x</button>
+                <button id="downloadBtn" class="action-btn btn-green" style="margin-top: 10px;" disabled>📥 Download Result</button>
+
+                <div class="stat-badge" id="resultStats" style="display:none;">
+                    <div class="stat-row"><span>Original:</span><span id="origDims">-</span></div>
+                    <div class="stat-row"><span>Upscaled (2x):</span><span id="newDims">-</span></div>
+                </div>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--card-border); padding-top: 15px;">
+                    <p style="text-align: center; font-size: 13px; opacity: 0.6; cursor: pointer;" onclick="location.reload()">🔄 Restart Session</p>
+                </div>
+            </div>
+
+            <div class="preview-stage">
+                <div class="compare-row">
+                    <div class="compare-box">
+                        <img id="beforeImg" src="">
+                        <div class="compare-label">Before</div>
+                    </div>
+                    <div class="compare-box">
+                        <canvas id="afterCanvas"></canvas>
+                        <div class="compare-label">After (2x)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--brand-primary); font-weight: 700;">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Back to Home
+            </a>
+        </div>
+
+        <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+            <div><div style="color: var(--primary-cyan, #00d4ff); margin-bottom: 10px;"><i data-lucide="scan-line" style="width:32px;height:32px;"></i></div><h3>Real AI Model</h3><p style="opacity: 0.8; font-size: 14px;">A Swin2SR super-resolution model, not a simple resize.</p></div>
+            <div><div style="color: var(--accent-pink, #ec4899); margin-bottom: 10px;"><i data-lucide="zap" style="width:32px;height:32px;"></i></div><h3>Fixes Pixelation</h3><p style="opacity: 0.8; font-size: 14px;">Reconstructs detail while doubling resolution.</p></div>
+            <div><div style="color: var(--primary-neon, #00ff88); margin-bottom: 10px;"><i data-lucide="shield-check" style="width:32px;height:32px;"></i></div><h3>Nothing Uploaded</h3><p style="opacity: 0.8; font-size: 14px;">Runs fully on-device via WebAssembly, no server call.</p></div>
+            <div><div style="color: var(--accent-orange, #f97316); margin-bottom: 10px;"><i data-lucide="download-cloud" style="width:32px;height:32px;"></i></div><h3>Instant Download</h3><p style="opacity: 0.8; font-size: 14px;">Grab the upscaled result the moment it's ready.</p></div>
+        </div>
+
+        <div class="section-divider" style="text-align: left;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Fix pixelated photos and enhance blurry images with AI</h2>
+            <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
+                <p style="margin-bottom: 15px;">
+                    This tool runs a lightweight Swin2SR AI super-resolution model directly in your browser using WebAssembly — the same kind of neural network used in research-grade upscalers, just small enough to run on your device. It doubles resolution (2x) while reconstructing detail that a simple resize would blur.
+                </p>
+                <p>
+                    Because it's a real model rather than a stretch-and-sharpen filter, results on pixelated or low-resolution source images tend to look noticeably cleaner than a plain resize.
+                </p>
+            </div>
+
+            <div class="ad-slot-large" id="in-article-ads"></div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How it works</h2>
+            <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>Upload a photo</li>
+                <li>Click Upscale 2x</li>
+                <li>The AI model downloads once and caches (a few MB, first run only)</li>
+                <li>Watch the before/after preview update</li>
+                <li>Download the upscaled result</li>
+            </ul>
+        </div>
+
+        <div class="section-divider">
+            <div class="info-flex-container">
+                <div class="info-column">
+                    <h3>When this helps</h3>
+                    <p><strong>Old or low-res photos:</strong> recover detail before printing or sharing.<br>
+                    <strong>Pixelated screenshots:</strong> soften blocky edges from small source images.<br>
+                    <strong>Product photos:</strong> get a sharper result for listings without a reshoot.<br>
+                    <strong>Slightly blurry shots:</strong> the model can recover some lost detail.</p>
+                </div>
+                <div class="info-column">
+                    <h3>Set expectations right</h3>
+                    <p><strong>2x per pass:</strong> this isn't unlimited magic zoom — it's a real, bounded upscale.<br>
+                    <strong>Very blurry or tiny images</strong> improve less than mildly soft ones.<br>
+                    <strong>First run is slower:</strong> the model downloads once, then it's cached.<br>
+                    <strong>Nothing leaves your device:</strong> processing is 100% local.</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            <div class="faq-container">
+            <div class="faq-item">
+                <button class="faq-question">Can I upscale an image for free without signing up? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — this tool runs entirely in your browser with no account, no watermark, and no payment required.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can this fix a pixelated image? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — the AI model reconstructs detail while doubling the resolution, which noticeably softens pixelation on low-resolution source images.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Does this upscale by more than 2x? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">This tool doubles resolution (2x) per pass. Running the result through again roughly doubles it a second time, though quality gains diminish on already-soft images.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Why does the first upscale take longer? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">The first run downloads a small AI model to your browser (a few megabytes) and caches it. Every upscale after that on the same device is faster since the model is already cached.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Does my photo get uploaded anywhere? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">No — the AI model runs entirely inside your browser tab using WebAssembly. Your photo is never sent to a server.</div>
+            </div>
+            </div>
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="../../js/tools-data.js"></script>
+    <script src="../../js/blogs-data.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/header-animation.js"></script>
+    <script src="../../js/ads-manager.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/announcement-config.js"></script>
+    <script src="../../js/announcement-banner.js"></script>
+    <script src="../../js/guide-content.js"></script>
+    <script src="../../js/user-guide.js"></script>
+    <script src="../../js/auth-widget.js"></script>
+    <script src="../../js/earn-ticker.js"></script>
+    <script src="../../js/verify-tracking.js" defer></script>
+    <script src="../../js/rewarded-ads.js" defer></script>
+    <script src="../../ads/display-ads.js" defer></script>
+    <script src="../../ads/in-article-ads.js" defer></script>
+    <script>
+        window.addEventListener('load', () => {
+            if (window.initAdBlockDetector) window.initAdBlockDetector();
+        });
+    </script>
+    <script type="module">
+        import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/+esm';
+
+        const fileInput = document.getElementById('fileInput');
+        const upscaleBtn = document.getElementById('upscaleBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const processCue = document.getElementById('processCue');
+        const progressWrap = document.getElementById('progressWrap');
+        const progressLabel = document.getElementById('progressLabel');
+        const progressFill = document.getElementById('progressFill');
+        const beforeImg = document.getElementById('beforeImg');
+        const afterCanvas = document.getElementById('afterCanvas');
+
+        let currentFile = null;
+        let upscalerPromise = null;
+        let resultBlob = null;
+
+        function getUpscaler() {
+            if (!upscalerPromise) {
+                progressWrap.style.display = 'block';
+                const seen = {};
+                upscalerPromise = pipeline('image-to-image', 'Xenova/swin2SR-lightweight-x2-64', {
+                    dtype: 'q8',
+                    progress_callback: (data) => {
+                        if (data.status === 'progress' && data.file) {
+                            seen[data.file] = data.progress || 0;
+                            const values = Object.values(seen);
+                            const avg = values.reduce((a, b) => a + b, 0) / values.length;
+                            progressFill.style.width = Math.min(100, avg).toFixed(0) + '%';
+                            progressLabel.innerText = `Downloading AI model... ${Math.min(100, avg).toFixed(0)}%`;
+                        } else if (data.status === 'ready') {
+                            progressLabel.innerText = 'Model ready — upscaling...';
+                        }
+                    }
+                });
+            }
+            return upscalerPromise;
+        }
+
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            currentFile = file;
+
+            document.getElementById('dropZone').style.display = 'none';
+            document.getElementById('upscaleGrid').style.display = 'grid';
+
+            beforeImg.src = URL.createObjectURL(file);
+        };
+
+        upscaleBtn.onclick = async () => {
+            if (!currentFile) return;
+            upscaleBtn.classList.remove('pulse');
+            upscaleBtn.disabled = true;
+            processCue.style.display = 'none';
+            progressWrap.style.display = 'block';
+            progressLabel.innerText = 'Loading AI model...';
+            progressFill.style.width = '0%';
+
+            try {
+                const upscaler = await getUpscaler();
+                progressLabel.innerText = 'Upscaling your image...';
+                progressFill.style.width = '100%';
+
+                const url = URL.createObjectURL(currentFile);
+                const output = await upscaler(url);
+
+                const ctx = afterCanvas.getContext('2d');
+                afterCanvas.width = output.width;
+                afterCanvas.height = output.height;
+                const imgData = ctx.createImageData(output.width, output.height);
+                const src = output.data;
+                const channels = output.channels || 3;
+                for (let i = 0, j = 0; j < imgData.data.length; i += channels, j += 4) {
+                    imgData.data[j] = src[i];
+                    imgData.data[j + 1] = src[i + (channels > 1 ? 1 : 0)];
+                    imgData.data[j + 2] = src[i + (channels > 2 ? 2 : 0)];
+                    imgData.data[j + 3] = 255;
+                }
+                ctx.putImageData(imgData, 0, 0);
+
+                resultBlob = await new Promise(resolve => afterCanvas.toBlob(resolve, 'image/png'));
+                downloadBtn.disabled = false;
+
+                const bitmap = await createImageBitmap(currentFile);
+                document.getElementById('resultStats').style.display = 'block';
+                document.getElementById('origDims').innerText = `${bitmap.width} × ${bitmap.height}`;
+                document.getElementById('newDims').innerText = `${output.width} × ${output.height}`;
+
+                progressLabel.innerText = 'Done ✓';
+            } catch (err) {
+                console.error('AI upscale failed', err);
+                progressLabel.innerText = 'Couldn\'t process this image — try a different file.';
+                progressFill.style.width = '0%';
+            }
+
+            upscaleBtn.disabled = false;
+        };
+
+        downloadBtn.onclick = () => {
+            if (!resultBlob || !currentFile) return;
+            const a = document.createElement('a');
+            const baseName = currentFile.name.replace(/\.[^.]+$/, '');
+            a.download = `upscaled-2x-${baseName}.png`;
+            a.href = URL.createObjectURL(resultBlob);
+            a.click();
+        };
+    </script>
+</body>
+</html>

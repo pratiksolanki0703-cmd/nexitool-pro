@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>(function(){try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.add("light");}catch(e){}})();</script>
+    <title>Free Image to PPT Converter — Photos to PowerPoint, No Signup | Nexitool</title>
+    <meta name="description" content="Convert multiple images to a PowerPoint presentation for free, no signup, no OCR, no text extraction. Drag to reorder, choose 16:9 or 4:3, download instantly.">
+    <link rel="canonical" href="https://nexitool.pro/tools/image-tools/image-to-ppt.html">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nexitool.pro/tools/image-tools/image-to-ppt.html">
+    <meta property="og:title" content="Free Image to PPT Converter — Photos to PowerPoint, No Signup | Nexitool">
+    <meta property="og:description" content="Convert multiple images to a PowerPoint presentation for free, no signup, no OCR, no text extraction.">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Free Image to PPT Converter — Photos to PowerPoint, No Signup | Nexitool">
+    <meta property="twitter:description" content="Convert multiple images to a PowerPoint presentation for free, no signup, no OCR, no text extraction.">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://nexitool.pro/tools/image-tools/image-to-ppt.html#webpage",
+      "url": "https://nexitool.pro/tools/image-tools/image-to-ppt.html",
+      "name": "Free Image to PPT Converter — Photos to PowerPoint, No Signup | Nexitool",
+      "description": "Convert multiple images into a PowerPoint presentation, right in your browser, with reorderable slides.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Image to PPT Converter",
+      "url": "https://nexitool.pro/tools/image-tools/image-to-ppt.html",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any",
+      "description": "Browser-based tool that turns multiple photos into a downloadable PowerPoint (.pptx) file — no OCR, no text extraction, no signup.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Multiple photos to PPT slides",
+        "Drag to reorder slides",
+        "16:9 and 4:3 layouts",
+        "Contain, cover or stretch image fit",
+        "No signup required"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Does this extract text from my images with OCR?", "acceptedAnswer": { "@type": "Answer", "text": "No — this tool places each image as a picture on its own slide. It does not run OCR or text extraction of any kind." } },
+        { "@type": "Question", "name": "Can I convert multiple photos to PPT slides at once?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — add as many images as you like, drag to reorder them, and they'll each become one slide in the final presentation." } },
+        { "@type": "Question", "name": "Can I choose 16:9 or 4:3 slides?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — pick either a 16:9 widescreen layout or a classic 4:3 layout before generating the PowerPoint." } },
+        { "@type": "Question", "name": "Is this free with no signup?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — image to PPT conversion happens entirely in your browser, free, with no account required." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexitool.pro/" },
+        { "@type": "ListItem", "position": 2, "name": "Image to PPT Converter", "item": "https://nexitool.pro/tools/image-tools/image-to-ppt.html" }
+      ]
+    }
+  ]
+}
+    </script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--accent); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent); } 50% { text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent); } }
+        .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); width: 150px; margin: 20px auto; }
+
+        .expectation-note { font-size: 12.5px; line-height: 1.5; opacity: 0.75; background: color-mix(in srgb, var(--accent) 6%, transparent); border: 1px dashed var(--accent); border-radius: 8px; padding: 10px; margin: 15px auto 0; max-width: 480px; text-align: left; }
+
+        .ppt-panel { display: none; width: 100%; margin-top: 25px; }
+        .ppt-options { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: flex-end; background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
+        .opt-group { display: flex; flex-direction: column; gap: 6px; }
+        .opt-group label { font-size: 12px; font-weight: 700; opacity: 0.75; }
+        .opt-group select { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-primary); color: inherit; font-weight: 600; }
+
+        .slide-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; margin-bottom: 20px; }
+        .slide-card { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 10px; padding: 8px; text-align: center; cursor: grab; position: relative; }
+        .slide-card.sortable-ghost { opacity: 0.3; }
+        .slide-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; }
+        .slide-num { font-size: 11px; font-weight: 700; opacity: 0.7; }
+        .slide-remove { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; line-height: 1; }
+        .add-more-card { display: flex; align-items: center; justify-content: center; min-height: 120px; border: 2px dashed var(--card-border); border-radius: 10px; cursor: pointer; opacity: 0.7; }
+        .add-more-card:hover { opacity: 1; border-color: var(--accent); }
+
+        .process-cue { text-align: center; font-size: 12.5px; font-weight: 700; color: var(--accent); margin-bottom: 8px; animation: cue-bounce 1.4s infinite; }
+        @keyframes cue-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+        .action-btn { padding: 12px 26px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 15px; }
+        @keyframes button-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 0%, transparent); } }
+        .action-btn.pulse { animation: button-pulse 1.4s infinite; }
+        .action-btn:disabled { opacity: 0.6; cursor: not-allowed; animation: none; }
+
+        .section-divider { border-top: 1px solid color-mix(in srgb, var(--accent) 15%, transparent); padding: 20px 0; margin-top: 20px; }
+        .info-flex-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; text-align: left; }
+        .info-column { flex: 1; min-width: 250px; }
+        .info-column h3 { color: var(--accent); margin-bottom: 15px; }
+
+        .ad-slot-small { width: 100%; max-width: 728px; min-height: 60px; margin: 30px auto; }
+        .ad-slot-large { width: 100%; max-width: 728px; min-height: 90px; margin: 30px auto; }
+    </style>
+</head>
+<body class="color-image">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon">
+                <i data-lucide="presentation" style="width: 64px; height: 64px;"></i>
+            </div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">
+                Free <span class="shining-title">Image to PPT Converter</span> — no signup
+            </h1>
+            <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px; max-width: 640px; margin-left: auto; margin-right: auto;">
+                Turn multiple photos into a downloadable PowerPoint. No OCR, no text extraction — just clean image slides, reorderable by drag.
+            </p>
+            <p class="expectation-note">
+                <i data-lucide="coins" style="width:14px;height:14px;vertical-align:-2px;"></i> <strong>No login required</strong> — this tool is 100% free to use without an account. Even our premium tools are 100% free, never any real-money payment — you just earn free coins by logging in (passively or by watching ads). <a href="../../coin.html" style="color: var(--accent); font-weight:700;">See how coins work</a>.
+            </p>
+            <div class="shining-line"></div>
+        </div>
+
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="upload-text">
+                <h3>Select Images</h3>
+                <p>Drag & drop multiple photos here — each becomes one slide</p>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+        </div>
+
+        <div class="ad-slot-small" id="display-ads"></div>
+
+        <div class="ppt-panel" id="pptPanel">
+            <div class="ppt-options">
+                <div class="opt-group">
+                    <label>Slide Layout</label>
+                    <select id="layoutSelect">
+                        <option value="16x9">Widescreen (16:9)</option>
+                        <option value="4x3">Standard (4:3)</option>
+                    </select>
+                </div>
+                <div class="opt-group">
+                    <label>Image Fit</label>
+                    <select id="fitSelect">
+                        <option value="contain">Contain (fit inside, no crop)</option>
+                        <option value="cover">Cover (fill slide, crop edges)</option>
+                        <option value="stretch">Stretch (fill exactly, may distort)</option>
+                    </select>
+                </div>
+                <div>
+                    <p class="process-cue" id="processCue">👇 Click to generate PPT</p>
+                    <button id="generateBtn" class="action-btn pulse" style="background: var(--accent); color: white;">🖼️ Generate PowerPoint</button>
+                </div>
+            </div>
+
+            <div class="slide-list" id="slideList"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--brand-primary); font-weight: 700;">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Back to Home
+            </a>
+        </div>
+
+        <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+            <div><div style="color: var(--primary-cyan, #00d4ff); margin-bottom: 10px;"><i data-lucide="grip-vertical" style="width:32px;height:32px;"></i></div><h3>Drag to Reorder</h3><p style="opacity: 0.8; font-size: 14px;">Rearrange slides before you generate the file.</p></div>
+            <div><div style="color: var(--accent-pink, #ec4899); margin-bottom: 10px;"><i data-lucide="ratio" style="width:32px;height:32px;"></i></div><h3>16:9 or 4:3</h3><p style="opacity: 0.8; font-size: 14px;">Pick the layout that matches your audience.</p></div>
+            <div><div style="color: var(--primary-neon, #00ff88); margin-bottom: 10px;"><i data-lucide="scan" style="width:32px;height:32px;"></i></div><h3>No OCR, No Text Pull</h3><p style="opacity: 0.8; font-size: 14px;">Images stay images — nothing is extracted or altered.</p></div>
+            <div><div style="color: var(--accent-orange, #f97316); margin-bottom: 10px;"><i data-lucide="download-cloud" style="width:32px;height:32px;"></i></div><h3>Instant .pptx</h3><p style="opacity: 0.8; font-size: 14px;">Download a ready-to-open PowerPoint file.</p></div>
+        </div>
+
+        <div class="section-divider" style="text-align: left;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Convert photos to PowerPoint slides without OCR</h2>
+            <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
+                <p style="margin-bottom: 15px;">
+                    Some "image to PPT" tools try to extract text from your photos using OCR — useful for scanned documents, but overkill (and slower, and error-prone) when you just want each photo placed cleanly on its own slide. This tool skips OCR entirely: every image you add becomes one picture slide, exactly as it looks.
+                </p>
+                <p>
+                    Reorder slides by dragging the thumbnails, choose a 16:9 or 4:3 layout, and pick how each image should fit its slide — then download a standard .pptx file that opens in PowerPoint, Google Slides, or Keynote.
+                </p>
+            </div>
+
+            <div class="ad-slot-large" id="in-article-ads"></div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How it works</h2>
+            <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>Upload multiple photos</li>
+                <li>Drag thumbnails to reorder them</li>
+                <li>Choose 16:9 or 4:3 and an image fit mode</li>
+                <li>Click Generate PowerPoint</li>
+                <li>Download your .pptx file</li>
+            </ul>
+        </div>
+
+        <div class="section-divider">
+            <div class="info-flex-container">
+                <div class="info-column">
+                    <h3>Good for</h3>
+                    <p><strong>Photo recaps:</strong> turn an event's photos into a shareable slideshow.<br>
+                    <strong>Visual reports:</strong> drop screenshots or charts straight into slides.<br>
+                    <strong>Portfolios:</strong> one image per slide, in the order you choose.</p>
+                </div>
+                <div class="info-column">
+                    <h3>Image fit modes</h3>
+                    <p><strong>Contain:</strong> whole image visible, may leave empty space.<br>
+                    <strong>Cover:</strong> fills the slide, crops the edges slightly.<br>
+                    <strong>Stretch:</strong> fills exactly, may distort the aspect ratio.</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            <div class="faq-container">
+            <div class="faq-item">
+                <button class="faq-question">Does this extract text from my images with OCR? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">No — this tool places each image as a picture on its own slide. It does not run OCR or text extraction of any kind.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I convert multiple photos to PPT slides at once? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — add as many images as you like, drag to reorder them, and they'll each become one slide in the final presentation.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I choose 16:9 or 4:3 slides? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — pick either a 16:9 widescreen layout or a classic 4:3 layout before generating the PowerPoint.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Is this free with no signup? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — image to PPT conversion happens entirely in your browser, free, with no account required.</div>
+            </div>
+            </div>
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <script src="../../js/tools-data.js"></script>
+    <script src="../../js/blogs-data.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/header-animation.js"></script>
+    <script src="../../js/ads-manager.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/announcement-config.js"></script>
+    <script src="../../js/announcement-banner.js"></script>
+    <script src="../../js/guide-content.js"></script>
+    <script src="../../js/user-guide.js"></script>
+    <script src="../../js/auth-widget.js"></script>
+    <script src="../../js/earn-ticker.js"></script>
+    <script src="../../js/verify-tracking.js" defer></script>
+    <script src="../../js/rewarded-ads.js" defer></script>
+    <script src="../../ads/display-ads.js" defer></script>
+    <script src="../../ads/in-article-ads.js" defer></script>
+    <script>
+        window.addEventListener('load', () => {
+            if (window.initAdBlockDetector) window.initAdBlockDetector();
+        });
+
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const pptPanel = document.getElementById('pptPanel');
+        const slideList = document.getElementById('slideList');
+        const generateBtn = document.getElementById('generateBtn');
+        const processCue = document.getElementById('processCue');
+
+        let slides = [];
+
+        function renderSlides() {
+            slideList.innerHTML = '';
+            slides.forEach((s, i) => {
+                const card = document.createElement('div');
+                card.className = 'slide-card';
+                card.dataset.id = s.id;
+                card.innerHTML = `
+                    <button class="slide-remove" data-id="${s.id}">✕</button>
+                    <img src="${s.url}">
+                    <div class="slide-num">Slide ${i + 1}</div>
+                `;
+                slideList.appendChild(card);
+            });
+            const addCard = document.createElement('div');
+            addCard.className = 'add-more-card';
+            addCard.innerHTML = '<i data-lucide="plus"></i>';
+            addCard.onclick = () => fileInput.click();
+            slideList.appendChild(addCard);
+            if (window.lucide) lucide.createIcons();
+
+            slideList.querySelectorAll('.slide-remove').forEach(btn => {
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    slides = slides.filter(s => s.id !== btn.dataset.id);
+                    renderSlides();
+                };
+            });
+        }
+
+        new Sortable(slideList, {
+            animation: 150,
+            filter: '.add-more-card',
+            onEnd: () => {
+                const ids = [...slideList.querySelectorAll('.slide-card')].map(c => c.dataset.id);
+                slides = ids.map(id => slides.find(s => s.id === id)).filter(Boolean);
+                renderSlides();
+            }
+        });
+
+        function addFiles(fileArr) {
+            fileArr.forEach((file, idx) => {
+                if (!file.type.startsWith('image/')) return;
+                slides.push({ id: 'f' + Date.now() + '_' + idx + '_' + Math.random().toString(36).slice(2), file, url: URL.createObjectURL(file) });
+            });
+            if (slides.length) {
+                dropZone.style.display = 'none';
+                pptPanel.style.display = 'block';
+            }
+            renderSlides();
+        }
+
+        fileInput.onchange = (e) => addFiles([...e.target.files]);
+
+        ['dragover', 'dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => e.preventDefault());
+        });
+        dropZone.addEventListener('drop', (e) => addFiles([...e.dataTransfer.files]));
+
+        function loadImageDims(url) {
+            return new Promise(resolve => {
+                const img = new Image();
+                img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+                img.src = url;
+            });
+        }
+
+        function fileToBase64(file) {
+            return new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        generateBtn.onclick = async () => {
+            if (!slides.length) return;
+            generateBtn.classList.remove('pulse');
+            generateBtn.disabled = true;
+            processCue.innerText = 'Generating your PowerPoint...';
+
+            const layout = document.getElementById('layoutSelect').value;
+            const fit = document.getElementById('fitSelect').value;
+
+            const pptx = new PptxGenJS();
+            pptx.defineLayout({ name: 'CUSTOM', width: layout === '16x9' ? 10 : 10, height: layout === '16x9' ? 5.63 : 7.5 });
+            pptx.layout = 'CUSTOM';
+            const slideW = layout === '16x9' ? 10 : 10;
+            const slideH = layout === '16x9' ? 5.63 : 7.5;
+
+            for (const s of slides) {
+                const slide = pptx.addSlide();
+                const base64 = await fileToBase64(s.file);
+                const dims = await loadImageDims(s.url);
+
+                let opts = { data: base64 };
+                if (fit === 'stretch') {
+                    opts = { ...opts, x: 0, y: 0, w: slideW, h: slideH };
+                } else if (fit === 'cover') {
+                    const scale = Math.max(slideW / dims.w, slideH / dims.h);
+                    const w = dims.w * scale, h = dims.h * scale;
+                    opts = { ...opts, x: (slideW - w) / 2, y: (slideH - h) / 2, w, h, sizing: { type: 'crop', w: slideW, h: slideH, x: (w - slideW) / 2, y: (h - slideH) / 2 } };
+                } else {
+                    const scale = Math.min(slideW / dims.w, slideH / dims.h);
+                    const w = dims.w * scale, h = dims.h * scale;
+                    opts = { ...opts, x: (slideW - w) / 2, y: (slideH - h) / 2, w, h };
+                }
+                slide.addImage(opts);
+            }
+
+            await pptx.writeFile({ fileName: 'nexitool-slides.pptx' });
+
+            processCue.innerText = '✓ Downloaded';
+            generateBtn.disabled = false;
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>(function(){try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.add("light");}catch(e){}})();</script>
+    <title>Free Image Resizer & Cropper — Passport Photo, LinkedIn, Exact Pixels | Nexitool</title>
+    <meta name="description" content="Resize an image to exact pixels or an exact KB size, crop it freely or to a fixed ratio, and make a passport photo or LinkedIn-ready picture — free, no signup, right in your browser.">
+    <link rel="canonical" href="https://nexitool.pro/tools/image-tools/image-resizer-cropper.html">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nexitool.pro/tools/image-tools/image-resizer-cropper.html">
+    <meta property="og:title" content="Free Image Resizer & Cropper — Passport Photo, LinkedIn, Exact Pixels | Nexitool">
+    <meta property="og:description" content="Resize to exact pixels or KB, crop freely or to a fixed ratio, make a passport photo — free, no signup, right in your browser.">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Free Image Resizer & Cropper — Passport Photo, LinkedIn, Exact Pixels | Nexitool">
+    <meta property="twitter:description" content="Resize to exact pixels or KB, crop freely or to a fixed ratio, make a passport photo — free, no signup, right in your browser.">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://nexitool.pro/tools/image-tools/image-resizer-cropper.html#webpage",
+      "url": "https://nexitool.pro/tools/image-tools/image-resizer-cropper.html",
+      "name": "Free Image Resizer & Cropper — Passport Photo, LinkedIn, Exact Pixels | Nexitool",
+      "description": "Resize an image to exact pixels or an exact KB size, and crop it freely or to a fixed ratio, entirely in your browser.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Image Resizer & Cropper",
+      "url": "https://nexitool.pro/tools/image-tools/image-resizer-cropper.html",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any",
+      "description": "Browser-based tool that resizes images to exact pixel dimensions or a target file size, and crops freely or to a fixed aspect ratio like passport photo or LinkedIn.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Resize to exact pixel dimensions",
+        "Resize to a target KB file size",
+        "Passport size photo presets",
+        "LinkedIn profile photo preset",
+        "Free-form or fixed-ratio cropping",
+        "Runs entirely on-device, nothing uploaded"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Can I resize an image to exactly 100KB?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — enter your target size in KB and the tool searches for a quality level that lands as close as possible to it." } },
+        { "@type": "Question", "name": "Does this make a passport size photo?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — pick the Passport Photo preset for a standard passport aspect ratio and crop your photo to fit it." } },
+        { "@type": "Question", "name": "Can I resize a photo for LinkedIn specifically?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — the LinkedIn preset crops and resizes to LinkedIn's recommended profile photo dimensions." } },
+        { "@type": "Question", "name": "Can I crop to specific pixel coordinates?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — switch to free-form cropping and drag the crop box to the exact area you want, or set exact output pixel dimensions after cropping." } },
+        { "@type": "Question", "name": "Do my photos get uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No — cropping and resizing happen locally in your browser tab. Your files never leave your device." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexitool.pro/" },
+        { "@type": "ListItem", "position": 2, "name": "Image Resizer & Cropper", "item": "https://nexitool.pro/tools/image-tools/image-resizer-cropper.html" }
+      ]
+    }
+  ]
+}
+    </script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--accent); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent); } 50% { text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent); } }
+        .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); width: 150px; margin: 20px auto; }
+
+        .editor-grid { display: none; width: 100%; grid-template-columns: 320px 1fr; gap: 30px; text-align: left; margin-top: 30px; align-items: start; }
+        .editor-controls { background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--card-border); position: sticky; top: 20px; z-index: 10; }
+        .expectation-note { font-size: 12.5px; line-height: 1.5; opacity: 0.75; background: color-mix(in srgb, var(--accent) 6%, transparent); border: 1px dashed var(--accent); border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+
+        .opt-label { font-size: 12.5px; font-weight: 700; opacity: 0.8; margin-bottom: 4px; display: block; }
+        .opt-select, .opt-field { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-primary); color: inherit; font-size: 14px; margin-bottom: 14px; }
+        .dim-row { display: flex; gap: 8px; align-items: center; }
+        .dim-row input { flex: 1; }
+
+        .image-stage { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 15px; padding: 20px; text-align: center; min-height: 400px; }
+        .image-stage img { max-width: 100%; display: block; }
+
+        .compare-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        .compare-box { text-align: center; }
+        .compare-box img { max-width: 220px; max-height: 220px; border-radius: 10px; border: 1px solid var(--card-border); }
+        .compare-label { font-size: 12.5px; font-weight: 700; margin-top: 6px; opacity: 0.8; }
+
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; font-size: 14px; }
+        .btn-green { background: #28a745; color: white; }
+        @keyframes button-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 0%, transparent); } }
+        .action-btn.pulse { animation: button-pulse 1.4s infinite; }
+        .process-cue { text-align: center; font-size: 12.5px; font-weight: 700; color: var(--accent); margin-bottom: 8px; animation: cue-bounce 1.4s infinite; }
+        @keyframes cue-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+        .stat-badge { font-size: 11px; margin: 10px 0; background: #eef2ff; padding: 8px; border-radius: 8px; font-weight: 700; color: #333; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+
+        .section-divider { border-top: 1px solid color-mix(in srgb, var(--accent) 15%, transparent); padding: 20px 0; margin-top: 20px; }
+        .info-flex-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; text-align: left; }
+        .info-column { flex: 1; min-width: 250px; }
+        .info-column h3 { color: var(--accent); margin-bottom: 15px; }
+
+        .ad-slot-small { width: 100%; max-width: 728px; min-height: 60px; margin: 30px auto; }
+        .ad-slot-large { width: 100%; max-width: 728px; min-height: 90px; margin: 30px auto; }
+
+        @media (max-width: 900px) { .editor-grid { grid-template-columns: 1fr; } .editor-controls { position: relative; top: 0; } }
+    </style>
+</head>
+<body class="color-image">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon">
+                <i data-lucide="crop" style="width: 64px; height: 64px;"></i>
+            </div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">
+                Free <span class="shining-title">Image Resizer & Cropper</span> — exact pixels, exact KB
+            </h1>
+            <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px; max-width: 640px; margin-left: auto; margin-right: auto;">
+                Resize to exact pixel dimensions or a target KB size, crop freely or to a fixed ratio — passport photo, LinkedIn, and more.
+            </p>
+            <p class="expectation-note" style="max-width: 480px; margin: 15px auto 0; text-align: left;">
+                <i data-lucide="coins" style="width:14px;height:14px;vertical-align:-2px;"></i> <strong>No login required</strong> — this tool is 100% free to use without an account. Even our premium tools are 100% free, never any real-money payment — you just earn free coins by logging in (passively or by watching ads). <a href="../../coin.html" style="color: var(--accent); font-weight:700;">See how coins work</a>.
+            </p>
+            <div class="shining-line"></div>
+        </div>
+
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="upload-text">
+                <h3>Select an Image</h3>
+                <p>Drag & drop a JPG, PNG or WebP here</p>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        </div>
+
+        <div class="ad-slot-small" id="display-ads"></div>
+
+        <div class="editor-grid" id="editorGrid">
+            <div class="editor-controls">
+                <label class="opt-label" for="ratioSelect">Crop ratio</label>
+                <select id="ratioSelect" class="opt-select">
+                    <option value="free" selected>Free-form</option>
+                    <option value="1">Square (1:1)</option>
+                    <option value="0.708">Passport Photo (35:45)</option>
+                    <option value="1">LinkedIn Profile (1:1)</option>
+                    <option value="1.777778">Widescreen (16:9)</option>
+                    <option value="1.333333">Standard (4:3)</option>
+                </select>
+
+                <label class="opt-label">Output size (px)</label>
+                <div class="dim-row">
+                    <input type="number" id="widthInput" class="opt-field" placeholder="Width" min="1">
+                    <span>×</span>
+                    <input type="number" id="heightInput" class="opt-field" placeholder="Height" min="1">
+                </div>
+
+                <label class="opt-label" for="targetKbInput">Or target file size (optional)</label>
+                <div class="dim-row">
+                    <input type="number" id="targetKbInput" class="opt-field" placeholder="e.g. 100" min="1">
+                    <span style="font-size:12.5px; opacity:0.7;">KB</span>
+                </div>
+
+                <p class="process-cue" id="processCue">👇 Click to crop & resize</p>
+                <button id="applyBtn" class="action-btn pulse" style="background: var(--accent); color: white;">✂️ Crop & Resize</button>
+                <button id="downloadBtn" class="action-btn btn-green" style="margin-top: 10px;" disabled>📥 Download Result</button>
+
+                <div id="resultStats" class="stat-badge" style="display:none;">
+                    <div class="stat-row"><span>Original:</span><span id="origSize">-</span></div>
+                    <div class="stat-row"><span>Result:</span><span id="newSize">-</span></div>
+                </div>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--card-border); padding-top: 15px;">
+                    <p style="text-align: center; font-size: 13px; opacity: 0.6; cursor: pointer;" onclick="location.reload()">🔄 Restart Session</p>
+                </div>
+            </div>
+
+            <div>
+                <div class="image-stage">
+                    <img id="cropImage" src="" style="max-width:100%;">
+                </div>
+                <div class="compare-row" id="compareRow" style="display:none;">
+                    <div class="compare-box">
+                        <img id="beforeImg" src="">
+                        <div class="compare-label">Before</div>
+                    </div>
+                    <div class="compare-box">
+                        <img id="afterImg" src="">
+                        <div class="compare-label">After</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--brand-primary); font-weight: 700;">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Back to Home
+            </a>
+        </div>
+
+        <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+            <div><div style="color: var(--primary-cyan, #00d4ff); margin-bottom: 10px;"><i data-lucide="scan" style="width:32px;height:32px;"></i></div><h3>Exact Pixels</h3><p style="opacity: 0.8; font-size: 14px;">Set the exact width and height you need for the output.</p></div>
+            <div><div style="color: var(--accent-pink, #ec4899); margin-bottom: 10px;"><i data-lucide="crosshair" style="width:32px;height:32px;"></i></div><h3>Target File Size</h3><p style="opacity: 0.8; font-size: 14px;">Hit a specific KB size like 100KB automatically.</p></div>
+            <div><div style="color: var(--primary-neon, #00ff88); margin-bottom: 10px;"><i data-lucide="id-card" style="width:32px;height:32px;"></i></div><h3>Passport & LinkedIn Presets</h3><p style="opacity: 0.8; font-size: 14px;">Ready-made ratios for common photo requirements.</p></div>
+            <div><div style="color: var(--accent-orange, #f97316); margin-bottom: 10px;"><i data-lucide="shield-check" style="width:32px;height:32px;"></i></div><h3>Nothing Uploaded</h3><p style="opacity: 0.8; font-size: 14px;">Cropping and resizing run entirely in your browser.</p></div>
+        </div>
+
+        <div class="section-divider" style="text-align: left;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Resize to exact pixels or an exact KB size</h2>
+            <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
+                <p style="margin-bottom: 15px;">
+                    Crop your image freely or to a fixed ratio like passport photo, LinkedIn, square, or widescreen, then set an exact output width and height in pixels. If you need to hit a specific file size instead — like 100KB for a form upload — enter a target KB and the tool searches for a quality level that lands as close to it as possible.
+                </p>
+                <p>
+                    Everything happens on a canvas in your browser tab, so nothing is ever uploaded to a server.
+                </p>
+            </div>
+
+            <div class="ad-slot-large" id="in-article-ads"></div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How it works</h2>
+            <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>Upload an image</li>
+                <li>Drag the crop box, or pick a fixed ratio preset</li>
+                <li>Set exact output pixels, or a target KB size</li>
+                <li>Click Crop & Resize</li>
+                <li>Compare before/after and download the result</li>
+            </ul>
+        </div>
+
+        <div class="section-divider">
+            <div class="info-flex-container">
+                <div class="info-column">
+                    <h3>Common uses</h3>
+                    <p><strong>Passport & visa photos:</strong> crop to the standard passport ratio.<br>
+                    <strong>LinkedIn profile photo:</strong> crop and resize to the recommended dimensions.<br>
+                    <strong>Form uploads with a size cap:</strong> hit an exact KB target instead of guessing.<br>
+                    <strong>Specific pixel requirements:</strong> platforms that demand an exact width and height.</p>
+                </div>
+                <div class="info-column">
+                    <h3>What makes this one different</h3>
+                    <p><strong>Free-form or fixed ratio:</strong> your choice, not locked to one shape.<br>
+                    <strong>Pixel-exact output:</strong> set the number, not just drag and hope.<br>
+                    <strong>Before/after comparison:</strong> see the result next to the original.<br>
+                    <strong>Nothing leaves your device:</strong> no upload step at all.</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            <div class="faq-container">
+            <div class="faq-item">
+                <button class="faq-question">Can I resize an image to exactly 100KB? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — enter your target size in KB and the tool searches for a quality level that lands as close as possible to it.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Does this make a passport size photo? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — pick the Passport Photo preset for a standard passport aspect ratio and crop your photo to fit it.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I resize a photo for LinkedIn specifically? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — the LinkedIn preset crops and resizes to LinkedIn's recommended profile photo dimensions.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I crop to specific pixel coordinates? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — switch to free-form cropping and drag the crop box to the exact area you want, or set exact output pixel dimensions after cropping.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Do my photos get uploaded anywhere? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">No — cropping and resizing happen locally in your browser tab. Your files never leave your device.</div>
+            </div>
+            </div>
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="../../js/tools-data.js"></script>
+    <script src="../../js/blogs-data.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/header-animation.js"></script>
+    <script src="../../js/ads-manager.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/announcement-config.js"></script>
+    <script src="../../js/announcement-banner.js"></script>
+    <script src="../../js/guide-content.js"></script>
+    <script src="../../js/user-guide.js"></script>
+    <script src="../../js/auth-widget.js"></script>
+    <script src="../../js/earn-ticker.js"></script>
+    <script src="../../js/verify-tracking.js" defer></script>
+    <script src="../../js/rewarded-ads.js" defer></script>
+    <script src="../../ads/display-ads.js" defer></script>
+    <script src="../../ads/in-article-ads.js" defer></script>
+    <script>
+        window.addEventListener('load', () => {
+            if (window.initAdBlockDetector) window.initAdBlockDetector();
+        });
+    </script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const cropImage = document.getElementById('cropImage');
+        const ratioSelect = document.getElementById('ratioSelect');
+        const widthInput = document.getElementById('widthInput');
+        const heightInput = document.getElementById('heightInput');
+        const targetKbInput = document.getElementById('targetKbInput');
+        const applyBtn = document.getElementById('applyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const processCue = document.getElementById('processCue');
+
+        let cropper = null;
+        let originalFile = null;
+        let resultBlob = null;
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 KB';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            originalFile = file;
+
+            document.getElementById('dropZone').style.display = 'none';
+            document.getElementById('editorGrid').style.display = 'grid';
+
+            cropImage.src = URL.createObjectURL(file);
+            cropImage.onload = () => {
+                widthInput.value = cropImage.naturalWidth;
+                heightInput.value = cropImage.naturalHeight;
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(cropImage, {
+                    viewMode: 1,
+                    dragMode: 'move',
+                    aspectRatio: NaN,
+                    autoCropArea: 0.9,
+                    background: false
+                });
+                if (window.lucide) lucide.createIcons();
+            };
+        };
+
+        ratioSelect.onchange = () => {
+            if (!cropper) return;
+            const val = ratioSelect.value;
+            cropper.setAspectRatio(val === 'free' ? NaN : parseFloat(val));
+        };
+
+        async function buildAtQuality(canvas, quality) {
+            return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
+        }
+
+        async function resizeToTargetKb(canvas, targetBytes) {
+            let low = 0.05, high = 0.95, best = null, bestDiff = Infinity;
+            for (let i = 0; i < 6; i++) {
+                const mid = (low + high) / 2;
+                const blob = await buildAtQuality(canvas, mid);
+                const diff = Math.abs(blob.size - targetBytes);
+                if (diff < bestDiff) { bestDiff = diff; best = blob; }
+                if (blob.size > targetBytes) high = mid; else low = mid;
+            }
+            return best;
+        }
+
+        applyBtn.onclick = async () => {
+            if (!cropper) return;
+            applyBtn.classList.remove('pulse');
+            processCue.style.display = 'none';
+
+            const w = parseInt(widthInput.value) || undefined;
+            const h = parseInt(heightInput.value) || undefined;
+
+            const canvas = cropper.getCroppedCanvas(w && h ? { width: w, height: h } : {});
+            if (!canvas) return;
+
+            const targetKb = parseFloat(targetKbInput.value);
+            let blob;
+            if (targetKb > 0) {
+                blob = await resizeToTargetKb(canvas, targetKb * 1024);
+            } else {
+                blob = await new Promise(resolve => canvas.toBlob(resolve, originalFile.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.92));
+            }
+
+            resultBlob = blob;
+            downloadBtn.disabled = false;
+
+            document.getElementById('resultStats').style.display = 'block';
+            document.getElementById('origSize').innerText = formatBytes(originalFile.size);
+            document.getElementById('newSize').innerText = formatBytes(blob.size);
+
+            document.getElementById('beforeImg').src = cropImage.src;
+            document.getElementById('afterImg').src = URL.createObjectURL(blob);
+            document.getElementById('compareRow').style.display = 'flex';
+        };
+
+        downloadBtn.onclick = () => {
+            if (!resultBlob) return;
+            const a = document.createElement('a');
+            const baseName = originalFile.name.replace(/\.[^.]+$/, '');
+            const ext = resultBlob.type === 'image/png' ? 'png' : 'jpg';
+            a.download = `resized-${baseName}.${ext}`;
+            a.href = URL.createObjectURL(resultBlob);
+            a.click();
+        };
+    </script>
+</body>
+</html>

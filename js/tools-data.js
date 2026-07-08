@@ -33,6 +33,56 @@ const TOOLS = [
         isTrending: false
     },
     {
+        id: 'image-format-converter',
+        name: 'Image Format Converter',
+        description: 'Convert images between JPG, PNG and WebP right in your browser. No signup, no watermark.',
+        category: 'Image',
+        color: 'image',
+        icon: 'repeat',
+        path: 'tools/image-tools/image-format-converter.html',
+        isTrending: false
+    },
+    {
+        id: 'image-resizer-cropper',
+        name: 'Image Resizer & Cropper',
+        description: 'Resize to exact pixels or a target file size, and crop with preset ratios like passport photo or LinkedIn.',
+        category: 'Image',
+        color: 'image',
+        icon: 'crop',
+        path: 'tools/image-tools/image-resizer-cropper.html',
+        isTrending: true
+    },
+    {
+        id: 'photo-filters',
+        name: 'Photo Filters',
+        description: 'Apply vintage, sepia, bright, cool and other filters to your photos instantly in the browser.',
+        category: 'Image',
+        color: 'image',
+        icon: 'palette',
+        path: 'tools/image-tools/photo-filters.html',
+        isTrending: false
+    },
+    {
+        id: 'ai-image-upscaler',
+        name: 'AI Image Upscaler',
+        description: 'Upscale a photo 2x with an on-device AI model. Fixes pixelated and blurry images, nothing is uploaded.',
+        category: 'Image',
+        color: 'image',
+        icon: 'sparkles',
+        path: 'tools/image-tools/ai-image-upscaler.html',
+        isTrending: true
+    },
+    {
+        id: 'image-to-ppt',
+        name: 'Image to PPT Converter',
+        description: 'Turn multiple photos into a downloadable PowerPoint presentation. No OCR, no text extraction.',
+        category: 'Image',
+        color: 'image',
+        icon: 'presentation',
+        path: 'tools/image-tools/image-to-ppt.html',
+        isTrending: false
+    },
+    {
         id: 'pdf-password-adder',
         name: 'PDF Password Adder',
         description: 'Lock a PDF with a password right in your browser using standard 128-bit encryption. Nothing is uploaded.',
