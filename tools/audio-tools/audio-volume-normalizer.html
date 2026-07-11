@@ -136,6 +136,8 @@
 
         .cancel-btn { width: 100%; padding: 10px; border: 1px solid var(--accent-pink); border-radius: 10px; background: transparent; color: var(--accent-pink); font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 13px; display: none; transition: 0.2s; }
         .cancel-btn:hover { background: color-mix(in srgb, var(--accent-pink) 8%, transparent); }
+        .ar-spinner { width: 22px; height: 22px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 12px auto; display: none; }
+        .ar-spinner.block { display: block; }
         .spinner-status-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin: -6px 0 8px; min-height: 16px; }
 
         @media (max-width: 900px) { .converter-grid { grid-template-columns: 1fr; } .conversion-controls { position: relative; top: 0; } }

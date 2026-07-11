@@ -112,7 +112,7 @@
 
         .cancel-btn { width: 100%; padding: 10px; border: 1px solid var(--accent-pink); border-radius: 10px; background: transparent; color: var(--accent-pink); font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 13px; display: none; transition: 0.2s; }
         .cancel-btn:hover { background: color-mix(in srgb, var(--accent-pink) 8%, transparent); }
-        .ar-spinner { animation: spin 1s linear infinite; margin: 12px auto; display: none; }
+        .ar-spinner { width: 22px; height: 22px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 12px auto; display: none; }
         .ar-spinner.block { display: block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .spinner-status-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin: -6px 0 8px; min-height: 16px; }
@@ -612,7 +612,7 @@
                 }
 
                 writer.addTag();
-                item.output = new Blob([writer.arrayBuffer], { type: 'audio/mpeg' });
+                item.output = writer.getBlob();
                 item.done = true;
                 if (statusEl) { statusEl.innerText = 'Tagged ✓'; statusEl.style.color = '#059669'; }
             } catch (err) {
