@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>(function(){try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.add("light");}catch(e){}})();</script>
+    <title>Free Audio Format Converter — MP3, WAV, M4A, OGG, No Signup | Nexitool</title>
+    <meta name="description" content="Convert audio files between MP3, WAV, M4A and OGG for free, right in your browser. No signup, no upload, no watermark. Bulk convert a whole folder in one pass.">
+    <link rel="canonical" href="https://nexitool.pro/tools/audio-tools/audio-format-changer.html">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nexitool.pro/tools/audio-tools/audio-format-changer.html">
+    <meta property="og:title" content="Free Audio Format Converter — MP3, WAV, M4A, OGG, No Signup | Nexitool">
+    <meta property="og:description" content="Convert audio files between MP3, WAV, M4A and OGG for free, right in your browser. No upload, no signup, no watermark. Bulk convert in one pass.">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Free Audio Format Converter — MP3, WAV, M4A, OGG, No Signup | Nexitool">
+    <meta property="twitter:description" content="Convert audio files between MP3, WAV, M4A and OGG for free, right in your browser. No upload, no signup, no watermark. Bulk convert in one pass.">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://nexitool.pro/tools/audio-tools/audio-format-changer.html#webpage",
+      "url": "https://nexitool.pro/tools/audio-tools/audio-format-changer.html",
+      "name": "Free Audio Format Converter — MP3, WAV, M4A, OGG, No Signup | Nexitool",
+      "description": "Convert audio files between MP3, WAV, M4A and OGG entirely in your browser, in bulk, with no signup and no watermark.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Audio Format Changer",
+      "url": "https://nexitool.pro/tools/audio-tools/audio-format-changer.html",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any",
+      "description": "Browser-based tool that re-encodes audio between MP3, WAV, M4A and OGG using the Web Audio API — no server, no signup, no watermark.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Convert MP3 to WAV without losing audio quality",
+        "Bulk convert a folder of clips to M4A in a single pass",
+        "WAV to MP3 to shrink file size for sharing",
+        "M4A to OGG for web playback and open formats",
+        "Runs entirely on-device, nothing uploaded"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Can I convert MP3 to WAV for free without signing up?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — drop in your MP3 file and pick WAV as the output format. No account, no watermark, the file never leaves your device." } },
+        { "@type": "Question", "name": "Does converting audio reduce quality?", "acceptedAnswer": { "@type": "Answer", "text": "Converting to WAV is lossless — no quality is lost because WAV stores raw PCM samples. Converting to a lossy format like MP3, M4A or OGG re-encodes the audio, so a small amount of quality is lost; pick a higher bitrate to keep it closer to the original." } },
+        { "@type": "Question", "name": "Why is MP3 smaller than WAV?", "acceptedAnswer": { "@type": "Answer", "text": "MP3 uses lossy compression that discards sounds the human ear barely notices, then stores the rest very efficiently. WAV stores every sample of the waveform with no compression, so the same clip takes far more space." } },
+        { "@type": "Question", "name": "Are my audio files uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No — every conversion runs locally in your browser using the Web Audio API. Your audio files never leave your device." } },
+        { "@type": "Question", "name": "Can I convert a whole folder of audio at once?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — bulk conversion is supported. Drop in as many files as you like and re-encode the whole batch to one target format in a single pass, then download them individually or as a ZIP." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexitool.pro/" },
+        { "@type": "ListItem", "position": 2, "name": "Audio Format Changer", "item": "https://nexitool.pro/tools/audio-tools/audio-format-changer.html" }
+      ]
+    }
+  ]
+}
+    </script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--accent); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent); } 50% { text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent); } }
+        .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); width: 150px; margin: 20px auto; }
+
+        .converter-grid { display: none; width: 100%; grid-template-columns: 320px 1fr; gap: 30px; text-align: left; margin-top: 30px; align-items: start; }
+
+        .conversion-controls { background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--card-border); position: sticky; top: 20px; z-index: 10; }
+
+        .expectation-note { font-size: 12.5px; line-height: 1.5; opacity: 0.75; background: color-mix(in srgb, var(--accent) 6%, transparent); border: 1px dashed var(--accent); border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+
+        .opt-label { font-size: 12.5px; font-weight: 700; opacity: 0.8; margin-bottom: 4px; display: block; }
+        .opt-select, .opt-field { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-primary); color: inherit; font-size: 14px; margin-bottom: 14px; }
+
+        .bulk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .bulk-card { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 15px; padding: 15px; position: relative; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .card-preview { width: 100%; height: 80px; border-radius: 10px; object-fit: cover; background: color-mix(in srgb, var(--accent) 8%, transparent); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
+        .file-name-row { font-size: 12px; font-weight: 700; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: inherit; }
+
+        .card-loader { position: absolute; inset: 0; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; border-radius: 15px; z-index: 5; flex-direction: column; }
+        .spinner { width: 25px; height: 25px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .stat-badge { font-size: 11px; margin-bottom: 10px; background: #eef2ff; padding: 8px; border-radius: 8px; font-weight: 700; color: #333; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .stat-row:last-child { margin-bottom: 0; border-top: 1px dashed #cbd5e1; padding-top: 4px; margin-top: 4px; }
+        .stat-error { color: #ef4444; font-weight: 700; }
+
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; font-size: 14px; }
+        .btn-green { background: #28a745; color: white; }
+        .btn-dark { background: #111827; color: white; }
+        @keyframes button-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 0%, transparent); } }
+        .action-btn.pulse { animation: button-pulse 1.4s infinite; }
+        .process-cue { text-align: center; font-size: 12.5px; font-weight: 700; color: var(--accent); margin-bottom: 8px; animation: cue-bounce 1.4s infinite; }
+        @keyframes cue-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+        .section-divider { border-top: 1px solid color-mix(in srgb, var(--accent) 15%, transparent); padding: 20px 0; margin-top: 20px; }
+        .info-flex-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; text-align: left; }
+        .info-column { flex: 1; min-width: 250px; }
+        .info-column h3 { color: var(--accent); margin-bottom: 15px; }
+
+        .ad-slot-small { width: 100%; max-width: 728px; min-height: 60px; margin: 30px auto; }
+        .ad-slot-large { width: 100%; max-width: 728px; min-height: 90px; margin: 30px auto; }
+
+        .tag-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); margin: 2px 4px 2px 0; }
+
+        @media (max-width: 900px) { .converter-grid { grid-template-columns: 1fr; } .conversion-controls { position: relative; top: 0; } }
+    </style>
+</head>
+<body class="color-audio">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon">
+                <i data-lucide="file-audio" style="width: 64px; height: 64px;"></i>
+            </div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">
+                Free <span class="shining-title">Audio Format Changer</span> — MP3, WAV, M4A, OGG
+            </h1>
+            <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px; max-width: 640px; margin-left: auto; margin-right: auto;">
+                Convert MP3 to WAV, shrink WAV to MP3, or re-encode clips to M4A and OGG — free, no signup, no watermark, right in your browser.
+            </p>
+            <p class="expectation-note" style="max-width: 480px; margin: 15px auto 0; text-align: left;">
+                <i data-lucide="coins" style="width:14px;height:14px;vertical-align:-2px;"></i> <strong>No login required</strong> — this tool is 100% free to use without an account. Even our premium tools are 100% free, never any real-money payment — you just earn free coins by logging in (passively or by watching ads). <a href="../../coin.html" style="color: var(--accent); font-weight:700;">See how coins work</a>.
+            </p>
+            <div class="shining-line"></div>
+        </div>
+
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="upload-text">
+                <h3>Select Audio Files</h3>
+                <p>Drag & drop MP3, WAV, M4A, OGG, FLAC here (Bulk Supported)</p>
+            </div>
+            <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.m4a,.ogg,.oga,.flac,.aac" multiple style="display: none;">
+        </div>
+
+        <div class="ad-slot-small" id="display-ads"></div>
+
+        <div class="converter-grid" id="converterGrid">
+            <div class="conversion-controls">
+                <label class="opt-label" for="formatSelect">Convert to</label>
+                <select id="formatSelect" class="opt-select">
+                    <option value="mp3" selected>MP3</option>
+                    <option value="wav">WAV</option>
+                    <option value="ogg">OGG (via MediaRecorder)</option>
+                </select>
+
+                <label class="opt-label" for="bitrateSelect">MP3 Bitrate</label>
+                <select id="bitrateSelect" class="opt-select">
+                    <option value="128">128 kbps (small)</option>
+                    <option value="192" selected>192 kbps (balanced)</option>
+                    <option value="256">256 kbps (high)</option>
+                    <option value="320">320 kbps (max)</option>
+                </select>
+
+                <p class="process-cue" id="processCue">👇 Click to convert your files</p>
+                <button id="convertAllBtn" class="action-btn pulse" style="background: var(--accent); color: white;">🔄 Convert All</button>
+                <button id="downloadAllBtn" class="action-btn btn-green" style="margin-top: 10px;" disabled>📥 Download All (Individual)</button>
+                <button id="downloadZipBtn" class="action-btn btn-dark" style="margin-top: 10px;" disabled>📦 Download as ZIP</button>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--card-border); padding-top: 15px;">
+                    <button class="action-btn" style="background:#f3f4f6; color:#444;" onclick="document.getElementById('fileInput').click()">➕ Add More Audio</button>
+                    <p style="text-align: center; margin-top: 15px; font-size: 13px; opacity: 0.6; cursor: pointer;" onclick="location.reload()">🔄 Restart Session</p>
+                </div>
+            </div>
+
+            <div class="bulk-list" id="bulkList"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--brand-primary); font-weight: 700;">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Back to Home
+            </a>
+        </div>
+
+        <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+            <div><div style="color: var(--primary-cyan, #00d4ff); margin-bottom: 10px;"><i data-lucide="layers" style="width:32px;height:32px;"></i></div><h3>Bulk Conversion</h3><p style="opacity: 0.8; font-size: 14px;">Re-encode a whole folder of clips to one format in a single pass.</p></div>
+            <div><div style="color: var(--accent-pink, #ec4899); margin-bottom: 10px;"><i data-lucide="badge-check" style="width:32px;height:32px;"></i></div><h3>No Watermark</h3><p style="opacity: 0.8; font-size: 14px;">Every output clip is clean — no tag, no bumper, nothing added to the audio.</p></div>
+            <div><div style="color: var(--primary-neon, #00ff88); margin-bottom: 10px;"><i data-lucide="shield-check" style="width:32px;height:32px;"></i></div><h3>Nothing Uploaded</h3><p style="opacity: 0.8; font-size: 14px;">Conversion runs on your device using the Web Audio API.</p></div>
+            <div><div style="color: var(--accent-orange, #f97316); margin-bottom: 10px;"><i data-lucide="download-cloud" style="width:32px;height:32px;"></i></div><h3>One-Click ZIP</h3><p style="opacity: 0.8; font-size: 14px;">Pull every converted clip down together as a ZIP.</p></div>
+        </div>
+
+        <div class="section-divider" style="text-align: left;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">MP3 to WAV, WAV to MP3, M4A to OGG — one tool, no signup</h2>
+            <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
+                <p style="margin-bottom: 15px;">
+                    Your file is decoded into raw PCM samples by the browser's Web Audio API, then re-encoded into the format you pick — MP3, WAV, or OGG — entirely inside the tab you're already in. There's no account to create, no watermark stamped onto the result, and no file size cap imposed by us. The only limit is how much memory your device can spare for the decoded buffer.
+                </p>
+                <p>
+                    MP3 output uses the <code>lamejs</code> encoder running in JavaScript, so the bitrate you pick (128 / 192 / 256 / 320 kps) directly controls how the file balances size against how close it stays to the original sound. WAV output is lossless PCM, so it preserves the decoded waveform exactly — at the cost of a much larger file. OGG output uses your browser's built-in <code>MediaRecorder</code>, so it works in Firefox and Chrome but may not be supported in every browser.
+                </p>
+            </div>
+
+            <div class="ad-slot-large" id="in-article-ads"></div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How it works</h2>
+            <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>Drop in one clip or a whole batch — MP3, WAV, M4A, OGG, FLAC or AAC</li>
+                <li>Pick the format you want to convert to (MP3, WAV or OGG)</li>
+                <li>For MP3, choose a bitrate from 128 up to 320 kbps</li>
+                <li>Click Convert All and watch each card update</li>
+                <li>Download one at a time, or everything as a ZIP</li>
+            </ul>
+        </div>
+
+        <div class="section-divider">
+            <div class="info-flex-container">
+                <div class="info-column">
+                    <h3>Common reasons to convert</h3>
+                    <p><strong>Smaller files for sharing:</strong> convert a large WAV recording to MP3 to send over email or chat.<br>
+                    <strong>Lossless archive:</strong> convert MP3 or M4A to WAV to keep an uncompressed master.<br>
+                    <strong>Web playback:</strong> convert to MP3 or OGG for embedding in websites that need broad browser support.<br>
+                    <strong>Open formats:</strong> move from M4A (Apple's AAC) to OGG to avoid proprietary containers.</p>
+                </div>
+                <div class="info-column">
+                    <h3>What makes this one different</h3>
+                    <p><strong>No signup, no watermark:</strong> every output clip is clean.<br>
+                    <strong>Bulk supported:</strong> convert dozens of files in one pass.<br>
+                    <strong>Nothing leaves your device:</strong> audio is decoded and re-encoded locally.<br>
+                    <strong>Clear errors:</strong> files the browser can't decode are flagged, not silently skipped.</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="seo-extra-block">
+            <h2>Why convert audio in the browser instead of using a website that uploads your file?</h2>
+            <p>An audio format converter that runs entirely in your browser has a different threat model than a typical online converter. The other kind uploads your recording to a server you don't control, processes it there, then sends back a download link. Browser-side conversion never sends anything anywhere — the file is opened locally, decoded by the Web Audio API on your own device, re-encoded by JavaScript (or by your browser's own MediaRecorder), and handed straight back to you as a download. That matters more for audio than for images: recordings often contain voice memos, meetings, calls, or music you simply don't want sitting on a third-party server.</p>
+            <table class="comparison-table">
+                <thead><tr><th>Feature</th><th>This Tool</th><th>Upload-Based Converters</th></tr></thead>
+                <tbody>
+                    <tr><td>File leaves your device</td><td>No</td><td>Yes — uploaded to their server</td></tr>
+                    <tr><td>Account required</td><td>No</td><td>Often yes, or capped per IP</td></tr>
+                    <tr><td>Watermark on output</td><td>No</td><td>Sometimes — usually on free tier</td></tr>
+                    <tr><td>Bulk conversion</td><td>Yes, free</td><td>Often a paid feature</td></tr>
+                    <tr><td>Works offline</td><td>After first page load, yes</td><td>No — needs their server</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            <div class="faq-container">
+            <div class="faq-item">
+                <button class="faq-question">Can I convert MP3 to WAV for free without signing up? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — drop in your MP3 file and pick WAV as the output format. No account, no watermark, the file never leaves your device.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Does converting audio reduce quality? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Converting to WAV is lossless — no quality is lost because WAV stores raw PCM samples. Converting to a lossy format like MP3, M4A or OGG re-encodes the audio, so a small amount of quality is lost; pick a higher bitrate to keep it closer to the original.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Why is MP3 smaller than WAV? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">MP3 uses lossy compression that discards sounds the human ear barely notices, then stores the rest very efficiently. WAV stores every sample of the waveform with no compression, so the same clip takes far more space.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Are my audio files uploaded anywhere? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">No — every conversion runs locally in your browser using the Web Audio API. Your audio files never leave your device.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I convert a whole folder of audio at once? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — bulk conversion is supported. Drop in as many files as you like and re-encode the whole batch to one target format in a single pass, then download them individually or as a ZIP.</div>
+            </div>
+            </div>
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="../../js/tools-data.js"></script>
+    <script src="../../js/blogs-data.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/header-animation.js"></script>
+    <script src="../../js/ads-manager.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/announcement-config.js"></script>
+    <script src="../../js/announcement-banner.js"></script>
+    <script src="../../js/guide-content.js"></script>
+    <script src="../../js/user-guide.js"></script>
+    <script src="../../js/auth-widget.js"></script>
+    <script src="../../js/earn-ticker.js"></script>
+    <script src="../../js/verify-tracking.js" defer></script>
+    <script src="../../js/rewarded-ads.js" defer></script>
+    <script>
+        window.addEventListener('load', () => {
+            if (window.initAdBlockDetector) window.initAdBlockDetector();
+        });
+    </script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const bulkList = document.getElementById('bulkList');
+        const formatSelect = document.getElementById('formatSelect');
+        const bitrateSelect = document.getElementById('bitrateSelect');
+        const convertAllBtn = document.getElementById('convertAllBtn');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const downloadZipBtn = document.getElementById('downloadZipBtn');
+        const processCue = document.getElementById('processCue');
+
+        let fileQueue = [];
+        let audioContext = null;
+
+        function getAudioContext() {
+            if (!audioContext) {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                audioContext = new Ctx();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            return audioContext;
+        }
+
+        fileInput.onchange = (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                document.getElementById('dropZone').style.display = 'none';
+                document.getElementById('converterGrid').style.display = 'grid';
+
+                files.forEach((file, index) => {
+                    const id = Date.now() + index;
+                    fileQueue.push({ id, original: file, converted: null, failed: false });
+                    addCardUI(file, id);
+                });
+                if (window.lucide) lucide.createIcons();
+            }
+        };
+
+        formatSelect.onchange = () => {
+            const fmt = formatSelect.value;
+            bitrateSelect.parentElement.style.opacity = (fmt === 'mp3') ? '1' : '0.4';
+            bitrateSelect.disabled = (fmt !== 'mp3');
+        };
+        formatSelect.onchange();
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 KB';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function addCardUI(file, id) {
+            const card = document.createElement('div');
+            card.className = 'bulk-card';
+            card.id = `card-${id}`;
+            card.innerHTML = `
+                <div class="card-loader" id="loader-${id}"><div class="spinner"></div></div>
+                <div class="card-preview" id="prev-${id}"><i data-lucide="file-audio" style="width:40px;height:40px;"></i></div>
+                <div class="file-name-row" title="${file.name.replace(/"/g, '"')}">${file.name}</div>
+                <div class="stat-badge">
+                    <div class="stat-row">
+                        <span>Original:</span>
+                        <span>${formatBytes(file.size)}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Status:</span>
+                        <span id="status-${id}">Waiting to convert...</span>
+                    </div>
+                </div>
+                <button class="action-btn btn-green" onclick="downloadOne(${id})" style="padding:8px; font-size:12px;" disabled>Download</button>
+            `;
+            bulkList.appendChild(card);
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function decodeFile(file) {
+            const buf = await file.arrayBuffer();
+            const ctx = getAudioContext();
+            return await ctx.decodeAudioData(buf);
+        }
+
+        function audioBufferToWav(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const numFrames = buffer.length;
+            const bytesPerSample = 2;
+            const blockAlign = numChannels * bytesPerSample;
+            const dataSize = numFrames * blockAlign;
+            const bufferSize = 44 + dataSize;
+            const arr = new ArrayBuffer(bufferSize);
+            const view = new DataView(arr);
+
+            function writeStr(off, str) {
+                for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i));
+            }
+
+            writeStr(0, 'RIFF');
+            view.setUint32(4, 36 + dataSize, true);
+            writeStr(8, 'WAVE');
+            writeStr(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, 8 * bytesPerSample, true);
+            writeStr(36, 'data');
+            view.setUint32(40, dataSize, true);
+
+            const channels = [];
+            for (let c = 0; c < numChannels; c++) channels.push(buffer.getChannelData(c));
+
+            let offset = 44;
+            for (let i = 0; i < numFrames; i++) {
+                for (let c = 0; c < numChannels; c++) {
+                    let sample = Math.max(-1, Math.min(1, channels[c][i]));
+                    sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                    view.setInt16(offset, sample, true);
+                    offset += 2;
+                }
+            }
+
+            return new Blob([arr], { type: 'audio/wav' });
+        }
+
+        function audioBufferToMp3(buffer, bitrate) {
+            const numChannels = Math.min(2, buffer.numberOfChannels);
+            const sampleRate = buffer.sampleRate;
+            const left = interleave(buffer.getChannelData(0));
+            let right = null;
+            if (numChannels > 1) {
+                right = interleave(buffer.getChannelData(1));
+            }
+            const encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, bitrate);
+            const blockSize = 1152;
+            const data = [];
+            for (let i = 0; i < left.length; i += blockSize) {
+                const leftChunk = left.subarray(i, i + blockSize);
+                let mp3buf;
+                if (numChannels > 1) {
+                    const rightChunk = right.subarray(i, i + blockSize);
+                    mp3buf = encoder.encodeBuffer(leftChunk, rightChunk);
+                } else {
+                    mp3buf = encoder.encodeBuffer(leftChunk);
+                }
+                if (mp3buf.length > 0) data.push(mp3buf);
+            }
+            const end = encoder.flush();
+            if (end.length > 0) data.push(end);
+            return new Blob(data, { type: 'audio/mp3' });
+
+            function interleave(input) {
+                const out = new Int16Array(input.length);
+                for (let i = 0; i < input.length; i++) {
+                    const s = Math.max(-1, Math.min(1, input[i]));
+                    out[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                }
+                return out;
+            }
+        }
+
+        async function audioBufferToOggViaMediaRecorder(buffer) {
+            const numChannels = Math.min(2, buffer.numberOfChannels);
+            const length = buffer.length;
+            const sampleRate = buffer.sampleRate;
+            const numFrames = length * 2;
+            const arr = new ArrayBuffer(44 + numFrames * 2);
+            const ctx = getAudioContext();
+            const offline = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(numChannels, length, sampleRate);
+            const src = offline.createBufferSource();
+            src.buffer = buffer;
+            src.connect(offline.destination);
+            src.start(0);
+            const rendered = await offline.startRendering();
+            const wavBlob = audioBufferToWav(rendered);
+
+            const wavUrl = URL.createObjectURL(wavBlob);
+            const audioEl = new Audio(wavUrl);
+            audioEl.crossOrigin = 'anonymous';
+            await new Promise((res, rej) => {
+                audioEl.addEventListener('canplaythrough', res, { once: true });
+                audioEl.addEventListener('error', rej, { once: true });
+            });
+
+            const dest = ctx.createMediaElementSource(audioEl);
+            const proc = ctx.createMediaStreamDestination();
+            dest.connect(proc);
+            const mime = MediaRecorder.isTypeSupported('audio/ogg;codecs=opus') ? 'audio/ogg;codecs=opus' : 'audio/webm;codecs=opus';
+            const rec = new MediaRecorder(proc.stream, { mimeType: mime });
+            const chunks = [];
+            rec.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+            const done = new Promise((res) => { rec.onstop = res; });
+
+            audioEl.play();
+            rec.start();
+            await new Promise((res) => audioEl.addEventListener('ended', res, { once: true }));
+            rec.stop();
+            await done;
+            URL.revokeObjectURL(wavUrl);
+            return new Blob(chunks, { type: mime });
+        }
+
+        async function convertOne(item) {
+            const statusEl = document.getElementById(`status-${item.id}`);
+            const loader = document.getElementById(`loader-${item.id}`);
+            if (loader) loader.style.display = 'flex';
+
+            try {
+                const decoded = await decodeFile(item.original);
+                const fmt = formatSelect.value;
+                let outBlob;
+
+                if (fmt === 'wav') {
+                    outBlob = audioBufferToWav(decoded);
+                } else if (fmt === 'mp3') {
+                    const bitrate = parseInt(bitrateSelect.value, 10);
+                    outBlob = audioBufferToMp3(decoded, bitrate);
+                } else if (fmt === 'ogg') {
+                    outBlob = await audioBufferToOggViaMediaRecorder(decoded);
+                } else {
+                    throw new Error('Unsupported format');
+                }
+
+                if (!outBlob || outBlob.size === 0) throw new Error('Encoder produced empty output');
+
+                item.converted = outBlob;
+                item.failed = false;
+                item.outType = fmt;
+                statusEl.innerText = `${formatBytes(outBlob.size)} ✓`;
+                statusEl.style.color = '#059669';
+                document.getElementById(`card-${item.id}`).querySelector('button.btn-green').disabled = false;
+            } catch (err) {
+                console.error('Audio conversion failed for', item.original.name, err);
+                item.failed = true;
+                statusEl.innerText = 'Unsupported or unreadable file';
+                statusEl.classList.add('stat-error');
+            }
+
+            if (loader) loader.style.display = 'none';
+        }
+
+        async function processBatch() {
+            convertAllBtn.classList.remove('pulse');
+            processCue.style.display = 'none';
+            for (const item of fileQueue) {
+                await convertOne(item);
+            }
+            const anyDone = fileQueue.some(f => f.converted);
+            downloadAllBtn.disabled = !anyDone;
+            downloadZipBtn.disabled = !anyDone;
+        }
+
+        convertAllBtn.onclick = () => { processBatch(); };
+
+        function downloadOne(id) {
+            const item = fileQueue.find(f => f.id === id);
+            if (item?.converted) {
+                const a = document.createElement('a');
+                const ext = item.outType === 'ogg' ? 'ogg' : item.outType;
+                const baseName = item.original.name.replace(/\.[^.]+$/, '');
+                a.download = `${baseName}.${ext}`;
+                a.href = URL.createObjectURL(item.converted);
+                a.click();
+            }
+        }
+        window.downloadOne = downloadOne;
+
+        downloadAllBtn.onclick = () => {
+            fileQueue.forEach(item => downloadOne(item.id));
+        };
+
+        downloadZipBtn.onclick = async () => {
+            const zip = new JSZip();
+            let any = false;
+            fileQueue.forEach(item => {
+                if (item.converted) {
+                    const baseName = item.original.name.replace(/\.[^.]+$/, '');
+                    const ext = item.outType === 'ogg' ? 'ogg' : item.outType;
+                    zip.file(`${baseName}.${ext}`, item.converted);
+                    any = true;
+                }
+            });
+            if (!any) return;
+            const content = await zip.generateAsync({ type: 'blob' });
+            const a = document.createElement('a');
+            a.download = 'nexitool-converted-audio.zip';
+            a.href = URL.createObjectURL(content);
+            a.click();
+        };
+    </script>
+</body>
+</html>

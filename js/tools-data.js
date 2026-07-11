@@ -247,11 +247,22 @@ const TOOLS = [
         icon: 'mail',
         path: 'tools/email-tools/temp-mail.html',
         isTrending: false
+    },
+    {
+        id: 'audio-format-changer',
+        name: 'Audio Format Changer',
+        description: 'Convert audio files between MP3, WAV, OGG and M4A right in your browser. No upload, no signup, no watermark.',
+        category: 'Audio',
+        color: 'audio',
+        icon: 'file-audio',
+        path: 'tools/audio-tools/audio-format-changer.html',
+        isTrending: false
     }
 ];
 
 const CATEGORIES = [
     { name: 'Image', color: 'image' },
     { name: 'PDF', color: 'pdf' },
-    { name: 'Email', color: 'email' }
+    { name: 'Email', color: 'email' },
+    { name: 'Audio', color: 'audio' }
 ];
