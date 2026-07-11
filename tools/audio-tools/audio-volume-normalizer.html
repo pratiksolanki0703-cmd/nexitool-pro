@@ -681,6 +681,7 @@
                 if (cancelRequested) break;
                 processingIdx = i;
                 await processOne(fileQueue[i]);
+                await new Promise(r => setTimeout(r, 0)); // yield to UI between files
             }
 
             const anyDone = fileQueue.some(f => f.output);

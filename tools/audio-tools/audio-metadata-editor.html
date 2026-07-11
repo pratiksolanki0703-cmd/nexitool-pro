@@ -439,6 +439,31 @@
             if (window.lucide) lucide.createIcons();
         };
 
+        // Drag-and-drop for dropZone
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = 'var(--accent)'; dropZone.style.background = 'color-mix(in srgb, var(--accent) 8%, transparent)'; });
+        dropZone.addEventListener('dragleave', e => { dropZone.style.borderColor = ''; dropZone.style.background = ''; });
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.style.borderColor = '';
+            dropZone.style.background = '';
+            const files = Array.from(e.dataTransfer.files).filter(f => /\.mp3$/i.test(f.name) || f.type === 'audio/mpeg');
+            if (!files.length) return;
+            document.getElementById('dropZone').style.display = 'none';
+            document.getElementById('editorGrid').style.display = 'grid';
+            files.forEach((file, idx) => {
+                const id = Date.now() + idx;
+                fileQueue.push({ id, original: file, output: null, existingTags: null, done: false });
+                addCardUI(file, id);
+                readExistingTags(id);
+            });
+            if (fileQueue.length === 1) {
+                fileQueue[0].existingTagsPromise.then(() => hydrateFormFromFirst());
+            }
+            updateFileCount();
+            if (window.lucide) lucide.createIcons();
+        });
+
         function updateFileCount() {
             document.getElementById('fileCount').textContent = fileQueue.length;
         }
@@ -641,6 +666,7 @@
                 if (cancelRequested) break;
                 processingIdx = i;
                 await writeOne(fileQueue[i], autoTrack ? (i + 1) : null);
+                await new Promise(r => setTimeout(r, 0)); // yield to UI between files
             }
 
             const anyDone = fileQueue.some(f => f.done);
