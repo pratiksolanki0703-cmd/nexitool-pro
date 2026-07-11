@@ -257,6 +257,26 @@ const TOOLS = [
         icon: 'file-audio',
         path: 'tools/audio-tools/audio-format-changer.html',
         isTrending: false
+    },
+    {
+        id: 'audio-metadata-editor',
+        name: 'Audio Metadata Editor',
+        description: 'Edit ID3 tags of MP3 files — title, artist, album, year, album art — right in your browser. No upload, no signup, no watermark.',
+        category: 'Audio',
+        color: 'audio',
+        icon: 'tags',
+        path: 'tools/audio-tools/audio-metadata-editor.html',
+        isTrending: false
+    },
+    {
+        id: 'audio-volume-normalizer',
+        name: 'Audio Volume Normalizer',
+        description: 'Boost and normalize quiet audio files right in your browser. Pick a target gain and re-encode to MP3 or WAV. No upload, no signup.',
+        category: 'Audio',
+        color: 'audio',
+        icon: 'volume-2',
+        path: 'tools/audio-tools/audio-volume-normalizer.html',
+        isTrending: false
     }
 ];
 

@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>(function(){try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.add("light");}catch(e){}})();</script>
+    <title>Free Audio Volume Booster & Normalizer — Loud MP3 / WAV | Nexitool</title>
+    <meta name="description" content="Boost quiet audio files and normalize volume right in your browser. Pick a target loudness or decibel gain, then export MP3 or WAV. No upload, no signup.">
+    <link rel="canonical" href="https://nexitool.pro/tools/audio-tools/audio-volume-normalizer.html">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nexitool.pro/tools/audio-tools/audio-volume-normalizer.html">
+    <meta property="og:title" content="Free Audio Volume Booster & Normalizer — Loud MP3 / WAV | Nexitool">
+    <meta property="og:description" content="Boost and normalize quiet audio files in your browser. Pick a target loudness or dB gain, export MP3 or WAV. No upload, no signup.">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Free Audio Volume Booster & Normalizer — Loud MP3 / WAV | Nexitool">
+    <meta property="twitter:description" content="Boost and normalize quiet audio files in your browser. Pick a target loudness or dB gain, export MP3 or WAV. No upload, no signup.">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://nexitool.pro/tools/audio-tools/audio-volume-normalizer.html#webpage",
+      "url": "https://nexitool.pro/tools/audio-tools/audio-volume-normalizer.html",
+      "name": "Free Audio Volume Booster & Normalizer — Loud MP3 / WAV | Nexitool",
+      "description": "Boost and normalize quiet audio in your browser — pick a decibel gain or a target peak, export MP3 or WAV.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Audio Volume Normalizer",
+      "url": "https://nexitool.pro/tools/audio-tools/audio-volume-normalizer.html",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any",
+      "description": "Browser-based tool that decodes audio with the Web Audio API, applies a gain boost (manual or auto-normalize to a target peak), then re-encodes to MP3 or WAV.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Manual gain boost — add +1 dB to +30 dB to any audio",
+        "Auto-normalize to a peak target (e.g. -1 dB / -3 dB) — no clipping",
+        "Bulk apply one setting to a folder of quiet clips at once",
+        "Outputs MP3 (192 kbps) or lossless WAV",
+        "Runs entirely on-device, nothing uploaded"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Can I boost the volume of a quiet MP3 for free without signing up?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — drop in your MP3, pick a decibel gain (for example +6 dB), click Boost, and download. No account, no watermark, the file never leaves your device." } },
+        { "@type": "Question", "name": "What is the difference between boosting and normalizing?", "acceptedAnswer": { "@type": "Answer", "text": "Boosting adds a fixed decibel amount to your audio (+6 dB, +10 dB, etc.) regardless of how loud the file already is. Normalizing scans the loudest peak in the file and scales the whole clip so that peak hits a target you pick (for example -1 dB), which never clips. Use normalize when you don't know how quiet the input already is." } },
+        { "@type": "Question", "name": "Will boosting cause clipping or distortion?", "acceptedAnswer": { "@type": "Answer", "text": "If you boost too high, samples above 0 dB full scale get clipped and the audio will distort. Normalize mode caps at your target peak (default -1 dB) so no clipping happens by design. In manual boost mode, keep your gain lower for files that already aren't very quiet, and watch the warning shown in the card." } },
+        { "@type": "Question", "name": "Are my audio files uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No — every decode, gain step and re-encode runs locally in your browser using the Web Audio API. Your audio files never leave your device." } },
+        { "@type": "Question", "name": "Can I boost a whole folder of audio at once?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — drop in as many files as you like, choose the same boost or normalize setting once, and apply it to every clip in the batch in a single pass, then download them individually or as a ZIP." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexitool.pro/" },
+        { "@type": "ListItem", "position": 2, "name": "Audio Volume Normalizer", "item": "https://nexitool.pro/tools/audio-tools/audio-volume-normalizer.html" }
+      ]
+    }
+  ]
+}
+    </script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--accent); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent); } 50% { text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent); } }
+        .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); width: 150px; margin: 20px auto; }
+
+        .expectation-note { font-size: 12.5px; line-height: 1.5; opacity: 0.75; background: color-mix(in srgb, var(--accent) 6%, transparent); border: 1px dashed var(--accent); border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+
+        .converter-grid { display: none; width: 100%; grid-template-columns: 320px 1fr; gap: 30px; text-align: left; margin-top: 30px; align-items: start; }
+        .conversion-controls { background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--card-border); position: sticky; top: 20px; z-index: 10; }
+
+        .opt-label { font-size: 12.5px; font-weight: 700; opacity: 0.8; margin-bottom: 4px; display: block; }
+        .opt-select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-primary); color: inherit; font-size: 14px; margin-bottom: 14px; }
+
+        .mode-row { display: flex; gap: 8px; margin-bottom: 14px; }
+        .mode-row label { flex: 1; display:flex; align-items:center; gap:6px; padding:10px 12px; border:1px solid var(--card-border); border-radius:8px; cursor:pointer; font-size:13px; font-weight:700; }
+        .mode-row input { width:auto; }
+        .mode-row input:checked + span { color: var(--accent); font-weight: 700; }
+
+        .gain-grid { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; margin-bottom: 12px; }
+        .gain-grid input[type=range] { width: 100%; }
+        #gainValue { font-size: 14px; font-weight: 700; color: var(--accent); min-width: 56px; text-align: right; }
+        .target-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .target-row input { width: 70px; padding: 8px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-primary); color: inherit; font-size: 14px; }
+
+        .bulk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .bulk-card { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 15px; padding: 15px; position: relative; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .card-remove-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: color-mix(in srgb, var(--accent-pink) 12%, transparent); color: var(--accent-pink); border: 1px solid color-mix(in srgb, var(--accent-pink) 30%, transparent); border-radius: 50%; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; z-index: 6; transition: 0.2s; }
+        .card-remove-btn:hover { background: var(--accent-pink); color: white; }
+        .card-preview { width: 100%; height: 60px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 8%, transparent); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
+        .file-name-row { font-size: 12px; font-weight: 700; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .card-loader { position: absolute; inset: 0; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; border-radius: 15px; z-index: 5; flex-direction: column; }
+        .spinner { width: 25px; height: 25px; border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .stat-badge { font-size: 11px; margin-bottom: 10px; background: #eef2ff; padding: 8px; border-radius: 8px; font-weight: 700; color: #333; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .stat-row:last-child { margin-bottom: 0; border-top: 1px dashed #cbd5e1; padding-top: 4px; margin-top: 4px; }
+        .stat-error { color: #ef4444; font-weight: 700; }
+        .stat-warn { color: #d97706; font-weight: 700; }
+
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 5px; font-size: 14px; }
+        .btn-green { background: #28a745; color: white; }
+        .btn-dark { background: #111827; color: white; }
+        @keyframes button-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 0%, transparent); } }
+        .action-btn.pulse { animation: button-pulse 1.4s infinite; }
+        .process-cue { text-align: center; font-size: 12.5px; font-weight: 700; color: var(--accent); margin-bottom: 8px; animation: cue-bounce 1.4s infinite; }
+        @keyframes cue-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+        .section-divider { border-top: 1px solid color-mix(in srgb, var(--accent) 15%, transparent); padding: 20px 0; margin-top: 20px; }
+        .info-flex-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; text-align: left; }
+        .info-column { flex: 1; min-width: 250px; }
+        .info-column h3 { color: var(--accent); margin-bottom: 15px; }
+
+        .ad-slot-small { width: 100%; max-width: 728px; min-height: 60px; margin: 30px auto; }
+        .ad-slot-large { width: 100%; max-width: 728px; min-height: 90px; margin: 30px auto; }
+
+        .cmp-table { width: 100%; max-width: 700px; margin: 0 auto; border-collapse: collapse; font-size: 15px; border: 1px solid var(--card-border); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .cmp-table th { text-align: left; padding: 12px 14px; background: var(--accent); color: white; font-weight: 700; }
+        .cmp-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--card-border); opacity: 0.85; }
+        .cmp-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+        .cmp-table tbody tr:last-child td { border-bottom: none; }
+        .cmp-table td:first-child { font-weight: 700; opacity: 1; }
+
+        .cancel-btn { width: 100%; padding: 10px; border: 1px solid var(--accent-pink); border-radius: 10px; background: transparent; color: var(--accent-pink); font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 13px; display: none; transition: 0.2s; }
+        .cancel-btn:hover { background: color-mix(in srgb, var(--accent-pink) 8%, transparent); }
+        .spinner-status-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin: -6px 0 8px; min-height: 16px; }
+
+        @media (max-width: 900px) { .converter-grid { grid-template-columns: 1fr; } .conversion-controls { position: relative; top: 0; } }
+    </style>
+</head>
+<body class="color-audio">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon">
+                <i data-lucide="volume-2" style="width: 64px; height: 64px;"></i>
+            </div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">
+                Free <span class="shining-title">Audio Volume Normalizer</span> — boost quiet MP3s & WAVs
+            </h1>
+            <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px; max-width: 640px; margin-left: auto; margin-right: auto;">
+                Boost a quiet recording by a fixed decibel amount, or normalize so the loudest peak hits a safe target — all in your browser, no upload, no signup.
+            </p>
+            <p class="expectation-note" style="max-width: 480px; margin: 15px auto 0; text-align: left;">
+                <i data-lucide="coins" style="width:14px;height:14px;vertical-align:-2px;"></i> <strong>No login required</strong> — this tool is 100% free to use without an account. Even our premium tools are 100% free, never any real-money payment — you just earn free coins by logging in (passively or by watching ads). <a href="../../coin.html" style="color: var(--accent); font-weight:700;">See how coins work</a>.
+            </p>
+            <div class="shining-line"></div>
+        </div>
+
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="upload-text">
+                <h3>Select Audio Files</h3>
+                <p>Drag & drop MP3, WAV, M4A, OGG, FLAC here (Bulk Supported)</p>
+            </div>
+            <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.m4a,.ogg,.oga,.flac,.aac" multiple style="display: none;">
+        </div>
+
+        <div class="ad-slot-small" id="display-ads"></div>
+
+        <div class="converter-grid" id="converterGrid">
+            <div class="conversion-controls">
+                <label class="opt-label">Mode</label>
+                <div class="mode-row">
+                    <label><input type="radio" name="mode" value="boost" checked onchange="updateMode()"><span>Boost (manual dB)</span></label>
+                    <label><input type="radio" name="mode" value="normalize" onchange="updateMode()"><span>Normalize to peak</span></label>
+                </div>
+
+                <div id="boostControls">
+                    <label class="opt-label">Gain: <span id="gainValue">+6 dB</span></label>
+                    <div class="gain-grid">
+                        <input type="range" id="gainSlider" min="1" max="30" value="6" oninput="updateGainLabel()">
+                        <span style="font-size:11px;opacity:0.7;">+1 to +30</span>
+                    </div>
+                </div>
+
+                <div id="normalizeControls" style="display:none;">
+                    <label class="opt-label">Target peak</label>
+                    <div class="target-row">
+                        <input type="number" id="targetPeak" value="-1" min="-24" max="0" step="0.5">
+                        <span style="font-size: 12px; opacity: 0.75;">dB (recommended: -1 to -3)</span>
+                    </div>
+                </div>
+
+                <label class="opt-label" for="formatSelect">Output format</label>
+                <select id="formatSelect" class="opt-select">
+                    <option value="mp3" selected>MP3 (192 kbps)</option>
+                    <option value="wav">WAV (lossless)</option>
+                </select>
+
+                <p class="process-cue" id="processCue">👇 Click to boost / normalize your files</p>
+                <button id="processAllBtn" class="action-btn pulse" style="background: var(--accent); color: white;">🔊 Apply to All</button>
+                <button id="cancelBtn" class="cancel-btn">✕ Cancel</button>
+                <div class="ar-spinner" id="globalSpinner" style="width:22px;height:22px;border:3px solid #f3f3f3;border-top:3px solid var(--accent);border-radius:50%;"></div>
+                <p class="spinner-status-text" id="spinnerStatus"></p>
+                <button id="downloadAllBtn" class="action-btn btn-green" style="margin-top: 10px;" disabled>📥 Download All (Individual)</button>
+                <button id="downloadZipBtn" class="action-btn btn-dark" style="margin-top: 10px;" disabled>📦 Download as ZIP</button>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--card-border); padding-top: 15px;">
+                    <button class="action-btn" style="background:#f3f4f6; color:#444;" onclick="document.getElementById('fileInput').click()">➕ Add More Audio</button>
+                    <p style="text-align: center; margin-top: 15px; font-size: 13px; opacity: 0.6; cursor: pointer;" onclick="location.reload()">🔄 Restart Session</p>
+                </div>
+            </div>
+
+            <div class="bulk-list" id="bulkList"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--brand-primary); font-weight: 700;">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Back to Home
+            </a>
+        </div>
+
+        <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+            <div><div style="color: var(--primary-cyan, #00d4ff); margin-bottom: 10px;"><i data-lucide="volume-2" style="width:32px;height:32px;"></i></div><h3>Manual Boost</h3><p style="opacity: 0.8; font-size: 14px;">Add +1 dB to +30 dB to any quiet clip.</p></div>
+            <div><div style="color: var(--accent-pink, #ec4899); margin-bottom: 10px;"><i data-lucide="bar-chart-3" style="width:32px;height:32px;"></i></div><h3>Auto Normalize</h3><p style="opacity: 0.8; font-size: 14px;">Hit a target peak, no clipping by design.</p></div>
+            <div><div style="color: var(--primary-neon, #00ff88); margin-bottom: 10px;"><i data-lucide="layers" style="width:32px;height:32px;"></i></div><h3>Bulk Apply</h3><p style="opacity: 0.8; font-size: 14px;">One setting, applied to a whole folder.</p></div>
+            <div><div style="color: var(--accent-orange, #f97316); margin-bottom: 10px;"><i data-lucide="download-cloud" style="width:32px;height:32px;"></i></div><h3>MP3 or WAV</h3><p style="opacity: 0.8; font-size: 14px;">Mix-and-match per clip, ZIP the bunch.</p></div>
+        </div>
+
+        <div class="section-divider" style="text-align: left;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">Boosting vs normalizing — what's the difference?</h2>
+            <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
+                <p style="margin-bottom: 15px;">
+                    <strong>Boosting</strong> adds a fixed decibel amount to every sample of your audio. If you choose +6 dB, every quiet recording goes up by exactly 6 dB regardless of how loud it already was. This is the right choice when you already know your file is too quiet and you want a simple bump up — for example, a phone voice memo or a soft microphone recording.
+                </p>
+                <p style="margin-bottom: 15px;">
+                    <strong>Normalizing</strong> first scans the entire clip to find its single loudest peak, then scales the whole file by exactly the amount needed to make that peak hit a target you choose (typically -1 dB or -3 dB to leave a safety margin before clipping). The result: loud files stay loud, quiet files come up to a comparable level — all without clipping by design. Pick normalize when you have several files of different loudness and want a roughly consistent playback level, or when you don't know how loud your input is.
+                </p>
+                <p>
+                    Both modes run entirely in your browser via the Web Audio API: the file is decoded into a raw PCM buffer, a gain node multiplies every sample by the chosen factor, and the buffer is then re-encoded back to MP3 (192 kbps via lamejs) or WAV (lossless PCM). Nothing is uploaded anywhere — your audio stays on your own device the whole time.
+                </p>
+            </div>
+
+            <div class="ad-slot-large" id="in-article-ads"></div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How it works</h2>
+            <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>Drop in one file or a whole batch — MP3, WAV, M4A, OGG, FLAC or AAC</li>
+                <li>Pick a mode: <strong>Boost</strong> (manual + dB) or <strong>Normalize</strong> (auto target peak)</li>
+                <li>For boost, drag the gain slider from +1 dB to +30 dB</li>
+                <li>For normalize, set a target peak like -1 dB (default)</li>
+                <li>Choose output format: MP3 (192 kbps) or lossless WAV</li>
+                <li>Click Apply — watch each card show old vs new peak</li>
+                <li>Download one at a time, or everything as a ZIP</li>
+            </ul>
+        </div>
+
+        <div class="section-divider">
+            <div class="info-flex-container">
+                <div class="info-column">
+                    <h3>When this tool helps</h3>
+                    <p><strong>Quiet voice memos:</strong> phone recordings are often far below playback level.<br>
+                    <strong>Podcast episodes:</strong> bring a soft-spoken guest up to your host's level.<br>
+                    <strong>Music mix prep:</strong> normalize clips so a single track doesn't blast or fade.<br>
+                    <strong>Video B-roll audio:</strong> match ambient noise beds to voiceover volume.</p>
+                </div>
+                <div class="info-column">
+                    <h3>Set expectations right</h3>
+                    <p><strong>Boost can clip:</strong> samples above 0 dB get clipped (the card warns you).<br>
+                    <strong>Normalize never clips:</strong> your target peak caps the output by design.<br>
+                    <strong>MP3 re-encodes:</strong> small loss of quality on the path through MP3 (192 kbps is fine for voice).<br>
+                    <strong>WAV preserves:</strong> the boosted buffer stores as lossless PCM if you need it pristine.</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="seo-extra-block">
+            <h2>Why boost your audio in the browser instead of uploading it to a website?</h2>
+            <p>Most online audio volume boosters accept your file, upload it to a server, run a backend library such as FFmpeg or SoX to apply the gain, then send the boosted file back. Browser-side conversion keeps the entire pipeline in your tab: your file is decoded locally by the Web Audio API, every sample is multiplied by the gain factor in JavaScript, and the result is re-encoded back to MP3 or WAV — all without the file ever leaving your device. For sensitive audio (voice memos with names, podcast drafts, unreleased music), being able to do that entirely offline is the safer choice.</p>
+        </section>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 16px;">Browser-side vs upload-based audio boosters</h2>
+            <div style="overflow-x: auto;">
+            <table class="cmp-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>This Tool</th>
+                        <th>Upload-Based Audio Boosters</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>File leaves your device</td><td>No</td><td>Yes — uploaded to their server</td></tr>
+                    <tr><td>Account required</td><td>No</td><td>Often yes, or limited free quota</td></tr>
+                    <tr><td>Manual gain + auto normalize</td><td>Yes, both</td><td>Usually only one mode</td></tr>
+                    <tr><td>Clipping warning per file</td><td>Yes — flagged in the card</td><td>Rarely surfaced</td></tr>
+                    <tr><td>Choice of MP3 or lossless WAV</td><td>Yes</td><td>Often MP3 only on free tier</td></tr>
+                    <tr><td>Works offline</td><td>After first page load, yes</td><td>No — needs their server</td></tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+        <section class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            <div class="faq-container">
+            <div class="faq-item">
+                <button class="faq-question">Can I boost the volume of a quiet MP3 for free without signing up? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — drop in your MP3, pick a decibel gain (for example +6 dB), click Boost, and download. No account, no watermark, the file never leaves your device.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">What is the difference between boosting and normalizing? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Boosting adds a fixed decibel amount to your audio (+6 dB, +10 dB, etc.) regardless of how loud the file already is. Normalizing scans the loudest peak in the file and scales the whole clip so that peak hits a target you pick (for example -1 dB), which never clips. Use normalize when you don't know how quiet the input already is.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Will boosting cause clipping or distortion? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">If you boost too high, samples above 0 dB full scale get clipped and the audio will distort. Normalize mode caps at your target peak (default -1 dB) so no clipping happens by design. In manual boost mode, keep your gain lower for files that already aren't very quiet, and watch the warning shown in the card.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Are my audio files uploaded anywhere? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">No — every decode, gain step and re-encode runs locally in your browser using the Web Audio API. Your audio files never leave your device.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I boost a whole folder of audio at once? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — drop in as many files as you like, choose the same boost or normalize setting once, and apply it to every clip in the batch in a single pass, then download them individually or as a ZIP.</div>
+            </div>
+            </div>
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="../../js/tools-data.js"></script>
+    <script src="../../js/blogs-data.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/header-animation.js"></script>
+    <script src="../../js/ads-manager.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/announcement-config.js"></script>
+    <script src="../../js/announcement-banner.js"></script>
+    <script src="../../js/guide-content.js"></script>
+    <script src="../../js/user-guide.js"></script>
+    <script src="../../js/auth-widget.js"></script>
+    <script src="../../js/earn-ticker.js"></script>
+    <script src="../../js/verify-tracking.js" defer></script>
+    <script src="../../js/rewarded-ads.js" defer></script>
+    <script>
+        window.addEventListener('load', () => {
+            if (window.initAdBlockDetector) window.initAdBlockDetector();
+        });
+    </script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const bulkList = document.getElementById('bulkList');
+        const processAllBtn = document.getElementById('processAllBtn');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const downloadZipBtn = document.getElementById('downloadZipBtn');
+        const processCue = document.getElementById('processCue');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const globalSpinner = document.getElementById('globalSpinner');
+        const spinnerStatus = document.getElementById('spinnerStatus');
+        const gainSlider = document.getElementById('gainSlider');
+        const gainValue = document.getElementById('gainValue');
+        const formatSelect = document.getElementById('formatSelect');
+
+        const PROCESSING_MESSAGES = [
+            "Decoding audio in your browser...",
+            "Scanning peak and applying gain...",
+            "Re-encoding to selected format...",
+            "Processing — large files take longer..."
+        ];
+
+        let fileQueue = [];
+        let audioContext = null;
+        let cancelRequested = false;
+        let processingTimer = null;
+        let processingIdx = -1;
+
+        function getAudioContext() {
+            if (!audioContext) {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                audioContext = new Ctx();
+            }
+            if (audioContext.state === 'suspended') audioContext.resume();
+            return audioContext;
+        }
+
+        function startProcessingText() {
+            let i = 0;
+            spinnerStatus.textContent = PROCESSING_MESSAGES[0];
+            processingTimer = setInterval(() => {
+                i = (i + 1) % PROCESSING_MESSAGES.length;
+                spinnerStatus.textContent = PROCESSING_MESSAGES[i];
+            }, 1600);
+        }
+        function stopProcessingText() { clearInterval(processingTimer); spinnerStatus.textContent = ''; }
+
+        function formatBytes(b) {
+            if (!b) return '0 KB';
+            const k = 1024, sizes = ['Bytes','KB','MB'], i = Math.floor(Math.log(b)/Math.log(k));
+            return parseFloat((b/Math.pow(k,i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function updateGainLabel() {
+            gainValue.textContent = '+' + gainSlider.value + ' dB';
+        }
+        function updateMode() {
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            document.getElementById('boostControls').style.display = mode === 'boost' ? 'block' : 'none';
+            document.getElementById('normalizeControls').style.display = mode === 'normalize' ? 'block' : 'none';
+            processAllBtn.innerText = mode === 'boost' ? '🔊 Boost All' : '🔊 Normalize All';
+        }
+        window.updateMode = updateMode;
+        window.updateGainLabel = updateGainLabel;
+        updateGainLabel();
+
+        fileInput.onchange = e => {
+            const files = Array.from(e.target.files);
+            if (!files.length) return;
+            document.getElementById('dropZone').style.display = 'none';
+            document.getElementById('converterGrid').style.display = 'grid';
+            files.forEach((file, idx) => {
+                const id = Date.now() + idx;
+                const item = { id, original: file, decoded: null, output: null, failed: false, oldPeakDb: null, newPeakDb: null, clipped: false, decodePromise: null };
+                fileQueue.push(item);
+                addCardUI(file, id);
+                item.decodePromise = decodeAndMeasure(id);
+            });
+            if (window.lucide) lucide.createIcons();
+        };
+
+        function addCardUI(file, id) {
+            const card = document.createElement('div');
+            card.className = 'bulk-card';
+            card.id = `card-${id}`;
+            card.innerHTML = `
+                <button class="card-remove-btn" onclick="removeCard(${id})" title="Remove this file">✕</button>
+                <div class="card-loader" id="loader-${id}"><div class="spinner"></div></div>
+                <div class="card-preview"><i data-lucide="volume-2" style="width:24px;height:24px;"></i></div>
+                <div class="file-name-row" title="${file.name.replace(/"/g,'"')}">${file.name}</div>
+                <div class="stat-badge">
+                    <div class="stat-row"><span>Size:</span><span>${formatBytes(file.size)}</span></div>
+                    <div class="stat-row"><span>Original peak:</span><span id="oldpeak-${id}">measuring...</span></div>
+                    <div class="stat-row"><span>Result:</span><span id="status-${id}">waiting...</span></div>
+                </div>
+                <button class="action-btn btn-green" onclick="downloadOne(${id})" style="padding:8px;font-size:12px;" disabled>Download</button>
+            `;
+            bulkList.appendChild(card);
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function decodeAndMeasure(id) {
+            const item = fileQueue.find(f => f.id === id);
+            const loader = document.getElementById(`loader-${id}`);
+            const oldPeakEl = document.getElementById(`oldpeak-${id}`);
+            if (loader) loader.style.display = 'flex';
+            try {
+                const buf = await item.original.arrayBuffer();
+                const ctx = getAudioContext();
+                const decoded = await ctx.decodeAudioData(buf);
+                item.decoded = decoded;
+                let maxAbs = 0;
+                for (let c = 0; c < decoded.numberOfChannels; c++) {
+                    const data = decoded.getChannelData(c);
+                    for (let i = 0; i < data.length; i += 200) {
+                        const a = Math.abs(data[i]);
+                        if (a > maxAbs) maxAbs = a;
+                    }
+                }
+                item.oldPeakDb = (maxAbs > 0) ? (20 * Math.log10(maxAbs)) : -Infinity;
+                if (oldPeakEl) {
+                    oldPeakEl.innerText = (item.oldPeakDb === -Infinity) ? 'silence' : (item.oldPeakDb.toFixed(1) + ' dB');
+                }
+            } catch (err) {
+                item.failed = true;
+                if (oldPeakEl) { oldPeakEl.innerText = 'unsupported decode'; oldPeakEl.classList.add('stat-error'); }
+                const statusEl = document.getElementById(`status-${id}`);
+                if (statusEl) { statusEl.innerText = 'Could not decode'; statusEl.classList.add('stat-error'); }
+            }
+            if (loader) loader.style.display = 'none';
+        }
+
+        function removeCard(id) {
+            if (processingIdx >= 0 && fileQueue[processingIdx] && fileQueue[processingIdx].id === id) cancelRequested = true;
+            const idx = fileQueue.findIndex(f => f.id === id);
+            if (idx === -1) return;
+            fileQueue.splice(idx, 1);
+            const el = document.getElementById(`card-${id}`);
+            if (el) el.remove();
+            if (fileQueue.length === 0) location.reload();
+            const anyDone = fileQueue.some(f => f.output);
+            downloadAllBtn.disabled = !anyDone;
+            downloadZipBtn.disabled = !anyDone;
+        }
+        window.removeCard = removeCard;
+
+        function applyGainToBuffer(buffer, factor) {
+            const out = getAudioContext().createBuffer(buffer.numberOfChannels, buffer.length, buffer.sampleRate);
+            let clipped = false;
+            for (let c = 0; c < buffer.numberOfChannels; c++) {
+                const src = buffer.getChannelData(c);
+                const dst = out.getChannelData(c);
+                for (let i = 0; i < src.length; i++) {
+                    let s = src[i] * factor;
+                    if (s > 1 || s < -1) clipped = true;
+                    if (s > 1) s = 1;
+                    else if (s < -1) s = -1;
+                    dst[i] = s;
+                }
+            }
+            return { newBuffer: out, clipped };
+        }
+
+        function audioBufferToWav(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const numFrames = buffer.length;
+            const bytesPerSample = 2;
+            const blockAlign = numChannels * bytesPerSample;
+            const dataSize = numFrames * blockAlign;
+            const arr = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(arr);
+            const writeStr = (off, str) => { for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i)); };
+            writeStr(0, 'RIFF');
+            view.setUint32(4, 36 + dataSize, true);
+            writeStr(8, 'WAVE');
+            writeStr(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, 8 * bytesPerSample, true);
+            writeStr(36, 'data');
+            view.setUint32(40, dataSize, true);
+            const channels = [];
+            for (let c = 0; c < numChannels; c++) channels.push(buffer.getChannelData(c));
+            let offset = 44;
+            for (let i = 0; i < numFrames; i++) {
+                for (let c = 0; c < numChannels; c++) {
+                    let s = Math.max(-1, Math.min(1, channels[c][i]));
+                    s = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                    view.setInt16(offset, s, true);
+                    offset += 2;
+                }
+            }
+            return new Blob([arr], { type: 'audio/wav' });
+        }
+
+        function audioBufferToMp3(buffer, bitrate) {
+            const numChannels = Math.min(2, buffer.numberOfChannels);
+            const sampleRate = buffer.sampleRate;
+            const interleave = input => {
+                const o = new Int16Array(input.length);
+                for (let i = 0; i < input.length; i++) {
+                    const s = Math.max(-1, Math.min(1, input[i]));
+                    o[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                }
+                return o;
+            };
+            const left = interleave(buffer.getChannelData(0));
+            const right = numChannels > 1 ? interleave(buffer.getChannelData(1)) : null;
+            const enc = new lamejs.Mp3Encoder(numChannels, sampleRate, bitrate);
+            const data = [];
+            const block = 1152;
+            for (let i = 0; i < left.length; i += block) {
+                const l = left.subarray(i, i + block);
+                const buf = (numChannels > 1) ? enc.encodeBuffer(l, right.subarray(i, i + block)) : enc.encodeBuffer(l);
+                if (buf.length > 0) data.push(buf);
+            }
+            const end = enc.flush();
+            if (end.length > 0) data.push(end);
+            return new Blob(data, { type: 'audio/mp3' });
+        }
+
+        async function processOne(item) {
+            if (cancelRequested) {
+                updateStatus(item.id, 'Cancelled', 'stat-error');
+                return;
+            }
+            if (!item.decoded) {
+                updateStatus(item.id, 'Could not decode (skipped)', 'stat-error');
+                return;
+            }
+            const statusEl = document.getElementById(`status-${item.id}`);
+            const loader = document.getElementById(`loader-${item.id}`);
+            if (loader) loader.style.display = 'flex';
+            if (statusEl) statusEl.innerText = 'Boosting...';
+
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            let factor;
+            if (mode === 'boost') {
+                const db = parseFloat(gainSlider.value) || 0;
+                factor = Math.pow(10, db / 20);
+            } else {
+                const targetDb = parseFloat(document.getElementById('targetPeak').value) || -1;
+                if (item.oldPeakDb === -Infinity) {
+                    if (loader) loader.style.display = 'none';
+                    updateStatus(item.id, 'Silent file — nothing to boost', 'stat-warn');
+                    return;
+                }
+                factor = Math.pow(10, (targetDb - item.oldPeakDb) / 20);
+            }
+            const { newBuffer, clipped } = applyGainToBuffer(item.decoded, factor);
+            item.clipped = clipped;
+
+            if (cancelRequested) {
+                updateStatus(item.id, 'Cancelled', 'stat-error');
+                if (loader) loader.style.display = 'none';
+                return;
+            }
+
+            try {
+                const fmt = formatSelect.value;
+                let outBlob;
+                if (fmt === 'wav') outBlob = audioBufferToWav(newBuffer);
+                else outBlob = audioBufferToMp3(newBuffer, 192);
+                if (!outBlob || outBlob.size === 0) throw new Error('Encoder produced empty output');
+                item.output = outBlob;
+                item.outputType = fmt;
+
+                let maxAbs = 0;
+                for (let c = 0; c < newBuffer.numberOfChannels; c++) {
+                    const data = newBuffer.getChannelData(c);
+                    for (let i = 0; i < data.length; i += 200) {
+                        const a = Math.abs(data[i]); if (a > maxAbs) maxAbs = a;
+                    }
+                }
+                item.newPeakDb = (maxAbs > 0) ? (20 * Math.log10(maxAbs)) : -Infinity;
+
+                let msg = `${formatBytes(outBlob.size)} • peak ${item.newPeakDb.toFixed(1)} dB ✓`;
+                let cls = '';
+                if (clipped) { msg += ' (clipped)'; cls = 'stat-warn'; }
+                if (statusEl) { statusEl.innerText = msg; statusEl.style.color = ''; statusEl.classList.remove('stat-error'); if (cls) statusEl.classList.add(cls); }
+                document.getElementById(`card-${item.id}`).querySelector('button.btn-green').disabled = false;
+            } catch (err) {
+                console.error('Volume boost failed for', item.original.name, err);
+                updateStatus(item.id, 'Encode failed', 'stat-error');
+            }
+            if (loader) loader.style.display = 'none';
+        }
+
+        function updateStatus(id, text, classes) {
+            const s = document.getElementById(`status-${id}`);
+            if (!s) return;
+            s.innerText = text;
+            if (classes) s.classList.add(classes);
+        }
+
+        async function processBatch() {
+            cancelRequested = false;
+            processingIdx = -1;
+            processAllBtn.classList.remove('pulse');
+            processAllBtn.disabled = true;
+            processCue.style.display = 'none';
+            cancelBtn.style.display = 'block';
+            globalSpinner.classList.add('block');
+            startProcessingText();
+
+            // Make sure all pending decode/measures are done
+            await Promise.all(fileQueue.map(f => f.decodePromise || Promise.resolve()));
+
+            for (let i = 0; i < fileQueue.length; i++) {
+                if (cancelRequested) break;
+                processingIdx = i;
+                await processOne(fileQueue[i]);
+            }
+
+            const anyDone = fileQueue.some(f => f.output);
+            downloadAllBtn.disabled = !anyDone;
+            downloadZipBtn.disabled = !anyDone;
+            processAllBtn.disabled = false;
+            cancelBtn.style.display = 'none';
+            cancelBtn.disabled = false;
+            cancelBtn.innerText = '✕ Cancel';
+            globalSpinner.classList.remove('block');
+            stopProcessingText();
+            processingIdx = -1;
+            cancelRequested = false;
+        }
+
+        processAllBtn.onclick = processBatch;
+        cancelBtn.onclick = () => { cancelRequested = true; cancelBtn.disabled = true; cancelBtn.innerText = 'Cancelling...'; };
+
+        function downloadOne(id) {
+            const item = fileQueue.find(f => f.id === id);
+            if (!item || !item.output) return;
+            const ext = item.outputType === 'wav' ? 'wav' : 'mp3';
+            const baseName = item.original.name.replace(/\.[^.]+$/, '');
+            const a = document.createElement('a');
+            a.download = `${baseName}.${ext}`;
+            a.href = URL.createObjectURL(item.output);
+            a.click();
+        }
+        window.downloadOne = downloadOne;
+
+        downloadAllBtn.onclick = () => fileQueue.forEach(item => { if (item.output) downloadOne(item.id); });
+
+        downloadZipBtn.onclick = async () => {
+            const zip = new JSZip();
+            let any = false;
+            fileQueue.forEach(item => {
+                if (item.output) {
+                    const ext = item.outputType === 'wav' ? 'wav' : 'mp3';
+                    const baseName = item.original.name.replace(/\.[^.]+$/, '');
+                    zip.file(`${baseName}.${ext}`, item.output);
+                    any = true;
+                }
+            });
+            if (!any) return;
+            const content = await zip.generateAsync({ type: 'blob' });
+            const a = document.createElement('a');
+            a.download = 'nexitool-boosted-audio.zip';
+            a.href = URL.createObjectURL(content);
+            a.click();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>(function(){try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.add("light");}catch(e){}})();</script>
+    <title>Free MP3 ID3 Tag Editor — Title, Artist, Album, Cover Art | Nexitool</title>
+    <meta name="description" content="Edit MP3 ID3 tags — title, artist, album, year, album art — right in your browser. No upload, no signup, no watermark. Bulk or single file.">
+    <link rel="canonical" href="https://nexitool.pro/tools/audio-tools/audio-metadata-editor.html">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nexitool.pro/tools/audio-tools/audio-metadata-editor.html">
+    <meta property="og:title" content="Free MP3 ID3 Tag Editor — Title, Artist, Album, Cover Art | Nexitool">
+    <meta property="og:description" content="Edit MP3 ID3 tags — title, artist, album, year, album art — right in your browser. No upload, no signup, no watermark.">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Free MP3 ID3 Tag Editor — Title, Artist, Album, Cover Art | Nexitool">
+    <meta property="twitter:description" content="Edit MP3 ID3 tags — title, artist, album, year, album art — right in your browser. No upload, no signup, no watermark.">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://nexitool.pro/tools/audio-tools/audio-metadata-editor.html#webpage",
+      "url": "https://nexitool.pro/tools/audio-tools/audio-metadata-editor.html",
+      "name": "Free MP3 ID3 Tag Editor — Title, Artist, Album, Cover Art | Nexitool",
+      "description": "Edit MP3 ID3 tags including title, artist, album, year and cover art, entirely in your browser, in bulk, with no signup and no watermark.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Audio Metadata Editor",
+      "url": "https://nexitool.pro/tools/audio-tools/audio-metadata-editor.html",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any",
+      "description": "Browser-based tool that reads and writes MP3 ID3v2.3 tags — title, artist, album, year, track, genre, comment and embedded cover art — using jsmediatags and browser-id3-writer.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Edit title, artist, album, year, track number, genre and comment",
+        "Replace or remove embedded album cover art (APIC frame)",
+        "Read existing ID3 tags automatically when you load a file",
+        "Bulk apply the same tag changes across an entire folder of MP3s",
+        "Runs entirely on-device, nothing uploaded"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Can I edit MP3 tags for free without signing up?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — drop in your MP3 file, change any field, optionally swap the cover art, and download. No account, no watermark, the file never leaves your device." } },
+        { "@type": "Question", "name": "Which ID3 tag fields can I edit?", "acceptedAnswer": { "@type": "Answer", "text": "Title, artist, album, year, track number, genre and comment. You can also replace the embedded album cover art (the APIC frame) with a new image, or strip it entirely." } },
+        { "@type": "Question", "name": "Does this tool support M4A, FLAC or OGG metadata?", "acceptedAnswer": { "@type": "Answer", "text": "This version edits MP3 ID3v2.3 tags. M4A (AAC), FLAC and OGG use different metadata containers (MP4 atoms, Vorbis comments), so tagging those formats needs a different writer — not yet supported on this page." } },
+        { "@type": "Question", "name": "Can I apply the same tag changes to a whole folder of MP3s at once?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — drop in as many files as you like, fill in the tags once, and the same edits are written to every MP3 in the batch. Track numbers also auto-increment per file in the batch." } },
+        { "@type": "Question", "name": "Are my MP3 files uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No — every read and write runs locally in your browser. Your MP3s, covers and tags never leave your device." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nexitool.pro/" },
+        { "@type": "ListItem", "position": 2, "name": "Audio Metadata Editor", "item": "https://nexitool.pro/tools/audio-tools/audio-metadata-editor.html" }
+      ]
+    }
+  ]
+}
+    </script>
+
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../tool-style.css">
+    <script src="../../js/favicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/browser-id3-writer@4.4.0/dist/browser-id3-writer.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .shining-title { font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: var(--accent); text-transform: uppercase; animation: glow 3s infinite ease-in-out; display: inline-block; }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent); } 50% { text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent); } }
+        .shining-line { border: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); width: 150px; margin: 20px auto; }
+
+        .expectation-note { font-size: 12.5px; line-height: 1.5; opacity: 0.75; background: color-mix(in srgb, var(--accent) 6%, transparent); border: 1px dashed var(--accent); border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+
+        .editor-grid { display: none; width: 100%; grid-template-columns: 1fr; gap: 25px; margin-top: 25px; }
+        .panel { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 15px; padding: 1.5rem; }
+        .panel h3 { font-size: 16px; font-weight: 700; margin: 0 0 12px; color: var(--accent); }
+
+        .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .field { display: flex; flex-direction: column; }
+        .field label { font-size: 12.5px; font-weight: 700; opacity: 0.8; margin-bottom: 4px; }
+        .field input, .field select { padding: 9px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-primary); color: inherit; font-size: 14px; font-family: inherit; }
+
+        .bulk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+        .bulk-card { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 15px; padding: 14px; position: relative; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .card-remove-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: color-mix(in srgb, var(--accent-pink) 12%, transparent); color: var(--accent-pink); border: 1px solid color-mix(in srgb, var(--accent-pink) 30%, transparent); border-radius: 50%; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; z-index: 6; transition: 0.2s; }
+        .card-remove-btn:hover { background: var(--accent-pink); color: white; }
+
+        .art-drop { border: 2px dashed var(--card-border); border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .art-drop:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+        .art-preview { width: 100%; max-width: 160px; aspect-ratio: 1; border-radius: 8px; margin: 8px auto; object-fit: cover; background: color-mix(in srgb, var(--accent) 8%, transparent); display: block; }
+        .art-clear-btn { background: transparent; color: var(--accent-pink); border: 1px solid color-mix(in srgb, var(--accent-pink) 40%, transparent); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 8px; display: none; }
+
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 8px; font-size: 14px; }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-green { background: #28a745; color: white; }
+        .btn-dark { background: #111827; color: white; }
+        @keyframes button-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 0%, transparent); } }
+        .action-btn.pulse { animation: button-pulse 1.4s infinite; }
+        .process-cue { text-align: center; font-size: 12.5px; font-weight: 700; color: var(--accent); margin-bottom: 8px; animation: cue-bounce 1.4s infinite; }
+        @keyframes cue-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+        .neutral-label { font-size: 12px; opacity: 0.75; display: flex; align-items: center; gap: 6px; margin-top: 8px; cursor: pointer; }
+        .neutral-label input { width: auto; }
+
+        .cancel-btn { width: 100%; padding: 10px; border: 1px solid var(--accent-pink); border-radius: 10px; background: transparent; color: var(--accent-pink); font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 13px; display: none; transition: 0.2s; }
+        .cancel-btn:hover { background: color-mix(in srgb, var(--accent-pink) 8%, transparent); }
+        .ar-spinner { animation: spin 1s linear infinite; margin: 12px auto; display: none; }
+        .ar-spinner.block { display: block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .spinner-status-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin: -6px 0 8px; min-height: 16px; }
+
+        .stat-badge { font-size: 11px; background: #eef2ff; padding: 8px; border-radius: 8px; font-weight: 700; color: #333; margin-top: 10px; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .stat-row:last-child { margin-bottom: 0; border-top: 1px dashed #cbd5e1; padding-top: 4px; margin-top: 4px; }
+        .cd-mode-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 15px; }
+        .cd-mode-grid label { display:flex; align-items:center; gap:6px; padding:10px 12px; border:1px solid var(--card-border); border-radius:8px; cursor:pointer; font-size:13px; font-weight: 600; }
+        .cd-mode-grid input { width: auto; }
+        .cd-mode-grid input:checked + span { color: var(--accent); font-weight: 700; }
+
+        .section-divider { border-top: 1px solid color-mix(in srgb, var(--accent) 15%, transparent); padding: 20px 0; margin-top: 20px; }
+        .info-flex-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; text-align: left; }
+        .info-column { flex: 1; min-width: 250px; }
+        .info-column h3 { color: var(--accent); margin-bottom: 15px; }
+
+        .ad-slot-small { width: 100%; max-width: 728px; min-height: 60px; margin: 30px auto; }
+        .ad-slot-large { width: 100%; max-width: 728px; min-height: 90px; margin: 30px auto; }
+
+        .cmp-table { width: 100%; max-width: 700px; margin: 0 auto; border-collapse: collapse; font-size: 15px; border: 1px solid var(--card-border); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .cmp-table th { text-align: left; padding: 12px 14px; background: var(--accent); color: white; font-weight: 700; }
+        .cmp-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--card-border); opacity: 0.85; }
+        .cmp-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+        .cmp-table tbody tr:last-child td { border-bottom: none; }
+        .cmp-table td:first-child { font-weight: 700; opacity: 1; }
+
+        @media (max-width: 600px) { .field-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body class="color-audio">
+    <header></header>
+
+    <main class="tool-container">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="upload-icon">
+                <i data-lucide="tags" style="width: 64px; height: 64px;"></i>
+            </div>
+            <h1 style="font-size: 26px; font-weight: 700; color: inherit; margin-top: 1rem;">
+                Free <span class="shining-title">MP3 Tag Editor</span> — Title, Artist, Album, Cover Art
+            </h1>
+            <p style="font-size: 18px; opacity: 0.8; font-weight: 500; margin-top: 15px; max-width: 640px; margin-left: auto; margin-right: auto;">
+                Read and change ID3 tags on one MP3 or a whole folder — title, artist, album, year, track, genre, comment and embedded album art — no signup, no watermark, all in your browser.
+            </p>
+            <p class="expectation-note" style="max-width: 480px; margin: 15px auto 0; text-align: left;">
+                <i data-lucide="coins" style="width:14px;height:14px;vertical-align:-2px;"></i> <strong>No login required</strong> — this tool is 100% free to use without an account. Editing ID3 tags is light and fast — no re-encoding happens, your MP3 audio data is preserved bit-for-bit. Even our premium tools cost only free coins, never real money. <a href="../../coin.html" style="color: var(--accent); font-weight:700;">See how coins work</a>.
+            </p>
+            <div class="shining-line"></div>
+        </div>
+
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">
+                <i data-lucide="upload-cloud"></i>
+            </div>
+            <div class="upload-text">
+                <h3>Select MP3 Files</h3>
+                <p>Drag & drop MP3 files here (Bulk Supported)</p>
+            </div>
+            <input type="file" id="fileInput" accept="audio/mpeg,.mp3,audio/mp3" multiple style="display: none;">
+        </div>
+
+        <div class="ad-slot-small" id="display-ads"></div>
+
+        <div class="editor-grid" id="editorGrid">
+            <div class="panel">
+                <h3>ID3 Tag Fields</h3>
+                <p style="font-size: 13px; opacity: 0.7; margin: 0 0 14px;">
+                    Fields you leave blank will be left as-is on each MP3 (only the ones you fill in or change get written). Track numbers auto-increment per file when you bulk-edit more than one.
+                </p>
+                <div class="field-grid">
+                    <div class="field"><label for="fTitle">Title</label><input id="fTitle" placeholder="Song name"></div>
+                    <div class="field"><label for="fArtist">Artist</label><input id="fArtist" placeholder="Performer"></div>
+                    <div class="field"><label for="fAlbum">Album</label><input id="fAlbum" placeholder="Album name"></div>
+                    <div class="field"><label for="fYear">Year</label><input id="fYear" placeholder="2025"></div>
+                    <div class="field"><label for="fTrack">Track #</label><input id="fTrack" type="number" min="0" placeholder="auto"></div>
+                    <div class="field">
+                        <label for="fGenre">Genre</label>
+                        <select id="fGenre">
+                            <option value="">Leave as-is</option>
+                            <option>Pop</option><option>Rock</option><option>Hip Hop</option><option>Classical</option>
+                            <option>Jazz</option><option>Electronic</option><option>Folk</option><option>Country</option>
+                            <option>R&B</option><option>Metal</option><option>Soundtrack</option><option>Audiobook</option>
+                            <option>Podcast</option><option>Other</option>
+                        </select>
+                    </div>
+                    <div class="field" style="grid-column: 1 / -1;"><label for="fComment">Comment</label><input id="fComment" placeholder="Optional note"></div>
+                </div>
+
+                <label class="neutral-label"><input type="checkbox" id="neutralizeGenre" value="1"> Strip existing <strong>genre</strong> if I leave the dropdown blank (otherwise leave it as-is)</label>
+                <label class="neutral-label"><input type="checkbox" id="neutralizeComment" value="1"> Strip existing <strong>comment</strong> if I leave the comment box blank</label>
+                <label class="neutral-label"><input type="checkbox" id="neutralizeArt" value="1"> Strip existing album <strong>cover art</strong> (don't replace, just remove)</label>
+            </div>
+
+            <div class="panel">
+                <h3>Album Cover Art (APIC)</h3>
+                <div class="art-drop" id="artDrop" onclick="document.getElementById('artInput').click()">
+                    <div id="artPlaceholder">
+                        <i data-lucide="image" style="width:36px;height:36px;opacity:0.6;"></i>
+                        <p style="margin: 8px 0 0; font-size: 13px; opacity: 0.7;">Drop or click to select cover image (JPG/PNG)</p>
+                    </div>
+                    <img id="artPreview" class="art-preview" style="display:none;" alt="cover preview">
+                    <input type="file" id="artInput" accept="image/*" style="display:none;">
+                </div>
+                <button class="art-clear-btn" id="artClearBtn" onclick="clearArt(event)">Remove selected cover</button>
+                <p style="font-size: 11.5px; opacity: 0.6; margin: 8px 0 0;">Embeds a new APIC frame in every MP3 in the batch. Existing cover art is preserved if you leave this blank (unless you ticked "Strip existing cover art" above).</p>
+            </div>
+
+            <div class="panel">
+                <h3>Files in this batch (<span id="fileCount">0</span>)</h3>
+                <div class="bulk-list" id="bulkList"></div>
+                <p class="process-cue" id="processCue">👇 Click to write tags to all files above</p>
+                <button id="writeAllBtn" class="action-btn pulse btn-primary">✍ Apply Tags to All MP3s</button>
+                <button id="cancelBtn" class="cancel-btn">✕ Cancel</button>
+                <div class="ar-spinner" id="globalSpinner" style="width:22px;height:22px;border:3px solid #f3f3f3;border-top:3px solid var(--accent);border-radius:50%;"></div>
+                <p class="spinner-status-text" id="spinnerStatus"></p>
+                <button id="downloadAllBtn" class="action-btn btn-green" disabled>📥 Download All (Individual)</button>
+                <button id="downloadZipBtn" class="action-btn btn-dark" disabled>📦 Download as ZIP</button>
+                <div style="margin-top: 16px; border-top: 1px solid var(--card-border); padding-top: 14px;">
+                    <button class="action-btn" style="background:#f3f4f6; color:#444;" onclick="document.getElementById('fileInput').click()">➕ Add More MP3s</button>
+                    <p style="text-align:center; margin-top: 12px; font-size:13px; opacity:0.6; cursor: pointer;" onclick="location.reload()">🔄 Restart Session</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--brand-primary); font-weight: 700;">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Back to Home
+            </a>
+        </div>
+
+        <div style="width: 100%; margin: 60px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+            <div><div style="color: var(--primary-cyan, #00d4ff); margin-bottom: 10px;"><i data-lucide="file-edit" style="width:32px;height:32px;"></i></div><h3>All ID3 Fields</h3><p style="opacity: 0.8; font-size: 14px;">Title, artist, album, year, track, genre, comment + cover.</p></div>
+            <div><div style="color: var(--accent-pink, #ec4899); margin-bottom: 10px;"><i data-lucide="image" style="width:32px;height:32px;"></i></div><h3>Cover Art (APIC)</h3><p style="opacity: 0.8; font-size: 14px;">Replace, keep or strip your embedded album cover in one click.</p></div>
+            <div><div style="color: var(--primary-neon, #00ff88); margin-bottom: 10px;"><i data-lucide="shuffle" style="width:32px;height:32px;"></i></div><h3>Auto Track Numbers</h3><p style="opacity: 0.8; font-size: 14px;">Bulk-edit a folder — tracks number themselves in order.</p></div>
+            <div><div style="color: var(--accent-orange, #f97316); margin-bottom: 10px;"><i data-lucide="cpu" style="width:32px;height:32px;"></i></div><h3>No Re-encoding</h3><p style="opacity: 0.8; font-size: 14px;">Tag edits don't touch your audio bytes — light and instant.</p></div>
+        </div>
+
+        <div class="section-divider" style="text-align: left;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">A browser-based MP3 tag editor — no upload, no re-encode</h2>
+            <div style="font-size: 18px; line-height: 1.7; opacity: 0.8;">
+                <p style="margin-bottom: 15px;">
+                    Most online MP3 tag editors accept your file, upload it to a server, run a backend library such as <code>mutagen</code> or <code>id3lib</code> to rewrite the tags, then send the file back. The browser-side approach used here is different — the MP3 file is opened locally, its existing ID3 frames are read by <code>jsmediatags</code> running in JavaScript, you edit the fields in place, then <code>browser-id3-writer</code> constructs a fresh ID3v2.3 tag block and prepends it to your MP3 bytes entirely inside your tab. The audio payload itself is never re-encoded, so the process is light, instant, and lossless.
+                </p>
+                <p>
+                    That also means this is the safer choice for sensitive audio: voice memos, recordings of meetings, unreleased music, podcast drafts. Nothing leaves your device. If the page refreshes, your files are already gone — there's no server-side copy to worry about.
+                </p>
+            </div>
+
+            <div class="ad-slot-large" id="in-article-ads"></div>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How it works</h2>
+            <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>Drop in one MP3 or a whole folder</li>
+                <li>Existing tags load automatically into the form</li>
+                <li>Fill in any fields you want to change — leave others blank to keep them</li>
+                <li>Optionally drop a cover image — or tick "Strip existing cover art" to remove it</li>
+                <li>Click Apply — for batches, track numbers auto-increment per file</li>
+                <li>Download one MP3 at a time or every edited file as a ZIP</li>
+            </ul>
+        </div>
+
+        <div class="section-divider">
+            <div class="info-flex-container">
+                <div class="info-column">
+                    <h3>When this tool saves time</h3>
+                    <p><strong>Re-tagging a folder of MP3s:</strong> artist/album once, tracks auto-numbered.<br>
+                    <strong>Missing cover art:</strong> drop a JPG and embed it into every file.<br>
+                    <strong>Renamed downloads:</strong> fix the title and artist many "track01.mp3" files lost.<br>
+                    <strong>Publishing prep:</strong> set consistent genre/year/comment for an album.</p>
+                </div>
+                <div class="info-column">
+                    <h3>Set expectations right</h3>
+                    <p><strong>MP3 only:</strong> this page edits MP3 ID3v2.3 tags. M4A, FLAC and OGG use different metadata containers — not supported here.<br>
+                    <strong>Photo cover format:</strong> JPG or PNG. Pics are embedded byte-for-byte, no resizing.<br>
+                    <strong>No audio re-encode:</strong> your audio data is preserved bit-for-bit.<br>
+                    <strong>Existing tags:</strong> fields you leave blank stay as they are (unless you explicitly strip them).</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="seo-extra-block">
+            <h2>Why edit MP3 tags locally instead of uploading your MP3s to a website?</h2>
+            <p>Upload-based MP3 tag editors send your file to a server you can't audit. For personal recordings or unreleased music, that's a real concern — once a copy of your MP3 lands somewhere else, you no longer fully control it. This browser-side tag editor keeps every byte on your own device. The ID3 read and write happen inside your tab, in JavaScript, and the only thing the server ever sent you was the page itself.</p>
+        </section>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 16px;">Browser-side vs upload-based MP3 tag editors</h2>
+            <div style="overflow-x: auto;">
+            <table class="cmp-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>This Tool</th>
+                        <th>Upload-Based Tag Editors</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>File leaves your device</td><td>No</td><td>Yes — uploaded to their server</td></tr>
+                    <tr><td>Account required</td><td>No</td><td>Often yes, or capped per IP</td></tr>
+                    <tr><td>Watermark on output</td><td>No</td><td>Sometimes — limits "free" use</td></tr>
+                    <tr><td>Bulk editing + auto track numbers</td><td>Yes, free</td><td>Often a paid feature</td></tr>
+                    <tr><td>Re-encodes your audio?</td><td>No — audio data preserved bit-for-bit</td><td>Often yes — quality can degrade</td></tr>
+                    <tr><td>Works offline</td><td>After first page load, yes</td><td>No — needs their server</td></tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+        <section class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            <div class="faq-container">
+            <div class="faq-item">
+                <button class="faq-question">Can I edit MP3 tags for free without signing up? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — drop in your MP3 file, change any field, optionally swap the cover art, and download. No account, no watermark, the file never leaves your device.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Which ID3 tag fields can I edit? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Title, artist, album, year, track number, genre and comment. You can also replace the embedded album cover art (the APIC frame) with a new image, or strip it entirely.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Does this tool support M4A, FLAC or OGG metadata? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">This version edits MP3 ID3v2.3 tags. M4A (AAC), FLAC and OGG use different metadata containers (MP4 atoms, Vorbis comments), so tagging those formats needs a different writer — not yet supported on this page.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Can I apply the same tag changes to a whole folder of MP3s at once? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">Yes — drop in as many files as you like, fill in the tags once, and the same edits are written to every MP3 in the batch. Track numbers also auto-increment per file in the batch.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Are my MP3 files uploaded anywhere? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">No — every read and write runs locally in your browser. Your MP3s, covers and tags never leave your device.</div>
+            </div>
+            </div>
+        </section>
+
+        <div id="relatedTools"></div>
+        <div id="relatedBlogs"></div>
+    </main>
+
+    <footer></footer>
+
+    <script src="../../js/tools-data.js"></script>
+    <script src="../../js/blogs-data.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/header-animation.js"></script>
+    <script src="../../js/ads-manager.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/announcement-config.js"></script>
+    <script src="../../js/announcement-banner.js"></script>
+    <script src="../../js/guide-content.js"></script>
+    <script src="../../js/user-guide.js"></script>
+    <script src="../../js/auth-widget.js"></script>
+    <script src="../../js/earn-ticker.js"></script>
+    <script src="../../js/verify-tracking.js" defer></script>
+    <script src="../../js/rewarded-ads.js" defer></script>
+    <script>
+        window.addEventListener('load', () => {
+            if (window.initAdBlockDetector) window.initAdBlockDetector();
+        });
+    </script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const artInput = document.getElementById('artInput');
+        const bulkList = document.getElementById('bulkList');
+        const writeAllBtn = document.getElementById('writeAllBtn');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const downloadZipBtn = document.getElementById('downloadZipBtn');
+        const processCue = document.getElementById('processCue');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const globalSpinner = document.getElementById('globalSpinner');
+        const spinnerStatus = document.getElementById('spinnerStatus');
+        const artDrop = document.getElementById('artDrop');
+        const artPreview = document.getElementById('artPreview');
+        const artPlaceholder = document.getElementById('artPlaceholder');
+        const artClearBtn = document.getElementById('artClearBtn');
+
+        const PROCESSING_MESSAGES = [
+            "Reading existing tags from your MP3...",
+            "Writing new ID3v2.3 frames in your browser...",
+            "Processing next file in the batch...",
+            "Almost there — flattening MP3 bytes..."
+        ];
+        const F = id => document.getElementById(id);
+
+        let fileQueue = [];
+        let newArtBlob = null;
+        let cancelRequested = false;
+        let processingTimer = null;
+        let processingIdx = -1;
+
+        function startProcessingText() {
+            let i = 0;
+            spinnerStatus.textContent = PROCESSING_MESSAGES[0];
+            processingTimer = setInterval(() => {
+                i = (i + 1) % PROCESSING_MESSAGES.length;
+                spinnerStatus.textContent = PROCESSING_MESSAGES[i];
+            }, 1600);
+        }
+        function stopProcessingText() { clearInterval(processingTimer); spinnerStatus.textContent = ''; }
+
+        function formatBytes(b) {
+            if (!b) return '0 KB';
+            const k = 1024, sizes = ['Bytes','KB','MB'], i = Math.floor(Math.log(b)/Math.log(k));
+            return parseFloat((b/Math.pow(k,i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        fileInput.onchange = e => {
+            const files = Array.from(e.target.files).filter(f => /\.mp3$/i.test(f.name) || f.type === 'audio/mpeg');
+            if (!files.length) return;
+            document.getElementById('dropZone').style.display = 'none';
+            document.getElementById('editorGrid').style.display = 'grid';
+            files.forEach((file, idx) => {
+                const id = Date.now() + idx;
+                fileQueue.push({ id, original: file, output: null, existingTags: null, done: false });
+                addCardUI(file, id);
+                readExistingTags(id);
+            });
+            if (fileQueue.length === 1) {
+                fileQueue[0].existingTagsPromise.then(() => hydrateFormFromFirst());
+            }
+            updateFileCount();
+            if (window.lucide) lucide.createIcons();
+        };
+
+        function updateFileCount() {
+            document.getElementById('fileCount').textContent = fileQueue.length;
+        }
+
+        function addCardUI(file, id) {
+            const card = document.createElement('div');
+            card.className = 'bulk-card';
+            card.id = `card-${id}`;
+            card.innerHTML = `
+                <button class="card-remove-btn" onclick="removeCard(${id})" title="Remove this file">✕</button>
+                <div class="card-preview" style="height:60px;border-radius:8px;background:color-mix(in srgb, var(--accent) 8%, transparent);display:flex;align-items:center;justify-content:center;color:var(--accent);margin-bottom:10px;"><i data-lucide="music" style="width:24px;height:24px;"></i></div>
+                <div style="font-size:12px;font-weight:700;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${file.name.replace(/"/g,'"')}">${file.name}</div>
+                <div class="stat-badge">
+                    <div class="stat-row"><span>Size:</span><span>${formatBytes(file.size)}</span></div>
+                    <div class="stat-row"><span>Status:</span><span id="status-${id}">Reading tags...</span></div>
+                </div>
+            `;
+            bulkList.appendChild(card);
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function readExistingTags(id) {
+            const item = fileQueue.find(f => f.id === id);
+            if (!item) return;
+            if (!item.existingTagsPromise) {
+                item.existingTagsPromise = (async () => {
+                    const statusEl = document.getElementById(`status-${id}`);
+                    try {
+                        const tags = await new Promise((resolve, reject) => {
+                            window.jsmediatags.read(item.original, {
+                                onSuccess: tag => resolve(tag.tags),
+                                onError: reject
+                            });
+                        });
+                        item.existingTags = tags || {};
+                        if (statusEl) statusEl.innerText = 'Existing tags read ✓';
+                    } catch (e) {
+                        item.existingTags = {};
+                        if (statusEl) statusEl.innerText = 'No existing tags (new)';
+                    }
+                })();
+            }
+            return item.existingTagsPromise;
+        }
+
+        function hydrateFormFromFirst() {
+            const first = fileQueue[0];
+            const t = first && first.existingTags;
+            if (!t) return;
+            if (t.title && !F('fTitle').value) F('fTitle').value = t.title;
+            if (t.artist && !F('fArtist').value) F('fArtist').value = t.artist;
+            if (t.album && !F('fAlbum').value) F('fAlbum').value = t.album;
+            if (t.year && !F('fYear').value) F('fYear').value = t.year;
+            if (t.track && !F('fTrack').value) { const n = parseInt(String(t.track).split('/')[0],10); if (!isNaN(n)) F('fTrack').value = n; }
+            if (t.picture && t.picture.data && t.picture.format) {
+                const u8 = new Uint8Array(t.picture.data);
+                const blob = new Blob([u8], { type: t.picture.format });
+                showArt(blob, false);
+            }
+        }
+
+        function removeCard(id) {
+            if (processingIdx >= 0 && fileQueue[processingIdx] && fileQueue[processingIdx].id === id) cancelRequested = true;
+            const idx = fileQueue.findIndex(f => f.id === id);
+            if (idx === -1) return;
+            fileQueue.splice(idx, 1);
+            const el = document.getElementById(`card-${id}`);
+            if (el) el.remove();
+            updateFileCount();
+            if (fileQueue.length === 0) location.reload();
+            const anyDone = fileQueue.some(f => f.done);
+            downloadAllBtn.disabled = !anyDone;
+            downloadZipBtn.disabled = !anyDone;
+        }
+        window.removeCard = removeCard;
+
+        function showArt(blob, isUserPicked) {
+            if (!blob) return;
+            newArtBlob = blob;
+            const url = URL.createObjectURL(blob);
+            artPreview.src = url;
+            artPreview.style.display = 'block';
+            artPlaceholder.style.display = 'none';
+            artClearBtn.style.display = 'inline-block';
+            if (!isUserPicked) {
+                // Existing cover previewed for context — user must explicitly "set" a new one if they want to write
+                // We'll only consider existing art "to be written" if user picks a new file.
+                // So here we don't mark for writing — clear it from "new art".
+                newArtBlob = null;
+            }
+        }
+
+        artInput.onchange = e => {
+            const f = e.target.files[0];
+            if (!f) return;
+            showArt(f, true);
+        };
+
+        artDrop.addEventListener('dragover', e => { e.preventDefault(); artDrop.style.borderColor = 'var(--accent)'; });
+        artDrop.addEventListener('dragleave', e => { artDrop.style.borderColor = ''; });
+        artDrop.addEventListener('drop', e => {
+            e.preventDefault();
+            artDrop.style.borderColor = '';
+            const f = e.dataTransfer.files[0];
+            if (f && /^image\//.test(f.type)) showArt(f, true);
+        });
+
+        window.clearArt = (e) => {
+            e.stopPropagation();
+            newArtBlob = null;
+            artPreview.src = '';
+            artPreview.style.display = 'none';
+            artPlaceholder.style.display = 'block';
+            artClearBtn.style.display = 'none';
+            artInput.value = '';
+        };
+
+        async function writeOne(item, trackNumberExplicit) {
+            const statusEl = document.getElementById(`status-${item.id}`);
+            try {
+                const bytes = new Uint8Array(await item.original.arrayBuffer());
+                const writer = new ID3Writer(bytes);
+                writer.setFrame('TIT2', F('fTitle').value || (item.existingTags && item.existingTags.title) || '');
+                writer.setFrame('TPE1', F('fArtist').value || (item.existingTags && item.existingTags.artist) || '');
+                writer.setFrame('TALB', F('fAlbum').value || (item.existingTags && item.existingTags.album) || '');
+                const yrRaw = F('fYear').value || (item.existingTags && item.existingTags.year);
+                const yrNum = yrRaw ? parseInt(String(yrRaw).slice(0,4), 10) : 0;
+                if (yrNum && !isNaN(yrNum)) writer.setFrame('TYER', String(yrNum));
+
+                let trackVal;
+                if (F('fTrack').value) {
+                    trackVal = parseInt(F('fTrack').value, 10);
+                } else if (trackNumberExplicit) {
+                    trackVal = trackNumberExplicit;
+                } else if (item.existingTags && item.existingTags.track) {
+                    trackVal = parseInt(String(item.existingTags.track).split('/')[0], 10);
+                } else {
+                    trackVal = 0;
+                }
+                if (trackVal && !isNaN(trackVal)) {
+                    writer.setFrame('TRCK', String(trackVal));
+                }
+
+                const genreVal = F('fGenre').value;
+                if (genreVal) writer.setFrame('TCON', genreVal);
+
+                const commentVal = F('fComment').value;
+                const shouldStripComment = F('neutralizeComment').checked && !commentVal;
+                if (commentVal) {
+                    writer.setFrame('COMM', { description: '', text: commentVal });
+                } else if (!shouldStripComment && item.existingTags && item.existingTags.comment && item.existingTags.comment.text) {
+                    writer.setFrame('COMM', { description: item.existingTags.comment.description || '', text: item.existingTags.comment.text });
+                }
+
+                if (newArtBlob) {
+                    const artBytes = new Uint8Array(await newArtBlob.arrayBuffer());
+                    writer.setFrame('APIC', {
+                        type: 3,
+                        data: artBytes,
+                        description: 'Cover',
+                        useUnicodeEncoding: false
+                    });
+                } else if (!F('neutralizeArt').checked && item.existingTags && item.existingTags.picture && item.existingTags.picture.data) {
+                    const existing = item.existingTags.picture;
+                    writer.setFrame('APIC', {
+                        type: 3,
+                        data: new Uint8Array(existing.data),
+                        description: existing.description || 'Cover',
+                        useUnicodeEncoding: false
+                    });
+                }
+
+                writer.addTag();
+                item.output = new Blob([writer.arrayBuffer], { type: 'audio/mpeg' });
+                item.done = true;
+                if (statusEl) { statusEl.innerText = 'Tagged ✓'; statusEl.style.color = '#059669'; }
+            } catch (err) {
+                console.error('Tag write failed for', item.original.name, err);
+                if (statusEl) { statusEl.innerText = 'Failed to tag'; statusEl.classList.add('stat-error'); }
+            }
+        }
+
+        async function processBatch() {
+            cancelRequested = false;
+            processingIdx = -1;
+            writeAllBtn.classList.remove('pulse');
+            writeAllBtn.disabled = true;
+            processCue.style.display = 'none';
+            cancelBtn.style.display = 'block';
+            globalSpinner.classList.add('block');
+            startProcessingText();
+
+            // Wait for any pending tag reads to finish so existingTags is populated
+            await Promise.all(fileQueue.map(f => f.existingTagsPromise || Promise.resolve()));
+
+            // Auto-track numbering: if user left Track # blank AND we have >1 file, number them 1..N
+            const autoTrack = !F('fTrack').value && fileQueue.length > 1;
+
+            for (let i = 0; i < fileQueue.length; i++) {
+                if (cancelRequested) break;
+                processingIdx = i;
+                await writeOne(fileQueue[i], autoTrack ? (i + 1) : null);
+            }
+
+            const anyDone = fileQueue.some(f => f.done);
+            downloadAllBtn.disabled = !anyDone;
+            downloadZipBtn.disabled = !anyDone;
+            writeAllBtn.disabled = false;
+            cancelBtn.style.display = 'none';
+            cancelBtn.disabled = false;
+            cancelBtn.innerText = '✕ Cancel';
+            globalSpinner.classList.remove('block');
+            stopProcessingText();
+            processingIdx = -1;
+            cancelRequested = false;
+        }
+
+        writeAllBtn.onclick = processBatch;
+        cancelBtn.onclick = () => { cancelRequested = true; cancelBtn.disabled = true; cancelBtn.innerText = 'Cancelling...'; };
+
+        function downloadOne(id) {
+            const item = fileQueue.find(f => f.id === id);
+            if (!item || !item.output) return;
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(item.output);
+            a.download = item.original.name.replace(/\.(mp3)$/i, '') + '.mp3';
+            a.click();
+        }
+        window.downloadOne = downloadOne;
+
+        downloadAllBtn.onclick = () => fileQueue.forEach(item => { if (item.done) downloadOne(item.id); });
+
+        downloadZipBtn.onclick = async () => {
+            const zip = new JSZip();
+            let any = false;
+            fileQueue.forEach(item => {
+                if (item.output) {
+                    zip.file(item.original.name, item.output);
+                    any = true;
+                }
+            });
+            if (!any) return;
+            const content = await zip.generateAsync({ type: 'blob' });
+            const a = document.createElement('a');
+            a.download = 'nexitool-tagged-mp3.zip';
+            a.href = URL.createObjectURL(content);
+            a.click();
+        };
+    </script>
+</body>
+</html>
