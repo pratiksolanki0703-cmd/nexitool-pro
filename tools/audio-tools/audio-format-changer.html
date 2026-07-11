@@ -49,7 +49,8 @@
         { "@type": "Question", "name": "Does converting audio reduce quality?", "acceptedAnswer": { "@type": "Answer", "text": "Converting to WAV is lossless — no quality is lost because WAV stores raw PCM samples. Converting to a lossy format like MP3, M4A or OGG re-encodes the audio, so a small amount of quality is lost; pick a higher bitrate to keep it closer to the original." } },
         { "@type": "Question", "name": "Why is MP3 smaller than WAV?", "acceptedAnswer": { "@type": "Answer", "text": "MP3 uses lossy compression that discards sounds the human ear barely notices, then stores the rest very efficiently. WAV stores every sample of the waveform with no compression, so the same clip takes far more space." } },
         { "@type": "Question", "name": "Are my audio files uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No — every conversion runs locally in your browser using the Web Audio API. Your audio files never leave your device." } },
-        { "@type": "Question", "name": "Can I convert a whole folder of audio at once?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — bulk conversion is supported. Drop in as many files as you like and re-encode the whole batch to one target format in a single pass, then download them individually or as a ZIP." } }
+        { "@type": "Question", "name": "Can I convert a whole folder of audio at once?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — bulk conversion is supported. Drop in as many files as you like and re-encode the whole batch to one target format in a single pass, then download them individually or as a ZIP." } },
+        { "@type": "Question", "name": "Why is the M4A option greyed out in my browser?", "acceptedAnswer": { "@type": "Answer", "text": "M4A / AAC encoding uses your browser's MediaRecorder, which only exposes the audio/mp4 codec in Chromium-based browsers (Chrome, Edge, Brave, Vivaldi, Opera). Firefox and Safari don't expose it, so the option is shown disabled with a clear note instead of letting you try and fail. MP3 and WAV work in every modern browser." } }
       ]
     },
     {
@@ -174,8 +175,9 @@
                 <label class="opt-label" for="formatSelect">Convert to</label>
                 <select id="formatSelect" class="opt-select">
                     <option value="mp3" selected>MP3</option>
-                    <option value="wav">WAV</option>
-                    <option value="ogg">OGG (via MediaRecorder)</option>
+                    <option value="wav">WAV (lossless)</option>
+                    <option value="m4a">M4A / AAC</option>
+                    <option value="ogg">OGG / Opus</option>
                 </select>
 
                 <div id="bitrateWrap">
@@ -236,7 +238,7 @@
             <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px;">How it works</h2>
             <ul style="font-size: 18px; line-height: 1.8; opacity: 0.8; text-align: left; max-width: 600px; margin: 0 auto;">
                 <li>Drop in one clip or a whole batch — MP3, WAV, M4A, OGG, FLAC or AAC</li>
-                <li>Pick the format you want to convert to (MP3, WAV or OGG)</li>
+                <li>Pick the format you want to convert to (MP3, WAV, M4A or OGG)</li>
                 <li>For MP3, choose a bitrate from 128 up to 320 kbps</li>
                 <li>Click Convert All and watch each card update</li>
                 <li>Download one at a time, or everything as a ZIP</li>
@@ -264,7 +266,11 @@
 
         <section class="seo-extra-block">
             <h2>Why convert audio in the browser instead of using a website that uploads your file?</h2>
-            <p>An audio format converter that runs entirely in your browser has a different threat model than a typical online converter. The other kind uploads your recording to a server you don't control, processes it there, then sends back a download link. Browser-side conversion never sends anything anywhere — the file is opened locally, decoded by the Web Audio API on your own device, re-encoded by JavaScript (or by your browser's own MediaRecorder), and handed straight back to you as a download. That matters more for audio than for images: recordings often contain voice memos, meetings, calls, or music you simply don't want sitting on a third-party server.</p>
+            <p>An audio converter that runs entirely in your browser has a different threat model than the typical online audio converter. The upload-based kind sends your recording to a server you don't control, processes it there, then hands you a download link. Browser-side conversion never sends anything anywhere — the file is opened locally, decoded by the Web Audio API on your own device, re-encoded by JavaScript (or by your browser's own MediaRecorder), and returned to you directly as a download. That matters more for audio than for images: recordings often contain voice memos, meetings, calls, or music you simply don't want sitting on a third-party server.</p>
+        </section>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 16px;">Browser-side vs upload-based audio converters</h2>
             <div style="overflow-x: auto;">
             <table class="cmp-table">
                 <thead>
@@ -280,10 +286,44 @@
                     <tr><td>Watermark on output</td><td>No</td><td>Sometimes — usually on free tier</td></tr>
                     <tr><td>Bulk conversion</td><td>Yes, free</td><td>Often a paid feature</td></tr>
                     <tr><td>Works offline</td><td>After first page load, yes</td><td>No — needs their server</td></tr>
+                    <tr><td>M4A / AAC output</td><td>Yes, in Chromium browsers</td><td>Yes, but usually paid or capped</td></tr>
                 </tbody>
             </table>
             </div>
-        </section>
+        </div>
+
+        <div class="section-divider">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 16px;">Audio formats this tool supports — and when to pick which</h2>
+            <div style="font-size: 16px; line-height: 1.7; opacity: 0.85; max-width: 720px; margin: 0 auto;">
+                <p style="margin-bottom: 14px;">
+                    Four output formats are supported, each chosen for a real use case rather than for a marketing checkbox. Pick the one that matches what you'll do with the converted file:
+                </p>
+                <p style="margin-bottom: 10px;"><strong>MP3</strong> — the universal default. Plays everywhere, small per minute of audio, and the 128 / 192 / 256 / 320 kbps bitrate control is enough to balance size against transparency. Pick MP3 when you just need the file to play on any device.</p>
+                <p style="margin-bottom: 10px;"><strong>WAV (lossless)</strong> — uncompressed PCM. Converting to WAV loses zero audio quality, because WAV stores the raw waveform. Pick WAV when you're archiving a recording, editing further in another tool, or handing the file to a video editor.</p>
+                <p style="margin-bottom: 10px;"><strong>M4A / AAC</strong> — Apple's audio container, smaller than MP3 at matching quality. Most free online converters gate it behind a paid tier. M4A output here runs through your browser's MediaRecorder, so Chromium-based browsers (Chrome, Edge, Brave, Vivaldi, Opera) can produce it; Firefox and Safari show a clear "not supported" indicator.</p>
+                <p><strong>OGG / Opus</strong> — open, royalty-free, and the format most online converters skip. Opus inside an OGG container is what Firefox and Chrome use internally for speech and music; for the same audible quality it tends to be smaller than MP3. Pick OGG when you want an open format, or when you're serving audio to a website that supports it.</p>
+            </div>
+        </div>
+
+        <div class="section-divider">
+            <div class="info-flex-container">
+                <div class="info-column">
+                    <h3>Common format conversions</h3>
+                    <p>MP3 to WAV — for lossless archive or editing.<br>
+                    WAV to MP3 — to shrink a recording for email or chat.<br>
+                    M4A to MP3 — for Apple Voice Memo or iTunes files that won't play elsewhere.<br>
+                    M4A to OGG — to move out of Apple's container into an open format.<br>
+                    OGG to MP3 — for clips that need to play on hardware that only reads MP3.</p>
+                </div>
+                <div class="info-column">
+                    <h3>What this tool deliberately avoids</h3>
+                    <p><strong>No upload:</strong> nothing is sent to a server.<br>
+                    <strong>No watermark:</strong> output is clean.<br>
+                    <strong>No account:</strong> no signup wall before converting.<br>
+                    <strong>No file limit:</strong> the only ceiling is your device's memory, not an artificial cap.</p>
+                </div>
+            </div>
+        </div>
 
         <section class="faq-section">
             <h2 class="faq-title">Frequently Asked Questions</h2>
@@ -307,6 +347,10 @@
             <div class="faq-item">
                 <button class="faq-question">Can I convert a whole folder of audio at once? <i data-lucide="chevron-down" class="faq-icon"></i></button>
                 <div class="faq-answer">Yes — bulk conversion is supported. Drop in as many files as you like and re-encode the whole batch to one target format in a single pass, then download them individually or as a ZIP.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">Why is the M4A option greyed out in my browser? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+                <div class="faq-answer">M4A / AAC encoding uses your browser's MediaRecorder, which only exposes the audio/mp4 codec in Chromium-based browsers (Chrome, Edge, Brave, Vivaldi, Opera). Firefox and Safari don't expose it, so the option is shown disabled with a clear note instead of letting you try and fail. MP3 and WAV work in every modern browser.</div>
             </div>
             </div>
         </section>
@@ -413,6 +457,24 @@
             }
         };
         formatSelect.onchange();
+
+        // Disable M4A option if this browser can't encode audio/mp4 (Firefox/Safari often can't
+        // — Chromium-based browsers support it via MediaRecorder). User sees a clear "(not supported
+        // in this browser)" suffix instead of running the convert and getting a vague error.
+        (function checkM4aSupport() {
+            const m4aOption = formatSelect.querySelector('option[value="m4a"]');
+            if (!m4aOption) return;
+            let supported = false;
+            try {
+                supported = typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('audio/mp4');
+            } catch (e) { supported = false; }
+            if (!supported) {
+                m4aOption.textContent = 'M4A / AAC (not supported in this browser)';
+                m4aOption.disabled = true;
+                m4aOption.style.opacity = '0.5';
+            }
+        })();
+
         if (window.lucide) lucide.createIcons();
 
         function formatBytes(bytes) {
@@ -554,20 +616,9 @@
             }
         }
 
-        async function audioBufferToOggViaMediaRecorder(buffer) {
-            const numChannels = Math.min(2, buffer.numberOfChannels);
-            const length = buffer.length;
-            const sampleRate = buffer.sampleRate;
-            const numFrames = length * 2;
-            const arr = new ArrayBuffer(44 + numFrames * 2);
+        async function audioBufferToMediaRecorderFormat(buffer, primaryMime, fallbackMime) {
             const ctx = getAudioContext();
-            const offline = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(numChannels, length, sampleRate);
-            const src = offline.createBufferSource();
-            src.buffer = buffer;
-            src.connect(offline.destination);
-            src.start(0);
-            const rendered = await offline.startRendering();
-            const wavBlob = audioBufferToWav(rendered);
+            const wavBlob = audioBufferToWav(buffer);
 
             const wavUrl = URL.createObjectURL(wavBlob);
             const audioEl = new Audio(wavUrl);
@@ -577,11 +628,15 @@
                 audioEl.addEventListener('error', rej, { once: true });
             });
 
-            const dest = ctx.createMediaElementSource(audioEl);
-            const proc = ctx.createMediaStreamDestination();
-            dest.connect(proc);
-            const mime = MediaRecorder.isTypeSupported('audio/ogg;codecs=opus') ? 'audio/ogg;codecs=opus' : 'audio/webm;codecs=opus';
-            const rec = new MediaRecorder(proc.stream, { mimeType: mime });
+            const sourceNode = ctx.createMediaElementSource(audioEl);
+            const dest = ctx.createMediaStreamDestination();
+            sourceNode.connect(dest);
+            const mime = MediaRecorder.isTypeSupported(primaryMime) ? primaryMime : fallbackMime;
+            if (!MediaRecorder.isTypeSupported(primaryMime) && (!fallbackMime || !MediaRecorder.isTypeSupported(fallbackMime))) {
+                URL.revokeObjectURL(wavUrl);
+                throw new Error('Browser cannot encode this audio format (' + primaryMime + ')');
+            }
+            const rec = new MediaRecorder(dest.stream, { mimeType: mime });
             const chunks = [];
             rec.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
             const done = new Promise((res) => { rec.onstop = res; });
@@ -590,9 +645,18 @@
             rec.start();
             await new Promise((res) => audioEl.addEventListener('ended', res, { once: true }));
             rec.stop();
-            await done;
+            try { await done; } catch (e) { /* ignore stop errors */ }
             URL.revokeObjectURL(wavUrl);
             return new Blob(chunks, { type: mime });
+        }
+
+        function audioBufferToOggViaMediaRecorder(buffer) {
+            return audioBufferToMediaRecorderFormat(buffer, 'audio/ogg;codecs=opus', 'audio/webm;codecs=opus');
+        }
+        function audioBufferToM4aViaMediaRecorder(buffer) {
+            // M4A/AAC encoding via MediaRecorder — supported in Chromium-based browsers.
+            // Safari/Firefox don't expose audio/mp4 here, so we surface "Unsupported" cleanly.
+            return audioBufferToMediaRecorderFormat(buffer, 'audio/mp4', '');
         }
 
         async function convertOne(item) {
@@ -619,6 +683,8 @@
                     outBlob = audioBufferToMp3(decoded, bitrate);
                 } else if (fmt === 'ogg') {
                     outBlob = await audioBufferToOggViaMediaRecorder(decoded);
+                } else if (fmt === 'm4a') {
+                    outBlob = await audioBufferToM4aViaMediaRecorder(decoded);
                 } else {
                     throw new Error('Unsupported format');
                 }
@@ -633,9 +699,13 @@
                 statusEl.style.color = '#059669';
                 document.getElementById(`card-${item.id}`).querySelector('button.btn-green').disabled = false;
             } catch (err) {
-                if (err.message === 'cancelled') {
+                if (err && err.message === 'cancelled') {
                     item.failed = true;
                     statusEl.innerText = 'Cancelled';
+                    statusEl.classList.add('stat-error');
+                } else if (err && /Browser cannot encode/.test(err.message)) {
+                    item.failed = true;
+                    statusEl.innerText = "This browser can't encode that format";
                     statusEl.classList.add('stat-error');
                 } else {
                     console.error('Audio conversion failed for', item.original.name, err);
