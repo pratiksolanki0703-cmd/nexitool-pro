@@ -96,7 +96,7 @@
 
         .bulk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
         .bulk-card { background: var(--bg-secondary); border: 1px solid var(--card-border); border-radius: 15px; padding: 15px; position: relative; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .card-remove-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: color-mix(in srgb, var(--accent-pink) 12%, transparent); color: var(--accent-pink); border: 1px solid color-mix(in srgb, var(--accent-pink) 30%, transparent); border-radius: 50%; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; z-index: 6; transition: 0.2s; }
+        .card-remove-btn { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; background: color-mix(in srgb, var(--accent-pink) 12%, transparent); color: var(--accent-pink); border: 1px solid color-mix(in srgb, var(--accent-pink) 30%, transparent); border-radius: 50%; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; z-index: 6; transition: 0.2s; }
         .card-remove-btn:hover { background: var(--accent-pink); color: white; }
         .card-preview { width: 100%; height: 60px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 8%, transparent); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
         .file-name-row { font-size: 12px; font-weight: 700; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -140,7 +140,7 @@
         .ar-spinner.block { display: block; }
         .spinner-status-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin: -6px 0 8px; min-height: 16px; }
 
-        @media (max-width: 900px) { .converter-grid { grid-template-columns: 1fr; } .conversion-controls { position: relative; top: 0; } }
+        @media (max-width: 900px) { .converter-grid { grid-template-columns: 1fr; } .conversion-controls { position: relative; top: 0; } .upload-box { padding: 2rem 1rem; } }
     </style>
 </head>
 <body class="color-audio">
@@ -169,7 +169,7 @@
             </div>
             <div class="upload-text">
                 <h3>Select Audio Files</h3>
-                <p>Drag & drop MP3, WAV, M4A, OGG, FLAC here (Bulk Supported)</p>
+                <p>Drag & drop or tap to select MP3, WAV, M4A, OGG, FLAC files (Bulk Supported)</p>
             </div>
             <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.m4a,.ogg,.oga,.flac,.aac" multiple style="display: none;">
         </div>

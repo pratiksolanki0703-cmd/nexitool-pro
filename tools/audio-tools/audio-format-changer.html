@@ -125,7 +125,7 @@
         .bitrate-disabled { opacity: 0.45; pointer-events: none; }
         .bitrate-disabled .opt-select { background: var(--bg-primary); }
 
-        .card-remove-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: color-mix(in srgb, var(--accent-pink) 12%, transparent); color: var(--accent-pink); border: 1px solid color-mix(in srgb, var(--accent-pink) 30%, transparent); border-radius: 50%; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; z-index: 6; transition: 0.2s; }
+        .card-remove-btn { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; background: color-mix(in srgb, var(--accent-pink) 12%, transparent); color: var(--accent-pink); border: 1px solid color-mix(in srgb, var(--accent-pink) 30%, transparent); border-radius: 50%; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; z-index: 6; transition: 0.2s; }
         .card-remove-btn:hover { background: var(--accent-pink); color: white; }
         .card-preview { position: relative; }
 
@@ -134,7 +134,7 @@
 
         .spinner-status-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin: -6px 0 8px; min-height: 16px; }
 
-        @media (max-width: 900px) { .converter-grid { grid-template-columns: 1fr; } .conversion-controls { position: relative; top: 0; } }
+        @media (max-width: 900px) { .converter-grid { grid-template-columns: 1fr; } .conversion-controls { position: relative; top: 0; } .upload-box { padding: 2rem 1rem; } }
     </style>
 </head>
 <body class="color-audio">
@@ -163,7 +163,7 @@
             </div>
             <div class="upload-text">
                 <h3>Select Audio Files</h3>
-                <p>Drag & drop MP3, WAV, M4A, OGG, FLAC here (Bulk Supported)</p>
+                <p>Drag & drop or tap to select MP3, WAV, M4A, OGG, FLAC files (Bulk Supported)</p>
             </div>
             <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.m4a,.ogg,.oga,.flac,.aac" multiple style="display: none;">
         </div>
