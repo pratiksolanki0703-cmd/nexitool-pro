@@ -148,6 +148,11 @@
         .progress-label { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin-top: 6px; min-height: 16px; }
         .progress-sublabel { text-align: center; font-size: 11px; font-weight: 500; opacity: 0.65; margin-top: 2px; min-height: 14px; }
 
+        /* Per-card thin progress bar */
+        .card-progress-bar { width: 100%; height: 5px; background: color-mix(in srgb, var(--accent) 10%, transparent); border-radius: 3px; overflow: hidden; margin-bottom: 8px; opacity: 0; transition: opacity 0.2s; }
+        .card-progress-bar.active { opacity: 1; }
+        .card-progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 3px; transition: width 0.2s ease; }
+
         @media (max-width: 900px) { .converter-grid { grid-template-columns: 1fr; } .conversion-controls { position: relative; top: 0; } .upload-box { padding: 2rem 1rem; } }
     </style>
 </head>
@@ -475,6 +480,7 @@
                 <div class="card-loader" id="loader-${id}"><div class="spinner"></div></div>
                 <div class="card-preview"><i data-lucide="volume-2" style="width:24px;height:24px;"></i></div>
                 <div class="file-name-row" title="${file.name.replace(/"/g,'"')}">${file.name}</div>
+                <div class="card-progress-bar" id="pbar-${id}"><div class="card-progress-fill" id="pfill-${id}"></div></div>
                 <div class="stat-badge">
                     <div class="stat-row"><span>Size:</span><span>${formatBytes(file.size)}</span></div>
                     <div class="stat-row"><span>Original peak:</span><span id="oldpeak-${id}">measuring...</span></div>
@@ -670,9 +676,12 @@
             const { newBuffer, clipped, cancelled } = await applyGainToBuffer(item.decoded, factor, (gainPct) => {
                 const fileBase = (fileIdx / totalFiles) * 100;
                 const fileWeight = (1 / totalFiles) * 100;
-                setProgress(fileBase + fileWeight * 0.5 * (gainPct / 100), 'Applying gain...', `File ${fileIdx + 1} of ${totalFiles}: ${item.original.name}`);
+                const overallPct = fileBase + fileWeight * 0.5 * (gainPct / 100);
+                setProgress(overallPct, 'Applying gain...', `File ${fileIdx + 1} of ${totalFiles}: ${item.original.name}`);
+                setCardProgress(item.id, gainPct * 0.5); // gain = first 50% of this file
             });
             if (cancelled || cancelRequested) {
+                resetCardProgress(item.id);
                 updateStatus(item.id, 'Cancelled', 'stat-error');
                 if (loader) loader.style.display = 'none';
                 return;
@@ -689,12 +698,14 @@
                         const fileBase = (fileIdx / totalFiles) * 100;
                         const fileWeight = (1 / totalFiles) * 100;
                         setProgress(fileBase + fileWeight * (0.5 + 0.5 * (encPct / 100)), encodeLabel, `File ${fileIdx + 1} of ${totalFiles}: ${item.original.name}`);
+                        setCardProgress(item.id, 50 + encPct * 0.5); // encode = last 50% of this file
                     });
                 } else {
                     outBlob = await audioBufferToMp3(newBuffer, 192, (encPct) => {
                         const fileBase = (fileIdx / totalFiles) * 100;
                         const fileWeight = (1 / totalFiles) * 100;
                         setProgress(fileBase + fileWeight * (0.5 + 0.5 * (encPct / 100)), encodeLabel, `File ${fileIdx + 1} of ${totalFiles}: ${item.original.name}`);
+                        setCardProgress(item.id, 50 + encPct * 0.5); // encode = last 50% of this file
                     });
                 }
                 if (!outBlob) {
@@ -718,9 +729,11 @@
                 let msg = `${formatBytes(outBlob.size)} • peak ${item.newPeakDb.toFixed(1)} dB ✓`;
                 let cls = '';
                 if (clipped) { msg += ' (clipped)'; cls = 'stat-warn'; }
+                setCardProgress(item.id, 100);
                 if (statusEl) { statusEl.innerText = msg; statusEl.style.color = ''; statusEl.classList.remove('stat-error'); if (cls) statusEl.classList.add(cls); }
                 document.getElementById(`card-${item.id}`).querySelector('button.btn-green').disabled = false;
             } catch (err) {
+                resetCardProgress(item.id);
                 console.error('Volume boost failed for', item.original.name, err);
                 updateStatus(item.id, 'Encode failed', 'stat-error');
             }
@@ -732,6 +745,23 @@
             if (!s) return;
             s.innerText = text;
             if (classes) s.classList.add(classes);
+        }
+
+        function setCardProgress(id, pct) {
+            const bar = document.getElementById(`pbar-${id}`);
+            const fill = document.getElementById(`pfill-${id}`);
+            if (bar && fill) {
+                bar.classList.add('active');
+                fill.style.width = Math.max(0, Math.min(100, Math.round(pct))) + '%';
+            }
+        }
+        function resetCardProgress(id) {
+            const bar = document.getElementById(`pbar-${id}`);
+            const fill = document.getElementById(`pfill-${id}`);
+            if (bar && fill) {
+                bar.classList.remove('active');
+                fill.style.width = '0%';
+            }
         }
 
         async function processBatch() {

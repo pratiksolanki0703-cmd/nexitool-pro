@@ -145,6 +145,11 @@
         .progress-label { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin-top: 6px; min-height: 16px; }
         .progress-sublabel { text-align: center; font-size: 11px; font-weight: 500; opacity: 0.65; margin-top: 2px; min-height: 14px; }
 
+        /* Per-card thin progress bar */
+        .card-progress-bar { width: 100%; height: 5px; background: color-mix(in srgb, var(--accent) 10%, transparent); border-radius: 3px; overflow: hidden; margin-bottom: 8px; opacity: 0; transition: opacity 0.2s; }
+        .card-progress-bar.active { opacity: 1; }
+        .card-progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 3px; transition: width 0.2s ease; }
+
         @media (max-width: 900px) { .converter-grid { grid-template-columns: 1fr; } .conversion-controls { position: relative; top: 0; } .upload-box { padding: 2rem 1rem; } }
     </style>
 </head>
@@ -513,6 +518,7 @@
                 <div class="card-loader" id="loader-${id}"><div class="spinner"></div></div>
                 <div class="card-preview" id="prev-${id}"><i data-lucide="file-audio" style="width:40px;height:40px;"></i></div>
                 <div class="file-name-row" title="${file.name.replace(/"/g, '"')}">${file.name}</div>
+                <div class="card-progress-bar" id="pbar-${id}"><div class="card-progress-fill" id="pfill-${id}"></div></div>
                 <div class="stat-badge">
                     <div class="stat-row">
                         <span>Original:</span>
@@ -738,6 +744,7 @@
                 setProgress(fileBase, 'Decoding...', fileLabel);
                 const decoded = await decodeFile(item.original);
                 if (cancelRequested) throw new Error('cancelled');
+                setCardProgress(item.id, 30);
                 const fmt = formatSelect.value;
                 let outBlob;
 
@@ -745,22 +752,26 @@
                     setProgress(fileBase + fileWeight * 0.3, 'Encoding WAV...', fileLabel);
                     outBlob = await audioBufferToWav(decoded, (p) => {
                         setProgress(fileBase + fileWeight * (0.3 + 0.7 * (p / 100)), 'Encoding WAV...', fileLabel);
+                        setCardProgress(item.id, 30 + p * 0.7);
                     });
                 } else if (fmt === 'mp3') {
                     const bitrate = parseInt(bitrateSelect.value, 10);
                     setProgress(fileBase + fileWeight * 0.3, `Encoding MP3 (${bitrate} kbps)...`, fileLabel);
                     outBlob = await audioBufferToMp3(decoded, bitrate, (p) => {
                         setProgress(fileBase + fileWeight * (0.3 + 0.7 * (p / 100)), `Encoding MP3 (${bitrate} kbps)...`, fileLabel);
+                        setCardProgress(item.id, 30 + p * 0.7);
                     });
                 } else if (fmt === 'ogg') {
                     setProgress(fileBase + fileWeight * 0.3, 'Encoding OGG...', fileLabel);
                     outBlob = await audioBufferToOggViaMediaRecorder(decoded, (p) => {
                         setProgress(fileBase + fileWeight * (0.3 + 0.7 * (p / 100)), 'Encoding OGG...', fileLabel);
+                        setCardProgress(item.id, 30 + p * 0.7);
                     });
                 } else if (fmt === 'm4a') {
                     setProgress(fileBase + fileWeight * 0.3, 'Encoding M4A...', fileLabel);
                     outBlob = await audioBufferToM4aViaMediaRecorder(decoded, (p) => {
                         setProgress(fileBase + fileWeight * (0.3 + 0.7 * (p / 100)), 'Encoding M4A...', fileLabel);
+                        setCardProgress(item.id, 30 + p * 0.7);
                     });
                 } else {
                     throw new Error('Unsupported format');
@@ -772,11 +783,13 @@
                 item.converted = outBlob;
                 item.failed = false;
                 item.outType = fmt;
-                statusEl.innerText = `${formatBytes(outBlob.size)} ✓`;
+                setCardProgress(item.id, 100);
+                statusEl.innerText = `${formatBytes(outBlob.size)} \u2713`;
                 statusEl.style.color = '#059669';
                 document.getElementById(`card-${item.id}`).querySelector('button.btn-green').disabled = false;
             } catch (err) {
                 if (cancelRequested || (err && err.message === 'cancelled')) {
+                    resetCardProgress(item.id);
                     item.failed = true;
                     statusEl.innerText = 'Cancelled';
                     statusEl.classList.add('stat-error');
@@ -785,6 +798,7 @@
                     statusEl.innerText = "This browser can't encode that format";
                     statusEl.classList.add('stat-error');
                 } else {
+                    resetCardProgress(item.id);
                     console.error('Audio conversion failed for', item.original.name, err);
                     item.failed = true;
                     statusEl.innerText = 'Unsupported or unreadable file';
@@ -801,6 +815,23 @@
             if (!s) return;
             s.innerText = text;
             if (classes) s.classList.add(classes);
+        }
+
+        function setCardProgress(id, pct) {
+            const bar = document.getElementById(`pbar-${id}`);
+            const fill = document.getElementById(`pfill-${id}`);
+            if (bar && fill) {
+                bar.classList.add('active');
+                fill.style.width = Math.max(0, Math.min(100, Math.round(pct))) + '%';
+            }
+        }
+        function resetCardProgress(id) {
+            const bar = document.getElementById(`pbar-${id}`);
+            const fill = document.getElementById(`pfill-${id}`);
+            if (bar && fill) {
+                bar.classList.remove('active');
+                fill.style.width = '0%';
+            }
         }
 
         async function processBatch() {
