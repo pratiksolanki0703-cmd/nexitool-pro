@@ -134,6 +134,17 @@
 
         .spinner-status-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin: -6px 0 8px; min-height: 16px; }
 
+        /* Circular Progress Indicator */
+        .circular-progress-wrapper { display: none; flex-direction: column; align-items: center; margin: 16px auto; }
+        .circular-progress-wrapper.visible { display: flex; }
+        .circular-progress { position: relative; width: 90px; height: 90px; }
+        .circular-progress svg { transform: rotate(-90deg); width: 90px; height: 90px; }
+        .circular-progress .track { fill: none; stroke: color-mix(in srgb, var(--accent) 12%, transparent); stroke-width: 6; }
+        .circular-progress .fill-ring { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 245; stroke-dashoffset: 245; transition: stroke-dashoffset 0.3s ease; }
+        .circular-progress .pct-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 18px; font-weight: 800; color: var(--accent); }
+        .progress-label { text-align: center; font-size: 12px; font-weight: 600; color: var(--accent); margin-top: 6px; min-height: 16px; }
+        .progress-sublabel { text-align: center; font-size: 11px; font-weight: 500; opacity: 0.65; margin-top: 2px; min-height: 14px; }
+
         @media (max-width: 900px) { .converter-grid { grid-template-columns: 1fr; } .conversion-controls { position: relative; top: 0; } .upload-box { padding: 2rem 1rem; } }
     </style>
 </head>
@@ -193,8 +204,17 @@
                 <p class="process-cue" id="processCue">👇 Click to convert your files</p>
                 <button id="convertAllBtn" class="action-btn pulse" style="background: var(--accent); color: white;">🔄 Convert All</button>
                 <button id="cancelBtn" class="cancel-btn">✕ Cancel</button>
-                <div class="ar-spinner" id="globalSpinner" style="width:22px;height:22px;border:3px solid #f3f3f3;border-top:3px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:12px auto;display:none;"></div>
-                <p class="spinner-status-text" id="spinnerStatus"></p>
+                <div class="circular-progress-wrapper" id="progressWrapper">
+                    <div class="circular-progress">
+                        <svg viewBox="0 0 90 90">
+                            <circle class="track" cx="45" cy="45" r="39"></circle>
+                            <circle class="fill-ring" id="progressRing" cx="45" cy="45" r="39"></circle>
+                        </svg>
+                        <span class="pct-text" id="progressPct">0%</span>
+                    </div>
+                    <p class="progress-label" id="progressLabel"></p>
+                    <p class="progress-sublabel" id="progressSubLabel"></p>
+                </div>
                 <button id="downloadAllBtn" class="action-btn btn-green" style="margin-top: 10px;" disabled>📥 Download All (Individual)</button>
                 <button id="downloadZipBtn" class="action-btn btn-dark" style="margin-top: 10px;" disabled>📦 Download as ZIP</button>
 
@@ -391,45 +411,44 @@
         const downloadZipBtn = document.getElementById('downloadZipBtn');
         const processCue = document.getElementById('processCue');
         const cancelBtn = document.getElementById('cancelBtn');
-        const globalSpinner = document.getElementById('globalSpinner');
-        const spinnerStatus = document.getElementById('spinnerStatus');
+        const progressWrapper = document.getElementById('progressWrapper');
+        const progressRing = document.getElementById('progressRing');
+        const progressPct = document.getElementById('progressPct');
+        const progressLabel = document.getElementById('progressLabel');
+        const progressSubLabel = document.getElementById('progressSubLabel');
 
-        const PROCESSING_MESSAGES = [
-            "Decoding audio in your browser...",
-            "Re-encoding to selected format...",
-            "Processing — time depends on file size...",
-            "Almost there, larger files take longer..."
-        ];
-        const FMT_LABELS = { mp3: 'MP3', wav: 'WAV', ogg: 'OGG' };
+        const CIRCUMFERENCE = 2 * Math.PI * 39; // ~245
+        const CHUNK_SIZE = 44100; // ~1 second of audio per chunk
+        const FMT_LABELS = { mp3: 'MP3', wav: 'WAV', ogg: 'OGG', m4a: 'M4A' };
 
         let fileQueue = [];
         let audioContext = null;
         let currentBatchItem = null;
         let cancelRequested = false;
-        let processingTimer = null;
-
-        function startProcessingText() {
-            let i = 0;
-            spinnerStatus.textContent = PROCESSING_MESSAGES[0];
-            processingTimer = setInterval(() => {
-                i = (i + 1) % PROCESSING_MESSAGES.length;
-                spinnerStatus.textContent = PROCESSING_MESSAGES[i];
-            }, 1600);
-        }
-        function stopProcessingText() {
-            clearInterval(processingTimer);
-            spinnerStatus.textContent = '';
-        }
 
         function getAudioContext() {
             if (!audioContext) {
                 const Ctx = window.AudioContext || window.webkitAudioContext;
                 audioContext = new Ctx();
             }
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
+            if (audioContext.state === 'suspended') audioContext.resume();
             return audioContext;
+        }
+
+        /* ── Circular progress helpers ── */
+        function showProgress() { progressWrapper.classList.add('visible'); }
+        function hideProgress() { progressWrapper.classList.remove('visible'); }
+        function setProgress(pct, label, sub) {
+            const clamped = Math.max(0, Math.min(100, Math.round(pct)));
+            progressPct.textContent = clamped + '%';
+            progressRing.style.strokeDashoffset = CIRCUMFERENCE - (CIRCUMFERENCE * clamped / 100);
+            if (label !== undefined) progressLabel.textContent = label;
+            if (sub !== undefined) progressSubLabel.textContent = sub;
+        }
+
+        /** Yield to the browser so the UI stays responsive */
+        function yieldToUI() {
+            return new Promise(r => setTimeout(r, 0));
         }
 
         fileInput.onchange = (e) => {
@@ -535,7 +554,7 @@
             return await ctx.decodeAudioData(buf);
         }
 
-        function audioBufferToWav(buffer) {
+        async function audioBufferToWav(buffer, onProgress) {
             const numChannels = buffer.numberOfChannels;
             const sampleRate = buffer.sampleRate;
             const numFrames = buffer.length;
@@ -568,19 +587,25 @@
             for (let c = 0; c < numChannels; c++) channels.push(buffer.getChannelData(c));
 
             let offset = 44;
-            for (let i = 0; i < numFrames; i++) {
-                for (let c = 0; c < numChannels; c++) {
-                    let sample = Math.max(-1, Math.min(1, channels[c][i]));
-                    sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
-                    view.setInt16(offset, sample, true);
-                    offset += 2;
+            for (let i = 0; i < numFrames; i += CHUNK_SIZE) {
+                if (cancelRequested) return null;
+                const end = Math.min(i + CHUNK_SIZE, numFrames);
+                for (let j = i; j < end; j++) {
+                    for (let c = 0; c < numChannels; c++) {
+                        let sample = Math.max(-1, Math.min(1, channels[c][j]));
+                        sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                        view.setInt16(offset, sample, true);
+                        offset += 2;
+                    }
                 }
+                if (onProgress) onProgress(end / numFrames * 100);
+                await yieldToUI();
             }
 
             return new Blob([arr], { type: 'audio/wav' });
         }
 
-        function audioBufferToMp3(buffer, bitrate) {
+        async function audioBufferToMp3(buffer, bitrate, onProgress) {
             const numChannels = Math.min(2, buffer.numberOfChannels);
             const sampleRate = buffer.sampleRate;
             const left = interleave(buffer.getChannelData(0));
@@ -591,6 +616,9 @@
             const encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, bitrate);
             const blockSize = 1152;
             const data = [];
+            const totalBlocks = Math.ceil(left.length / blockSize);
+            let blocksDone = 0;
+            let yieldCounter = 0;
             for (let i = 0; i < left.length; i += blockSize) {
                 const leftChunk = left.subarray(i, i + blockSize);
                 let mp3buf;
@@ -601,6 +629,14 @@
                     mp3buf = encoder.encodeBuffer(leftChunk);
                 }
                 if (mp3buf.length > 0) data.push(mp3buf);
+                blocksDone++;
+                yieldCounter++;
+                if (yieldCounter >= 50) {
+                    yieldCounter = 0;
+                    if (onProgress) onProgress(blocksDone / totalBlocks * 100);
+                    await yieldToUI();
+                    if (cancelRequested) return null;
+                }
             }
             const end = encoder.flush();
             if (end.length > 0) data.push(end);
@@ -616,9 +652,13 @@
             }
         }
 
-        async function audioBufferToMediaRecorderFormat(buffer, primaryMime, fallbackMime) {
+        async function audioBufferToMediaRecorderFormat(buffer, primaryMime, fallbackMime, onProgress) {
             const ctx = getAudioContext();
-            const wavBlob = audioBufferToWav(buffer);
+            // Use async WAV encoder to avoid blocking the main thread
+            const wavBlob = await audioBufferToWav(buffer, (p) => {
+                if (onProgress) onProgress(p * 0.3); // first 30% is WAV pre-encoding
+            });
+            if (cancelRequested || !wavBlob) return null;
 
             const wavUrl = URL.createObjectURL(wavBlob);
             const audioEl = new Audio(wavUrl);
@@ -627,6 +667,8 @@
                 audioEl.addEventListener('canplaythrough', res, { once: true });
                 audioEl.addEventListener('error', rej, { once: true });
             });
+
+            if (cancelRequested) { URL.revokeObjectURL(wavUrl); return null; }
 
             const sourceNode = ctx.createMediaElementSource(audioEl);
             const dest = ctx.createMediaStreamDestination();
@@ -641,25 +683,43 @@
             rec.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
             const done = new Promise((res) => { rec.onstop = res; });
 
+            // Track progress via audio timeupdate (recording phase = 30%-100%)
+            const duration = buffer.duration;
+            audioEl.addEventListener('timeupdate', () => {
+                if (onProgress) onProgress(30 + Math.min(70, (audioEl.currentTime / duration) * 70));
+            });
+
             audioEl.play();
             rec.start();
-            await new Promise((res) => audioEl.addEventListener('ended', res, { once: true }));
-            rec.stop();
+            await new Promise((res) => {
+                audioEl.addEventListener('ended', res, { once: true });
+                // Also resolve if cancel requested
+                const checkCancel = setInterval(() => {
+                    if (cancelRequested) {
+                        audioEl.pause();
+                        try { rec.stop(); } catch(e) {}
+                        clearInterval(checkCancel);
+                        res();
+                    }
+                }, 50);
+                audioEl.addEventListener('ended', () => clearInterval(checkCancel), { once: true });
+            });
+            try { if (rec.state !== 'inactive') rec.stop(); } catch(e) {}
             try { await done; } catch (e) { /* ignore stop errors */ }
             URL.revokeObjectURL(wavUrl);
+            if (cancelRequested) return null;
+            if (onProgress) onProgress(100);
             return new Blob(chunks, { type: mime });
         }
 
-        function audioBufferToOggViaMediaRecorder(buffer) {
-            return audioBufferToMediaRecorderFormat(buffer, 'audio/ogg;codecs=opus', 'audio/webm;codecs=opus');
+        function audioBufferToOggViaMediaRecorder(buffer, onProgress) {
+            return audioBufferToMediaRecorderFormat(buffer, 'audio/ogg;codecs=opus', 'audio/webm;codecs=opus', onProgress);
         }
-        function audioBufferToM4aViaMediaRecorder(buffer) {
-            // M4A/AAC encoding via MediaRecorder — supported in Chromium-based browsers.
-            // Safari/Firefox don't expose audio/mp4 here, so we surface "Unsupported" cleanly.
-            return audioBufferToMediaRecorderFormat(buffer, 'audio/mp4', '');
+        function audioBufferToM4aViaMediaRecorder(buffer, onProgress) {
+            return audioBufferToMediaRecorderFormat(buffer, 'audio/mp4', '', onProgress);
         }
 
-        async function convertOne(item) {
+        async function convertOne(item, fileIdx, totalFiles) {
             if (cancelRequested) {
                 updateCardStatus(item.id, 'Cancelled', 'stat-error');
                 return;
@@ -668,23 +728,40 @@
             const statusEl = document.getElementById(`status-${item.id}`);
             const loader = document.getElementById(`loader-${item.id}`);
             if (loader) loader.style.display = 'flex';
-            if (statusEl) { statusEl.innerText = 'Converting...'; statusEl.style.color = ''; statusEl.classList.remove('stat-error'); }
+            if (statusEl) { statusEl.innerText = 'Decoding...'; statusEl.style.color = ''; statusEl.classList.remove('stat-error'); }
+
+            const fileLabel = `File ${fileIdx + 1} of ${totalFiles}: ${item.original.name}`;
+            const fileBase = (fileIdx / totalFiles) * 100;
+            const fileWeight = (1 / totalFiles) * 100;
 
             try {
+                setProgress(fileBase, 'Decoding...', fileLabel);
                 const decoded = await decodeFile(item.original);
                 if (cancelRequested) throw new Error('cancelled');
                 const fmt = formatSelect.value;
                 let outBlob;
 
                 if (fmt === 'wav') {
-                    outBlob = audioBufferToWav(decoded);
+                    setProgress(fileBase + fileWeight * 0.3, 'Encoding WAV...', fileLabel);
+                    outBlob = await audioBufferToWav(decoded, (p) => {
+                        setProgress(fileBase + fileWeight * (0.3 + 0.7 * (p / 100)), 'Encoding WAV...', fileLabel);
+                    });
                 } else if (fmt === 'mp3') {
                     const bitrate = parseInt(bitrateSelect.value, 10);
-                    outBlob = audioBufferToMp3(decoded, bitrate);
+                    setProgress(fileBase + fileWeight * 0.3, `Encoding MP3 (${bitrate} kbps)...`, fileLabel);
+                    outBlob = await audioBufferToMp3(decoded, bitrate, (p) => {
+                        setProgress(fileBase + fileWeight * (0.3 + 0.7 * (p / 100)), `Encoding MP3 (${bitrate} kbps)...`, fileLabel);
+                    });
                 } else if (fmt === 'ogg') {
-                    outBlob = await audioBufferToOggViaMediaRecorder(decoded);
+                    setProgress(fileBase + fileWeight * 0.3, 'Encoding OGG...', fileLabel);
+                    outBlob = await audioBufferToOggViaMediaRecorder(decoded, (p) => {
+                        setProgress(fileBase + fileWeight * (0.3 + 0.7 * (p / 100)), 'Encoding OGG...', fileLabel);
+                    });
                 } else if (fmt === 'm4a') {
-                    outBlob = await audioBufferToM4aViaMediaRecorder(decoded);
+                    setProgress(fileBase + fileWeight * 0.3, 'Encoding M4A...', fileLabel);
+                    outBlob = await audioBufferToM4aViaMediaRecorder(decoded, (p) => {
+                        setProgress(fileBase + fileWeight * (0.3 + 0.7 * (p / 100)), 'Encoding M4A...', fileLabel);
+                    });
                 } else {
                     throw new Error('Unsupported format');
                 }
@@ -699,7 +776,7 @@
                 statusEl.style.color = '#059669';
                 document.getElementById(`card-${item.id}`).querySelector('button.btn-green').disabled = false;
             } catch (err) {
-                if (err && err.message === 'cancelled') {
+                if (cancelRequested || (err && err.message === 'cancelled')) {
                     item.failed = true;
                     statusEl.innerText = 'Cancelled';
                     statusEl.classList.add('stat-error');
@@ -732,14 +809,22 @@
             convertAllBtn.disabled = true;
             processCue.style.display = 'none';
             cancelBtn.style.display = 'block';
-            globalSpinner.style.display = 'block';
-            startProcessingText();
+            showProgress();
+            setProgress(0, 'Preparing...', '');
             formatSelect.disabled = true;
             bitrateSelect.disabled = true;
 
-            for (const item of fileQueue) {
+            for (let i = 0; i < fileQueue.length; i++) {
                 if (cancelRequested) break;
-                await convertOne(item);
+                await convertOne(fileQueue[i], i, fileQueue.length);
+                await yieldToUI();
+            }
+
+            setProgress(cancelRequested ? 0 : 100, cancelRequested ? 'Cancelled' : 'Done!', '');
+            if (!cancelRequested) {
+                setTimeout(hideProgress, 1500);
+            } else {
+                hideProgress();
             }
 
             const anyDone = fileQueue.some(f => f.converted);
@@ -751,8 +836,6 @@
             cancelBtn.style.display = 'none';
             cancelBtn.disabled = false;
             cancelBtn.innerText = '✕ Cancel';
-            globalSpinner.style.display = 'none';
-            stopProcessingText();
             formatSelect.disabled = false;
             bitrateSelect.disabled = false;
             cancelRequested = false;
@@ -765,7 +848,7 @@
             cancelRequested = true;
             cancelBtn.disabled = true;
             cancelBtn.innerText = 'Cancelling...';
-            spinnerStatus.textContent = 'Cancelling current file...';
+            setProgress(0, 'Cancelling...', '');
         };
 
         function downloadOne(id) {
